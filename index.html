@@ -12,12 +12,45 @@
   <A NAME="iomaps"></A>&nbsp;
   I/O Maps
 </FONT></TD></TR></TABLE><BR>
-  EE Map
-    <B>EE Timers</B>
-    <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  100000xxh    Timer0
-  100008xxh    Timer1
-  100010xxh    Timer2
-  100018xxh    Timer3
+EE Map<BR>
+<B>EE Timers</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  100000xxh        Timer0
+  100008xxh        Timer1
+  100010xxh        Timer2
+  100018xxh        Timer3
+</TD></TR></TABLE>
+<B>Image Processing Unit (IPU)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  10002000h 8h     Command
+  10002010h 4h     Control
+  10002020h 4h     BP
+  10002030h 8h     Top
+  10007010h 10h    In FIFO
+</TD></TR></TABLE>
+<B>DMA Controller (DMAC)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  100080xxh        VIF0     - channel 0
+  100090xxh        VIF1     - channel 1
+  1000A0xxh        GIF      - channel 2
+  1000B0xxh        IPU_FROM - channel 3
+  1000B4xxh        IPU_TO   - channel 4
+  1000C0xxh        SIF0     - channel 5
+  1000C4xxh        SIF1     - channel 6
+  1000C?xxh        SIF2     - channel 7
+  1000D0xxh        SPR_FROM - channel 8
+  1000D4xxh        SPR_TO   - channel 9
+  1000E000h 4h     D_CTRL
+  1000E010h 4h     D_STAT
+  1000E020h 4h     D_PCR
+  1000E030h 4h     D_SQWC
+  1000E040h 4h     D_RBSR
+  1000E050h 4h     D_RBOR
+  1000E060h 4h     D_STADR
+</TD></TR></TABLE>
+<B>Interrupt Controller (INTC)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  1000F000h 4h     INTC_STAT
+  1000F010h 4h     INTC_MASK
 </TD></TR></TABLE>
 </BODY></HTML>
