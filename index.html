@@ -6,7 +6,8 @@
   Contents
 </FONT></TD></TR></TABLE><BR>
   <A HREF="#iomaps">I/O Maps</A><BR>
-  <BR>
+  <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
+  <A HREF="#iopint">IOP Interrupts</A><BR>
   <BR>
   <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
   <A NAME="iomaps"></A>&nbsp;
@@ -105,9 +106,9 @@ IOP Map<BR>
 </TD></TR></TABLE>
 <B>Interrupt Control</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  1F801070h 2h     I_STAT - Interrupt status
-  1F801074h 2h     I_MASK - Interrupt mask
-  1F801078h 4h     I_CTRL - Global interrupt disable
+  1F801070h 4h     I_STAT - Interrupt status
+  1F801074h 4h     I_MASK - Interrupt mask
+  1F801078h 1h     I_CTRL - Global interrupt disable
 </TD></TR></TABLE>
 <B>DMA registers</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -173,4 +174,53 @@ IOP Map<BR>
   1F900768h 2h     Core1 External Input Volume Left
   1F90076Ah 2h     Core1 External Input Volume Right
 </TD></TR></TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="#eeintc"></A>&nbsp;
+EE Interrupt Controller
+</FONT></TD></TR></TABLE><BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="#iopint"></A>&nbsp;
+IOP Interrupts
+</FONT></TD></TR></TABLE><BR>
+Interrupt handling for the IOP is similar to its PSX counterpart. The main differences are an additional register (I_CTRL) and more interrupt lines.
+<B>1F801070h I_STAT - Interrupt status register (R=Status, W=Acknowledge)</B><BR>
+<B>1F801074h I_MASK - Interrupt mask register (R/W)</B><BR>
+Status: Read I_STAT<BR>
+Acknowledge: Write I_STAT (0=No effect 1=Clear bit)<BR>
+Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     IRQ0   VBLANK start
+  1     IRQ1   GPU (used in PSX mode)
+  2     IRQ2   CDVD Drive
+  3     IRQ3   DMA
+  4     IRQ4   Timer 0
+  5     IRQ5   Timer 1
+  6     IRQ6   Timer 2
+  7     IRQ7   SIO0
+  8     IRQ8   SIO1
+  9     IRQ9   SPU2
+  10    IRQ10  PIO
+  11    IRQ11  VBLANK end
+  12    IRQ12  DVD? (unknown purpose)
+  13    IRQ13  PCMCIA (related to DEV9 expansion slot)
+  14    IRQ14  Timer 3
+  15    IRQ15  Timer 4
+  16    IRQ16  Timer 5
+  17    IRQ17  SIO2
+  18    IRQ18  HTR0? (unknown purpose)
+  19    IRQ19  HTR1?
+  20    IRQ20  HTR2?
+  21    IRQ21  HTR3?
+  22    IRQ22  USB
+  23    IRQ23  EXTR? (unknown purpose)
+  24    IRQ24  FWRE (related to FireWire)
+  25    IRQ25  FDMA? (unknown purpose)
+  26-31 Unused/garbage
+</TD></TR></TABLE><BR>
+<B>1F801078h I_CTRL - Global interrupt control (R=Status and Disable, W)/B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Disable all interrupts
+  1-31  Unused/garbage
+</TD></TR></TABLE><BR>
+When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit 0 AND clears it, re-enabling interrupts. Writing can set or reset bit 0.
 </BODY></HTML>
