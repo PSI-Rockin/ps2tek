@@ -174,10 +174,36 @@ IOP Map<BR>
   1F900768h 2h     Core1 External Input Volume Left
   1F90076Ah 2h     Core1 External Input Volume Right
 </TD></TR></TABLE>
+ 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="#eeintc"></A>&nbsp;
-EE Interrupt Controller
+EE Interrupt Controller (INTC)
 </FONT></TD></TR></TABLE><BR>
+The EE has two separate interrupt signals: INT0 (raised by INTC) and INT1 (raised by DMAC).<BR>
+<BR>
+<B>1000F000h INTC_STAT - Interrupt status register (R=Status, W=Acknowledge)</B><BR>
+<B>1000F010h INTC_MASK - Interrupt mask register (R/W)</B><BR>
+Status: Read INTC_STAT (1=IRQ raised)<BR>
+Acknowledge: Write INTC_STAT (0=No effect 1=Clear bit)<BR>
+Mask: Read/Write INTC_MASK (0=Disabled 1=Enabled)<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     IRQ0   GS interrupt
+  1     IRQ1   SBUS
+  2     IRQ2   VBLANK start
+  3     IRQ3   VBLANK end
+  4     IRQ4   VIF0
+  5     IRQ5   VIF1
+  6     IRQ6   VU0
+  7     IRQ7   VU1
+  8     IRQ8   IPU
+  9     IRQ9   Timer 0
+  10    IRQ10  Timer 1
+  11    IRQ11  Timer 2
+  12    IRQ12  Timer 3
+  13    IRQ13  SFIFO
+  14    IRQ14  VU0 Watchdog
+</TD></TR></TABLE>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="#iopint"></A>&nbsp;
 IOP Interrupts
@@ -186,8 +212,8 @@ Interrupt handling for the IOP is similar to its PSX counterpart. The main diffe
 <BR>
 <B>1F801070h I_STAT - Interrupt status register (R=Status, W=Acknowledge)</B><BR>
 <B>1F801074h I_MASK - Interrupt mask register (R/W)</B><BR>
-Status: Read I_STAT<BR>
-Acknowledge: Write I_STAT (0=No effect 1=Clear bit)<BR>
+Status: Read I_STAT (1=IRQ raised)<BR>
+Acknowledge: Write I_STAT (0=Clear bit 1=No effect)<BR>
 Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0     IRQ0   VBLANK start
@@ -215,7 +241,7 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
   22    IRQ22  USB
   23    IRQ23  EXTR? (unknown purpose)
   24    IRQ24  FWRE (related to FireWire)
-  25    IRQ25  FDMA? (unknown purpose)
+  25    IRQ25  FDMA? (FireWire DMA?)
   26-31 Unused/garbage
 </TD></TR></TABLE><BR>
 <B>1F801078h I_CTRL - Global interrupt control (R=Status and Disable, W)</B><BR>
@@ -223,5 +249,9 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
   0     Disable all interrupts
   1-31  Unused/garbage
 </TD></TR></TABLE><BR>
-When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit 0 AND clears it, re-enabling interrupts. Writing can set or reset bit 0.
+When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit 0 AND clears it, re-enabling interrupts. Writing can set or reset bit 0.<br>
+NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via reading I_CTRL.<BR>
+<BR>
+<B>Raising Interrupts</B>
+If I_CTRL && (I_STAT & I_MASK), then Cop0.Cause:8 is set. When Cop0.Status:8 is also set when this occurs, Cop0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.
 </BODY></HTML>
