@@ -182,7 +182,8 @@ EE Interrupt Controller
 <A NAME="#iopint"></A>&nbsp;
 IOP Interrupts
 </FONT></TD></TR></TABLE><BR>
-Interrupt handling for the IOP is similar to its PSX counterpart. The main differences are an additional register (I_CTRL) and more interrupt lines.
+Interrupt handling for the IOP is similar to its PSX counterpart. The main differences are an additional register (I_CTRL) and more interrupt lines.<BR>
+<BR>
 <B>1F801070h I_STAT - Interrupt status register (R=Status, W=Acknowledge)</B><BR>
 <B>1F801074h I_MASK - Interrupt mask register (R/W)</B><BR>
 Status: Read I_STAT<BR>
@@ -217,7 +218,7 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
   25    IRQ25  FDMA? (unknown purpose)
   26-31 Unused/garbage
 </TD></TR></TABLE><BR>
-<B>1F801078h I_CTRL - Global interrupt control (R=Status and Disable, W)/B><BR>
+<B>1F801078h I_CTRL - Global interrupt control (R=Status and Disable, W)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0     Disable all interrupts
   1-31  Unused/garbage
