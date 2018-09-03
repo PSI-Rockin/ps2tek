@@ -97,13 +97,16 @@ IOP Map<BR>
 <B>CDVD Drive</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   1F402004h 1h     Current N command
-  1F402005h 1h     N command status
+  1F402005h 1h     N command status (R)
+  1F402005h 1h     N command params (W)
   1F402006h 1h     Error
+  1F402007h 1h     Send BREAK command
+  1F402008h 1h     CDVD I_STAT - interrupt register
   1F40200Ah 1h     Drive status
   1F40200Fh 1h     Disk type
   1F402016h 1h     Current S command
   1F402017h 1h     S command status
-  1F402018h 1h     S command data
+  1F402018h 1h     S command params
 </TD></TR></TABLE>
 <B>Interrupt Control</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -206,7 +209,8 @@ Mask: Read/Write INTC_MASK (0=Disabled 1=Enabled)<BR>
 </TD></TR></TABLE><BR>
 When (INTC_STAT & INTC_MASK), INT0 is asserted on COP0.Cause:8.
 When COP0.Status:8 is true, an interrupt occurs, and the EE jumps to 80000200h.<BR>
-
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="#cdvd"></A>&nbsp;
 CDVD Drive
@@ -217,8 +221,8 @@ It also sports backwards compatibility with the PSX's CDROM drive in PSX mode.<B
 CDVD commands are either asynchronous (N commands) or synchronous (S commands).
 Seeks and reads fall into the former category, and miscellaneous commands, such as RTC access, fall into the latter.<BR>
 <BR>
+<B>CDVD Reference</B>
 <A HREF="cdvdioports">CDVD I/O Ports</A><BR>
-<BR>
 <A HREF="cdvdncommands">CDVD N Commands</A><BR>
 <A HREF="cdvdscommands">CDVD S Commands</A><BR>
 <BR>
@@ -227,6 +231,76 @@ Seeks and reads fall into the former category, and miscellaneous commands, such 
 <A NAME="#cdvdioports"></A>&nbsp;
 CDVD I/O Ports
 </FONT></TD></TR></TABLE><BR>
+<B>1F402004h Current N command (R/W)</B><BR>
+Write to this register to send an N command. For a list of N commands, see<BR>
+<A HREF="#cdvdncommands"></A><BR>
+<BR>
+<B>1F402005h N command status (R)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Unused
+  1-3   Ready?
+  4-5   Unused
+  6     Ready
+  7     Unused
+</TD></TR></TABLE><BR>
+This shows if the CDVD drive is ready to receive an N command.
+When bit 6 (0x40) is on, an N command can be sent.
+Oddly, bits 1-3, when set, also seem to indicate ready status?<BR>
+<BR>
+<B>1F402005h N command param (W)</B><BR>
+Send parameters for an N command here. This must be done BEFORE the N command has been sent via 1F402004h.<BR>
+<BR>
+
+<B>1F402006h CDVD error (R)</B><BR>
+Any non-zero value indicates an error? Unknown what kind of errors are possible and what their values are.
+<BR>
+<B>1F402007h BREAK</B><BR>
+Writing any value to this register sends a BREAK command to the CDVD drive, stopping execution of the current N command.<BR>
+<BR>
+<B>1F402008h CDVD I_STAT (R=Status, W=Acknowledge)</B><BR>
+Status = Read I_STAT (1=Reason for IRQ)<BR>
+Acknowledge = Write I_STAT (1=Clear bit)<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     (N?) Command complete
+  1     Data ready?
+  2     Power off pressed
+  3     Disk ejected
+  4     BS_Power DET?
+  5-7   Unused
+</TD></TR></TABLE><BR>
+When a CDVD IRQ is raised on I_STAT, this register shows the reason for the interrupt.
+Bit 1 seems to be raised when a read command completes, but I'm not certain about this...<BR>
+Unknown if bit 0 only applies to N commands, although this appears to be the case.<BR>
+<BR>
+<B>1F40200Ah CDVD drive status (R)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  00h  Stopped
+  02h  Spinning
+  06h  Reading
+  0Ah  Paused
+</TD></TR></TABLE><BR>
+<BR>
+<B>1F40200Fh CDVD disk type (R)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  00h  None?
+  12h  CDROM
+  14h  DVD
+  Unknown what other types are possible.
+</TD></TR></TABLE><BR>
+<BR>
+<B>1F402016h Current S command (R/W)</B><BR>
+Write to this register to send an S command. For a list of S commands, see<BR>
+<A HREF="#cdvdscommands"></A><BR>
+<BR>
+<B>1F402017h S command status (R)</B><BR>
+40h indicates that the CDVD drive can receive an S command. 00h means that it is busy.<BR>
+<BR>
+<B>1F402018h S command result (R)</B><BR>
+When an S command has finished executing, read the result here. Some S commands may require multiple reads.<BR>
+<BR>
+<B>1F402018h S command params (W)</B><BR>
+Parameters must be sent BEFORE the S command is sent.<BR>
+<BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="#cdvdncommands"></A>&nbsp;
