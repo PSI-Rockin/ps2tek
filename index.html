@@ -173,7 +173,7 @@ IOP Map<BR>
   1F900766h 2h     Effect Volume Right
   1F900768h 2h     Core1 External Input Volume Left
   1F90076Ah 2h     Core1 External Input Volume Right
-</TD></TR></TABLE>
+</TD></TR></TABLE><BR>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="#eeintc"></A>&nbsp;
@@ -202,7 +202,8 @@ Mask: Read/Write INTC_MASK (0=Disabled 1=Enabled)<BR>
   12    IRQ12  Timer 3
   13    IRQ13  SFIFO
   14    IRQ14  VU0 Watchdog
-</TD></TR></TABLE>
+</TD></TR></TABLE><BR>
+When (INTC_STAT & INTC_MASK), INT0 is asserted on COP0.Cause:8. When COP0.Status:8 is true, an interrupt occurs, and the EE jumps to 80000200h.
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="#iopint"></A>&nbsp;
@@ -253,5 +254,5 @@ When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit
 NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via reading I_CTRL.<BR>
 <BR>
 <B>Raising Interrupts</B>
-If I_CTRL && (I_STAT & I_MASK), then Cop0.Cause:8 is set. When Cop0.Status:8 is also set when this occurs, Cop0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.
+If I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs, COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.
 </BODY></HTML>
