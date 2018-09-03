@@ -105,9 +105,50 @@ IOP Map<BR>
 </TD></TR></TABLE>
 <B>Interrupt Control</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  1F801070h 2h     I_STAT
-  1F801074h 2h     I_MASK
-  1F801078h 2h     I_CTRL
+  1F801070h 2h     I_STAT - Interrupt status
+  1F801074h 2h     I_MASK - Interrupt mask
+  1F801078h 4h     I_CTRL - Global interrupt disable
+</TD></TR></TABLE>
+<B>DMA registers</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  1F80108xh        MDECin - channel 0
+  1F80109xh        MDECout - channel 1
+  1F8010Axh        SIF2 (GPU) - channel 2
+  1F8010Bxh        CDVD - channel 3
+  1F8010Cxh        SPU2 Core0 - channel 4
+  1F8010Dxh        PIO - channel 5
+  1F8010Exh        OTC - channel 6
+  1F80150xh        SPU2 Core1 - channel 8
+  1F80151xh        ??? - channel 9
+  1F80152xh        SIF0 - channel 10
+  1F80153xh        SIF1 - channel 11
+  1F80154xh        SIO2in - channel 12
+  1F80155xh        SIO2out - channel 13
+  
+  1F8010F0h 4h     DPCR - DMA priority control
+  1F8010F4h 4h     DICR - DMA interrupt control
+  1F801570h 4h     DPCR2 - DMA priority control 2
+  1F801574h 4h     DICR2 - DMA priority control 2
+</TD></TR></TABLE>
+<B>IOP Timers</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  1F80110xh        Timer 0
+  1F80111xh        Timer 1
+  1F80112xh        Timer 2
+  1F80148xh        Timer 3
+  1F80149xh        Timer 4
+  1F8014Axh        Timer 5
+</TD></TR></TABLE>
+<B>Serial Interface (SIO2)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  1F808200h 40h    SEND3 buffer
+  1F808240h 20h    SEND1/2 buffers
+  1F808260h 1h     In FIFO
+  1F808264h 1h     Out FIFO
+  1F808268h 4h     SIO2 control
+  1F80826Ch 4h     RECV1
+  1F808270h 4h     RECV2
+  1F808274h 4h     RECV3
 </TD></TR></TABLE>
 <B>Sound Processing Unit (SPU2)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
