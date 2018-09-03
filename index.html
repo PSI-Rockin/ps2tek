@@ -7,6 +7,7 @@
 </FONT></TD></TR></TABLE><BR>
   <A HREF="#iomaps">I/O Maps</A><BR>
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
+  <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
   <BR>
   <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -203,13 +204,46 @@ Mask: Read/Write INTC_MASK (0=Disabled 1=Enabled)<BR>
   13    IRQ13  SFIFO
   14    IRQ14  VU0 Watchdog
 </TD></TR></TABLE><BR>
-When (INTC_STAT & INTC_MASK), INT0 is asserted on COP0.Cause:8. When COP0.Status:8 is true, an interrupt occurs, and the EE jumps to 80000200h.
+When (INTC_STAT & INTC_MASK), INT0 is asserted on COP0.Cause:8.
+When COP0.Status:8 is true, an interrupt occurs, and the EE jumps to 80000200h.<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="#cdvd"></A>&nbsp;
+CDVD Drive
+</FONT></TD></TR></TABLE><BR>
+Using the CDVD drive, the PS2 has the ability to read CDROMs, single-layer DVDs, and dual-layer DVDs.
+It also sports backwards compatibility with the PSX's CDROM drive in PSX mode.<BR>
+<BR>
+CDVD commands are either asynchronous (N commands) or synchronous (S commands).
+Seeks and reads fall into the former category, and miscellaneous commands, such as RTC access, fall into the latter.<BR>
+<BR>
+<A HREF="cdvdioports">CDVD I/O Ports</A><BR>
+<BR>
+<A HREF="cdvdncommands">CDVD N Commands</A><BR>
+<A HREF="cdvdscommands">CDVD S Commands</A><BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="#cdvdioports"></A>&nbsp;
+CDVD I/O Ports
+</FONT></TD></TR></TABLE><BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="#cdvdncommands"></A>&nbsp;
+CDVD N Commands
+</FONT></TD></TR></TABLE><BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="#cdvdscommands"></A>&nbsp;
+CDVD S Commands
+</FONT></TD></TR></TABLE><BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="#iopint"></A>&nbsp;
 IOP Interrupts
 </FONT></TD></TR></TABLE><BR>
-Interrupt handling for the IOP is similar to its PSX counterpart. The main differences are an additional register (I_CTRL) and more interrupt lines.<BR>
+Interrupt handling for the IOP is similar to its PSX counterpart.
+The main differences are an additional register (I_CTRL) and more interrupt lines.<BR>
 <BR>
 <B>1F801070h I_STAT - Interrupt status register (R=Status, W=Acknowledge)</B><BR>
 <B>1F801074h I_MASK - Interrupt mask register (R/W)</B><BR>
@@ -253,6 +287,6 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
 When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit 0 AND clears it, re-enabling interrupts. Writing can set or reset bit 0.<br>
 NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via reading I_CTRL.<BR>
 <BR>
-<B>Raising Interrupts</B>
+<B>Raising Interrupts</B><BR>
 If I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs, COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.
 </BODY></HTML>
