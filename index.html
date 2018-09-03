@@ -358,7 +358,7 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
   1-31  Unused/garbage
 </TD></TR></TABLE>
 When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit 0 AND clears it, re-enabling interrupts. Writing can set or reset bit 0.<br>
-NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via reading I_CTRL.<BR>
+NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via this register.<BR>
 <BR>
 <B>Raising Interrupts</B><BR>
 If I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs, COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.
