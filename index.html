@@ -96,16 +96,18 @@ EE Map<BR>
   1000B4xxh        IPU_TO - channel 4
   1000C0xxh        SIF0 - channel 5
   1000C4xxh        SIF1 - channel 6
-  1000C?xxh        SIF2 - channel 7
+  1000C8xxh        SIF2 - channel 7
   1000D0xxh        SPR_FROM - channel 8
   1000D4xxh        SPR_TO - channel 9
   1000E000h 4h     D_CTRL - DMAC control
   1000E010h 4h     D_STAT - DMAC interrupt status
   1000E020h 4h     D_PCR - DMAC priority control
   1000E030h 4h     D_SQWC - DMAC skip quadword
-  1000E040h 4h     D_RBSR - DMAC ringbuffer start
+  1000E040h 4h     D_RBSR - DMAC ringbuffer size
   1000E050h 4h     D_RBOR - DMAC ringbuffer offset
   1000E060h 4h     D_STADR - DMAC stall address
+  1000F520h 4h     D_ENABLER - DMAC disabled status
+  1000F590h 4h     D_ENABLEW - DMAC disable
 </TD></TR></TABLE>
 <B>Interrupt Controller (INTC)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -244,7 +246,7 @@ DMA Controller (DMAC)
 </FONT></TD></TR></TABLE><BR>
 <B>DMAC Reference</B><BR>
 <A HREF="#dmacio">DMAC I/O</A><BR>
-<A HREF="#dmacoperation">DMAC Operation</A><BR>
+<A HREF="#dmacchainmode">DMAC Chain Mode</A><BR>
 <A HREF="#dmacint">DMAC Interrupts</A><BR>
 <BR>
 <BR>
@@ -262,7 +264,7 @@ DMAC I/O
   1000B4xxh    IPU_TO
   1000C0xxh    SIF0
   1000C4xxh    SIF1
-  1000C?xxh    SIF2 (used for PSX mode and debugging)
+  1000C8xxh    SIF2 (used for PSX mode and debugging)
   1000D0xxh    SPR_FROM
   1000D4xxh    SPR_TO
 </TD></TR></TABLE><BR>
@@ -285,13 +287,20 @@ DMAC I/O
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-30  Address (lower 4 bits must be zero)
   31    Memory selection (0=RAM, 1=scratchpad)
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
+The channel will read from/write to MADR directly during a transfer. TADR is only used for chain mode.<BR>
+MADR and TADR update while a transfer is ongoing, i.e., the DMAC has no internal channels for memory addresses.<BR>
+Certain games expect MADR and TADR to increment during a transfer.<BR>
+<BR>
   
 <B>1000xx20h Dn_QWC - Quadword count (R/W)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-15  Quadwords
   16-31 Unused
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
+In normal and interleaved mode, the transfer ends when QWC reaches zero. Chain mode behaves differently; see<BR>
+<A HREF="#dmacchainmode">DMAC Chain Mode</A><BR>
+<BR>
 
 <B>1000xx40h Dn_ASR0 - Channel saved tag address (R/W)</B><BR>
 <B>1000xx50h Dn_ASR1 - Channel saved tag address (R/W)</B><BR>
@@ -374,7 +383,7 @@ This is useful for knowing when multiple DMA transfers have finished without usi
 </TD></TR></TABLE>
 In interleave mode, every time D_SQWC.16-23 quadwords have been transferred, D_SQWC.0-7 quadwords are skipped.<BR>
 <BR>
-<B>1000E040h D_RBSR - DMAC ringbuffer start (R/W)</B><BR>
+<B>1000E040h D_RBSR - DMAC ringbuffer size (R/W)</B><BR>
 <BR>
 <B>1000E050h D_RBOR - DMAC ringbuffer offset (R/W)</B><BR>
 <BR>
@@ -383,8 +392,90 @@ In interleave mode, every time D_SQWC.16-23 quadwords have been transferred, D_S
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   16    DMAC disabled
   All other bits appear to be garbage, but writable
-  SCPH-39001 (and other BIOSes?) seems to expect D_ENABLER to be set to 1201h upon boot?
+  SCPH-39001 (and other BIOSes?) seems to expect D_ENABLER to be set to 1201h upon boot
+</TD></TR></TABLE><BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="dmacchainmode"></A>&nbsp;
+DMAC Chain Mode
+</FONT></TD></TR></TABLE><BR>
+The DMAC can intelligently chain DMA transfers together.
+When a transfer starts in chain mode, the channel will transfer QWC quadwords and then read a DMAtag.<BR>
+In source chain mode, the DMAtag comes from TADR.
+In destination chain mode, the DMAtag comes from the peripheral the channel is reading from.<BR>
+<BR>
+<B>DMAtag</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15    QWC to transfer
+  16-25   Unused
+  26-27   Priority control
+          0=No effect
+          1=Reserved
+          2=Priority control disabled (D_PCR.31 = 0)
+          3=Priority control enabled (D_PCR.31 = 1)
+  28-30   Tag ID
+  31      IRQ
+  32-62   ADDR field (lower 4 bits must be zero)
+  63      Memory selection for ADDR (0=RAM, 1=scratchpad)
+  64-127  Data to transfer (only if Dn_CHCR.TTE==1)
 </TD></TR></TABLE>
+When both IRQ and Dn_CHCR.TIE are set, the transfer ends after QWC has been transferred.<BR>
+When Dn_CHCR.TTE is on, bits 64-127 are transferred BEFORE QWC.<BR>
+The effects of the tag ID vary depending on if the channel is in source chain or dest chain mode.<BR>
+<BR>
+<B>Source Chain Tag ID</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0    refe    MADR=DMAtag.ADDR
+               TADR+=16
+               tag_end=true
+  
+  1    cnt     MADR=TADR+16 (next to DMAtag)
+               TADR=MADR (next to transfer data)
+  
+  2    next    MADR=TADR+16
+               TADR=DMAtag.ADDR
+  
+  3    ref     MADR=DMAtag.ADDR
+               TADR+=16
+  
+  4    refs    MADR=DMAtag.ADDR
+               TADR+=16
+  
+  5    call    MADR=TADR+16
+               if (CHCR.ASP == 0)
+                 ASR0=MADR+(QWC*16)
+               else if (CHCR.ASP == 1)
+                 ASR1=MADR+(QWC*16)
+               TADR=DMAtag.ADDR
+               CHCR.ASP++
+  
+  6    ret     MADR=TADR+16
+               if (CHCR.ASP == 2)
+                 TADR=ASR1
+                 CHCR.ASP--
+               else if (CHCR.ASP == 1)
+                 TADR=ASR0
+                 CHCR.ASP--
+               else
+                 tag_end=true
+  
+  7    end     MADR=TADR+16
+                 tag_end=true
+               
+</TD></TR></TABLE>
+When tag_end=true, the transfer ends after QWC has been transferred.<BR>
+<BR>
+<B>Dest Chain Tag ID</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0    cnt     MADR=DMAtag.ADDR
+  
+  1    cnts    MADR=DMAtag.ADDR
+  
+  7    end     MADR=DMAtag.ADDR
+               tag_end=true
+</TD></TR></TABLE><BR>
+<BR>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
@@ -636,7 +727,7 @@ Params:
   6     Month
   7     Year
 </TD></TR></TABLE>
-Overwrites the RTC's time with the above.<BR>
+Overwrites the RTC's time in BCD format.<BR>
 <BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -751,5 +842,7 @@ Prescalers adjust clockrate as follows:<BR>
 </TD></TR></TABLE>
 When count == target, a compare interrupt is raised.
 This raises an IRQ in I_STAT if both mode.4 and mode.10 are enabled.<BR>
-If mode.7 (LEVL) is not set, writes to target set mode.10 to 1.
+If mode.7 (LEVL) is not set, writes to target set mode.10 to 1.<BR>
+<BR>
+<BR>
 </BODY></HTML>
