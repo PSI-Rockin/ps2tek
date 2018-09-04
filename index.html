@@ -10,6 +10,7 @@
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
   <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
+  <A HREF="#ioptimers">IOP Timers</A><BR>
 <BR>
 <BR>
   
@@ -506,5 +507,65 @@ When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit
 NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via this register.<BR>
 <BR>
 <B>Raising Interrupts</B><BR>
-If I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs, COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.
+If I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs,
+COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="ioptimers"></A>&nbsp;
+IOP Timers
+</FONT></TD></TR></TABLE><BR>
+<B>1F801100h+N*10h Timer 0..2 count (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Current value
+  16-31 Unused/garbage
+</TD></TR></TABLE>
+<B>1F801480h+(N-3)*10h Timer 3..5 count (R/W)</B><BR>
+  0-31  Current value
+</TD></TR></TABLE>
+Timers 0..5 increment automatically. 0..2 are 16-bit, and 3..5 are 32-bit.
+Writes set the counter to the value written<BR>
+<BR>
+<B>1F801104h+N*10h Timer 0..2 mode (R/W)</B><BR>
+<B>1F801484h+(N-3)*10h Timer 3..5 mode (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Gate enable
+  1-2   Gate mode
+  3     Zero return - reset counter on interrupt
+  4     Compare interrupt enabled
+  5     Overflow interrupt enabled
+  6     Repeat/no effect?
+  7     LEVL - toggle bit 10 on IRQs
+        If not set, bit 10 is set to 0 on IRQ
+  8     Use external signal
+        If set:
+          Timer 0: pixel clock (13.5 MHz regardless of screen mode)
+          Timer 1/3: HBLANK
+          Others: sysclock (no effect)
+  9     Timer 2 prescaler
+  10    Interrupts enabled (R)
+  11    Compare interrupt raised (R)
+  12    Overflow interrupt raised (R)
+  13-14 Timer 4/5 prescalar
+  15-31 Unused/garbage
+</TD></TR></TABLE>
+Writes to mode reset the count to zero and set bit 10 to 1.
+Reads from mode clear the two raised interrupt flags.<BR>
+Prescalers adjust clockrate as follows:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     normal
+  1     1/8 speed
+  2     1/16 speed
+  3     1/256 speed
+</TD></TR></TABLE><BR>
+<B>1F801108h+N*10h Timer 0..2 target (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Value
+  16-31 Unused/garbage
+</TD></TR></TABLE>
+<B>1F801488h+(N-3)*10h Timer 3..5 target (R/W)</B><BR>
+  0-31  Value
+</TD></TR></TABLE>
+When count == target, a compare interrupt is raised.
+This raises an IRQ in I_STAT if both mode.4 and mode.10 are enabled.<BR>
+If mode.7 (LEVL) is not set, writes to target set mode.10 to 1.
 </BODY></HTML>
