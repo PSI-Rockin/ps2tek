@@ -520,10 +520,11 @@ IOP Timers
   16-31 Unused/garbage
 </TD></TR></TABLE>
 <B>1F801480h+(N-3)*10h Timer 3..5 count (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Current value
 </TD></TR></TABLE>
 Timers 0..5 increment automatically. 0..2 are 16-bit, and 3..5 are 32-bit.
-Writes set the counter to the value written<BR>
+Writes set the counter to the value written.<BR>
 <BR>
 <B>1F801104h+N*10h Timer 0..2 mode (R/W)</B><BR>
 <B>1F801484h+(N-3)*10h Timer 3..5 mode (R/W)</B><BR>
@@ -563,6 +564,7 @@ Prescalers adjust clockrate as follows:<BR>
   16-31 Unused/garbage
 </TD></TR></TABLE>
 <B>1F801488h+(N-3)*10h Timer 3..5 target (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Value
 </TD></TR></TABLE>
 When count == target, a compare interrupt is raised.
