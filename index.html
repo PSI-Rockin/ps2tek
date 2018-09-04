@@ -7,6 +7,7 @@
 </FONT></TD></TR></TABLE><BR>
   <A HREF="#memorymap">Memory Map</A><BR>
   <A HREF="#iomaps">I/O Maps</A><BR>
+  <A HREF="#gif">Graphics Interface (GIF)</A><BR>
   <A HREF="#dmac">DMA Controller (DMAC)</A><BR>
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
   <A HREF="#cdvd">CDVD Drive</A><BR>
@@ -237,6 +238,23 @@ IOP Map<BR>
   1F900768h 2h     Core1 External Input Volume Left
   1F90076Ah 2h     Core1 External Input Volume Right
 </TD></TR></TABLE><BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gif"></A>&nbsp;
+Graphics Interface (GIF)
+</FONT></TD></TR></TABLE><BR>
+The GIF sends textures and geometry to the GS. It takes data from three different PATHs:<BR>
+ - PATH1: VU1 via XGKICK instruction. Highest priority.<BR>
+ - PATH2: VIF1 via DIRECT/DIRECTHL. Medium priority.<BR>
+ - PATH3: GIF DMAC channel (channel 2). Lowest priority.<BR>
+<BR>
+<B>GIF Reference</B><BR>
+<A HREF="#gifio">GIF I/O</A><BR>
+<A HREF="#giftags">GIFtags</A><BR>
+<A HREF="#gifdataformats">GIF Data Formats</A><BR>
+<A HREF="#gifpath3masking">GIF PATH3 Masking</A><BR>
 <BR>
 <BR>
 
@@ -496,7 +514,9 @@ When (stat & mask) != 0, the DMAC asserts an INT1 signal to the EE.<BR>
 INT1 may also be asserted when MFIFO is empty, a stall occurs, or a bus error occurs.
 The bus error is non-maskable via D_STAT.<BR>
 NOTE: INT0 (INTC) has priority over INT1.
-If INT0 and INT1 are asserted at the same time, the INT0 interrupt will be processed first.
+If INT0 and INT1 are asserted at the same time, the INT0 interrupt will be processed first.<BR>
+<BR>
+<BR>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
