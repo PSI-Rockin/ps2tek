@@ -7,6 +7,7 @@
 </FONT></TD></TR></TABLE><BR>
   <A HREF="#memorymap">Memory Map</A><BR>
   <A HREF="#iomaps">I/O Maps</A><BR>
+  <A HREF="#dmac">DMA Controller (DMAC)</A><BR>
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
   <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
@@ -20,9 +21,9 @@ Memory Map
 </FONT></TD></TR></TABLE><BR>
 <B>EE Virtual/Physical Memory Map</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  KUSEG: 00000000h-7FFFFFFFh User virtual addresses
-  KSEG0: 80000000h-9FFFFFFFh Kernel0 virtual addresses
-  KSEG1: A0000000h-BFFFFFFFh Kernel1 virtual addresses
+  KUSEG: 00000000h-7FFFFFFFh User segment
+  KSEG0: 80000000h-9FFFFFFFh Kernel segment 0
+  KSEG1: A0000000h-BFFFFFFFh Kernel segment 1
   
   Virtual    Physical
   00000000h  00000000h  32 MB    Main RAM (first 1 MB reserved for kernel)
@@ -45,9 +46,9 @@ However, the maximum seen in practice is 128 MB, for special TOOL consoles.<BR>
 <BR>
 <B>IOP Physical Memory Map</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  KUSEG: 00000000h-7FFFFFFFh User virtual addresses
-  KSEG0: 80000000h-9FFFFFFFh Kernel0 virtual addresses
-  KSEG1: A0000000h-BFFFFFFFh Kernel1 virtual addresses
+  KUSEG: 00000000h-7FFFFFFFh User segment
+  KSEG0: 80000000h-9FFFFFFFh Kernel segment 0
+  KSEG1: A0000000h-BFFFFFFFh Kernel segment 1
   
   Physical
   00000000h  2 MB     Main RAM (same as on PSX)
@@ -236,6 +237,154 @@ IOP Map<BR>
 </TD></TR></TABLE><BR>
 <BR>
 <BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="dmac"></A>&nbsp;
+DMA Controller (DMAC)
+</FONT></TD></TR></TABLE><BR>
+<B>DMAC Reference</B><BR>
+<A HREF="#dmacio">DMAC I/O</A><BR>
+<A HREF="#dmacoperation">DMAC Operation</A><BR>
+<A HREF="#dmacint">DMAC Interrupts</A><BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="dmacio"></A>&nbsp;
+DMAC I/O
+</FONT></TD></TR></TABLE><BR>
+<B>Channels</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  100080xxh    VIF0
+  100090xxh    VIF1
+  1000A0xxh    GIF
+  1000B0xxh    IPU_FROM
+  1000B4xxh    IPU_TO
+  1000C0xxh    SIF0
+  1000C4xxh    SIF1
+  1000C?xxh    SIF2 (used for PSX mode and debugging)
+  1000D0xxh    SPR_FROM
+  1000D4xxh    SPR_TO
+</TD></TR></TABLE><BR>
+<B>1000xx00h Dn_CHCR - Channel control (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     DIR - Direction (0=to memory, 1=from memory)
+        Only effective for VIF1 and SIF2
+  1     Unused
+  2-3   MOD - Mode (0=normal, 1=chain, 2=interleave)
+  4-5   ASP - Address stack pointer
+  6     TTE - Transfer DMAtag (only in source chain mode)
+  7     TIE - Enable IRQ bit in DMAtag
+  8     STR - Start/busy
+  9-15  Unused
+  16-31 TAG - Bits 16-31 of most recently read DMAtag
+</TD></TR></TABLE><BR>
+
+<B>1000xx10h Dn_MADR - Channel address (R/W)</B><BR>
+<B>1000xx30h Dn_TADR - Channel tag address (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-30  Address (lower 4 bits must be zero)
+  31    Memory selection (0=RAM, 1=scratchpad)
+</TD></TR></TABLE><BR>
+  
+<B>1000xx20h Dn_QWC - Quadword count (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Quadwords
+  16-31 Unused
+</TD></TR></TABLE><BR>
+
+<B>1000xx40h Dn_ASR0 - Channel saved tag address (R/W)</B><BR>
+<B>1000xx50h Dn_ASR1 - Channel saved tag address (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-30  Tag address (lower 4 bits must be zero)
+  31    Memory selection (0=RAM, 1=scratchpad)
+</TD></TR></TABLE>
+ASR0/ASR1 can only be used by the VIF0, VIF1, and GIF channels.<BR>
+<BR>
+
+<B>1000xx80h Dn_SADR - Channel scratchpad address (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-13  Address (lower 4 bits must be zero)
+  14-31 Unused
+</TD></TR></TABLE>
+SADR is only used by SPR_FROM and SPR_TO.<BR>
+<BR>
+  
+<B>1000E000h D_CTRL - DMAC control (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0    DMA enable
+  1    Cycle stealing on
+  2-3  MFIFO drain channel
+       0=None
+       1=Reserved
+       2=VIF1
+       3=GIF
+  4-5  Stall control channel
+       0=None
+       1=SIF0
+       2=SPR_FROM
+       3=IPU_FROM
+  6-7  Stall control drain channel
+       0=None
+       1=VIF1
+       2=GIF
+       3=SIF1
+  8-10 Release cycle period
+       0=8
+       1=16
+       2=32
+       3=64
+       4=128
+       5=256
+</TD></TR></TABLE>
+When cycle stealing is on, the release cycle period controls how long the EE has control of the bus.<BR>
+<BR>
+<B>1000E010h D_STAT - DMAC interrupt status (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9    Channel interrupt status (1=IRQ, write 1 to clear)
+  10-12  Unused
+  13     DMA stall interrupt status
+  14     MFIFO empty interrupt status
+  15     BUSERR interrupt status
+  16-25  Channel interrupt mask (1=enabled, write 1 to reverse)
+  26-28  Unused
+  29     Stall interrupt mask
+  30     MFIFO empty mask
+</TD></TR></TABLE>
+INT1 is asserted when (status & mask) != 0.<BR>
+<BR>
+<B>1000E020h D_PCR - DMAC priority control (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9    COP0 condition control
+  10-15  Unused
+  16-25  Channel priority (0=Channel disabled, only if D_PCR.31 is true)
+  26-30  Unused
+  31     Priority enable
+</TD></TR></TABLE>
+COP0 control determines whether or not CPCOND0 is activated.
+If (~control | D_STAT.0-9) == 0x3FF, CPCOND0 is set.
+This is useful for knowing when multiple DMA transfers have finished without using interrupts.<BR>
+<BR>
+<B>1000E030h D_SQWC - DMAC skip quadword (R/W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-7   Quadwords to skip
+  8-15  Unused
+  16-23 Quadwords to transfer
+  24-31 Unused
+</TD></TR></TABLE>
+In interleave mode, every time D_SQWC.16-23 quadwords have been transferred, D_SQWC.0-7 quadwords are skipped.<BR>
+<BR>
+<B>1000E040h D_RBSR - DMAC ringbuffer start (R/W)</B><BR>
+<BR>
+<B>1000E050h D_RBOR - DMAC ringbuffer offset (R/W)</B><BR>
+<BR>
+<B>1000F520h D_ENABLER - DMAC disabled status (R)</B><BR>
+<B>1000F590h D_ENABLEW - DMAC disable (W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  16    DMAC disabled
+  All other bits appear to be garbage, but writable
+  SCPH-39001 (and other BIOSes?) seems to expect D_ENABLER to be set to 1201h upon boot?
+</TD></TR></TABLE>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
@@ -303,7 +452,7 @@ Write to this register to send an N command. For a list of N commands, see<BR>
   4-5   Unused
   6     Ready
   7     Unused
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 This shows if the CDVD drive is ready to receive an N command.
 When bit 6 (0x40) is on, an N command can be sent.
 Oddly, bits 1-3, when set, also seem to indicate ready status?<BR>
@@ -456,6 +605,39 @@ When all sectors have been read, a CDVD IRQ is raised. Successful reads seem to 
 <A NAME="cdvdscommands"></A>&nbsp;
 CDVD S Commands
 </FONT></TD></TR></TABLE><BR>
+The results of an S command can be read one at a time from 1F402017. All units are in bytes.<BR>
+<BR>
+<B>08h ReadRTC</B><BR>
+Params: None.
+Result:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Zero
+  1     Second
+  2     Minute
+  3     Hour
+  4     Zero
+  5     Day
+  6     Month
+  7     Year
+</TD></TR></TABLE>
+Returns the current time stored on the RTC, in BCD format.<BR>
+The RTC is mostly just used by the BIOS.
+Notably, Metal Gear Solid 3 requires the RTC to boot. This is likely an anti-piracy feature.<BR>
+<BR>
+<B>09h WriteRTC</B><BR>
+Params:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Ignored
+  1     Second
+  2     Minute
+  3     Hour
+  4     Ignored
+  5     Day
+  6     Month
+  7     Year
+</TD></TR></TABLE>
+Overwrites the RTC's time with the above.<BR>
+<BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="iopint"></A>&nbsp;
