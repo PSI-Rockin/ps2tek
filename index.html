@@ -261,13 +261,13 @@ DMAC I/O
 <B>Channels</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   100080xxh    VIF0
-  100090xxh    VIF1
-  1000A0xxh    GIF
+  100090xxh    VIF1 (can act as PATH2 for GIF)
+  1000A0xxh    GIF (PATH3)
   1000B0xxh    IPU_FROM
   1000B4xxh    IPU_TO
-  1000C0xxh    SIF0
-  1000C4xxh    SIF1
-  1000C8xxh    SIF2 (used for PSX mode and debugging)
+  1000C0xxh    SIF0 (from IOP)
+  1000C4xxh    SIF1 (to IOP)
+  1000C8xxh    SIF2 (bidirectional, used for PSX mode and debugging)
   1000D0xxh    SPR_FROM
   1000D4xxh    SPR_TO
 </TD></TR></TABLE><BR>
