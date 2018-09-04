@@ -212,7 +212,7 @@ When COP0.Status:8 is true, an interrupt occurs, and the EE jumps to 80000200h.<
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
-<A NAME="#cdvd"></A>&nbsp;
+<A NAME="cdvd"></A>&nbsp;
 CDVD Drive
 </FONT></TD></TR></TABLE><BR>
 Using the CDVD drive, the PS2 has the ability to read CDROMs, single-layer DVDs, and dual-layer DVDs.
@@ -221,9 +221,10 @@ It also sports backwards compatibility with the PSX's CDROM drive in PSX mode.<B
 CDVD commands are either asynchronous (N commands) or synchronous (S commands).
 Seeks and reads fall into the former category, and miscellaneous commands, such as RTC access, fall into the latter.<BR>
 <BR>
-<B>CDVD Reference</B>
+<B>CDVD Reference</B><BR>
 <A HREF="#cdvdioports">CDVD I/O Ports</A><BR>
 <A HREF="#cdvdncommands">CDVD N Commands</A><BR>
+<A HREF="#cdvdreadsandseeks">CDVD Reads and Seeks</A><BR>
 <A HREF="#cdvdscommands">CDVD S Commands</A><BR>
 <BR>
 
@@ -261,16 +262,16 @@ Writing any value to this register sends a BREAK command to the CDVD drive, stop
 Status = Read I_STAT (1=Reason for IRQ)<BR>
 Acknowledge = Write I_STAT (1=Clear bit)<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  0     (N?) Command complete
-  1     Data ready?
+  0     Data ready?
+  1     (N?) Command complete
   2     Power off pressed
   3     Disk ejected
   4     BS_Power DET?
   5-7   Unused
 </TD></TR></TABLE>
 When a CDVD IRQ is raised on I_STAT, this register shows the reason for the interrupt.
-Bit 1 seems to be raised when a read command completes, but I'm not certain about this...<BR>
-Unknown if bit 0 only applies to N commands, although this appears to be the case.<BR>
+Bit 0 seems to be raised when a read command completes, but I'm not certain about this...<BR>
+Unknown if bit 1 only applies to N commands, although this appears to be the case.<BR>
 <BR>
 <B>1F40200Ah CDVD drive status (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -305,6 +306,86 @@ Parameters must be sent BEFORE the S command is sent.<BR>
 <A NAME="cdvdncommands"></A>&nbsp;
 CDVD N Commands
 </FONT></TD></TR></TABLE><BR>
+Parameters are in units of bytes and are little-endian. All commands raise an IRQ.<BR><BR>
+<B>00h NOP</B><BR>
+<B>01h NOPsync</B><BR>
+Params: None.<BR>
+These commands do nothing? They do raise an IRQ upon their "completion".<BR>
+<BR>
+<B>02h Standby</B><BR>
+Params: None.<BR>
+Returns the read position to sector 0 and sets the drive status to PAUSED.<BR>
+Possibly also spins the drive if it's not spinning already?<BR>
+<BR>
+<B>03h Stop</B><BR>
+Params: None.<BR>
+Returns the read position to sector 0, sets the drive status to STOPPED, and stops the drive from spinning.<BR>
+Seems to have a 166 ms delay?<BR>
+<B>04h Pause</B><BR>
+Params: None.<BR>
+Unknown what effect this has, from the perspective of emulation.
+<B>05h Seek</B><BR>
+Params:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-3   Sector position
+</TD></TR></TABLE>
+Moves the read position to the indicated parameter.<BR>
+<BR>
+<B>06h ReadCd</B><BR>
+Params:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-3   Sector position
+  4-7   Sectors to read
+  10    Block size (1=2328 bytes, 2=2340 bytes, all others=2048 bytes)
+</TD></TR></TABLE>
+Performs a CD-style read. Seems to raise bit 0 of CDVD I_STAT upon completion?<BR>
+<BR>
+<B>08h ReadDvd</B><BR>
+Params:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-3   Sector position
+  4-7   Sectors to read
+</TD></TR></TABLE>
+Performs a DVD-style read, with a block size of 2064 bytes. The format of the data is as follows:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0    1    Volume number + 0x20
+  1    3    Sector number - volume start + 0x30000, in big-endian.
+  4    8    ? (all zeroes)
+  12   2048 Raw sector data
+  2060 4    ? (all zeroes)
+</TD></TR></TABLE><BR>
+
+<B>09h GetToc</B><BR>
+Params: None?
+Fetches the ToC from the disk, with a block size of 2064 bytes.<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="cdvdsreadsandseeks"></A>&nbsp;
+CDVD Reads and Seeks
+</FONT></TD></TR></TABLE><BR>
+<B>Seeking</B>
+If a read command is called, a seek must be performed.
+An IRQ is NOT raised when the seek finishes when executing a read.<BR>
+When a seek begins, if the drive is currently not spinning, it takes 333 ms for the drive to spin and finish the seek.<BR>
+Otherwise, one of three seek modes is possible:<BR>
+- Contiguous read: When the seek delta is very small or zero, seek time = block_timing * delta<BR>
+- Fast seek: When seek delta < 14764 for DVD reads and < 4371 for CD reads, seek time = ~30 ms<BR>
+- Full seek: Seek time = ~100 ms<BR>
+block_timing (in IOP cycles) can be found by the following formula:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  block_timing = (IOP_CLOCK * block_size) / read_speed
+</TD></TR></TABLE>
+Where IOP_CLOCK is ~36,864,000 Hz.
+read_speed for CD reads is 24 * 153600. For DVD reads read_speed = 4 * 1382400.<BR>
+Unknown what delta is needed for a contiguous read (8/16 is used for CD/DVD respectively in PCSX2).<BR>
+<BR>
+<B>Reads</B>
+The time needed to read a single sector is the block_timing formula above.
+Once one sector has been read, the CDVD DMA channel can store the data in memory
+and allow the CDVD drive to continue.<BR>
+When all sectors have been read, a CDVD IRQ is raised. Successful reads seem to raise both bits 1 AND 0 of CDVD I_STAT?<BR>
+<BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="cdvdscommands"></A>&nbsp;
