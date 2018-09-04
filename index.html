@@ -323,7 +323,8 @@ Returns the read position to sector 0, sets the drive status to STOPPED, and sto
 Seems to have a 166 ms delay?<BR>
 <B>04h Pause</B><BR>
 Params: None.<BR>
-Unknown what effect this has, from the perspective of emulation.
+Unknown what effect this has, from the perspective of emulation.<BR>
+<BR>
 <B>05h Seek</B><BR>
 Params:
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -364,7 +365,7 @@ Fetches the ToC from the disk, with a block size of 2064 bytes.<BR>
 <A NAME="cdvdsreadsandseeks"></A>&nbsp;
 CDVD Reads and Seeks
 </FONT></TD></TR></TABLE><BR>
-<B>Seeking</B>
+<B>Seeking</B><BR>
 If a read command is called, a seek must be performed.
 An IRQ is NOT raised when the seek finishes when executing a read.<BR>
 When a seek begins, if the drive is currently not spinning, it takes 333 ms for the drive to spin and finish the seek.<BR>
@@ -380,7 +381,7 @@ Where IOP_CLOCK is ~36,864,000 Hz.
 read_speed for CD reads is 24 * 153600. For DVD reads read_speed = 4 * 1382400.<BR>
 Unknown what delta is needed for a contiguous read (8/16 is used for CD/DVD respectively in PCSX2).<BR>
 <BR>
-<B>Reads</B>
+<B>Reads</B><BR>
 The time needed to read a single sector is the block_timing formula above.
 Once one sector has been read, the CDVD DMA channel can store the data in memory
 and allow the CDVD drive to continue.<BR>
