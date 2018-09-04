@@ -178,6 +178,8 @@ IOP Map<BR>
   1F900768h 2h     Core1 External Input Volume Left
   1F90076Ah 2h     Core1 External Input Volume Right
 </TD></TR></TABLE><BR>
+<BR>
+<BR>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
@@ -210,6 +212,7 @@ Mask: Read/Write INTC_MASK (0=Disabled 1=Enabled)<BR>
 When (INTC_STAT & INTC_MASK), INT0 is asserted on COP0.Cause:8.
 When COP0.Status:8 is true, an interrupt occurs, and the EE jumps to 80000200h.<BR>
 <BR>
+<BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="cdvd"></A>&nbsp;
@@ -226,6 +229,7 @@ Seeks and reads fall into the former category, and miscellaneous commands, such 
 <A HREF="#cdvdncommands">CDVD N Commands</A><BR>
 <A HREF="#cdvdreadsandseeks">CDVD Reads and Seeks</A><BR>
 <A HREF="#cdvdscommands">CDVD S Commands</A><BR>
+<BR>
 <BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -301,12 +305,13 @@ When an S command has finished executing, read the result here. Some S commands 
 <B>1F402018h S command params (W)</B><BR>
 Parameters must be sent BEFORE the S command is sent.<BR>
 <BR>
+<BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="cdvdncommands"></A>&nbsp;
 CDVD N Commands
 </FONT></TD></TR></TABLE><BR>
-Parameters are in units of bytes and are little-endian. All commands raise an IRQ.<BR><BR>
+Parameters are in units of bytes and are little-endian. All N commands raise a CDVD IRQ (bit 1 of CDVD I_STAT).<BR><BR>
 <B>00h NOP</B><BR>
 <B>01h NOPsync</B><BR>
 Params: None.<BR>
@@ -361,6 +366,7 @@ Performs a DVD-style read, with a block size of 2064 bytes. The format of the da
 Params: None?
 Fetches the ToC from the disk, with a block size of 2064 bytes.<BR>
 <BR>
+<BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="cdvdsreadsandseeks"></A>&nbsp;
@@ -387,6 +393,7 @@ The time needed to read a single sector is the block_timing formula above.
 Once one sector has been read, the CDVD DMA channel can store the data in memory
 and allow the CDVD drive to continue.<BR>
 When all sectors have been read, a CDVD IRQ is raised. Successful reads seem to raise both bits 1 AND 0 of CDVD I_STAT?<BR>
+<BR>
 <BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
