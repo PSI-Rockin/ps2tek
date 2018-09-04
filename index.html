@@ -5,15 +5,70 @@
   <A NAME="contents"></A>&nbsp;
   Contents
 </FONT></TD></TR></TABLE><BR>
+  <A HREF="#memorymap">Memory Map</A><BR>
   <A HREF="#iomaps">I/O Maps</A><BR>
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
   <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
-  <BR>
-  <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
-  <A NAME="iomaps"></A>&nbsp;
-  I/O Maps
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="memorymap"></A>&nbsp;
+Memory Map
 </FONT></TD></TR></TABLE><BR>
+<B>EE Virtual/Physical Memory Map</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  KUSEG: 00000000h-7FFFFFFFh User virtual addresses
+  KSEG0: 80000000h-9FFFFFFFh Kernel0 virtual addresses
+  KSEG1: A0000000h-BFFFFFFFh Kernel1 virtual addresses
+  
+  Virtual    Physical
+  00000000h  00000000h  32 MB    Main RAM (first 1 MB reserved for kernel)
+  20000000h  00000000h  32 MB    Main RAM, uncached
+  30100000h  00100000h  31 MB    Main RAM, uncached and accelerated
+  10000000h  10000000h  64 KB    I/O registers
+  11000000h  11000000h  4 KB     VU0 code memory
+  11004000h  11004000h  4 KB     VU0 data memory
+  11008000h  11008000h  16 KB    VU1 code memory
+  1100C000h  1100C000h  16 KB    VU1 data memory
+  12000000h  12000000h  8 KB     GS privileged registers
+  1C000000h  1C000000h  2 MB     IOP RAM
+  1FC00000h  1FC00000h  4 MB     BIOS, uncached (rom0)
+  9FC00000h  1FC00000h  4 MB     BIOS, cached (rom09)
+  BFC00000h  1FC00000h  4 MB     BIOS, uncached (rom0b)
+  70000000h  ---------  16 KB    Scratchpad RAM (only accessible via virtual addressing)
+</TD></TR></TABLE>
+EE RAM is reportedly expandable up to 256 MB.
+However, the maximum seen in practice is 128 MB, for special TOOL consoles.<BR>
+<BR>
+<B>IOP Physical Memory Map</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  KUSEG: 00000000h-7FFFFFFFh User virtual addresses
+  KSEG0: 80000000h-9FFFFFFFh Kernel0 virtual addresses
+  KSEG1: A0000000h-BFFFFFFFh Kernel1 virtual addresses
+  
+  Physical
+  00000000h  2 MB     Main RAM (same as on PSX)
+  1D000000h           SIF registers
+  1F800000h  64 KB    Various I/O registers
+  1F900000h  1 KB     SPU2 registers
+  1FC00000h  4 MB     BIOS (rom0) - Same as EE BIOS
+  
+  FFFE0000h (KSEG2)   Cache control
+</TD></TR></TABLE><BR>
+<B>Additional Memory</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  4 MB   GS VRAM (used for framebuffer, textures, zbuffer, etc)
+  2 MB   SPU2 work RAM - quadrupled from PSX's SPU
+  8 MB   Memory card
+</TD></TR></TABLE><BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="iomaps"></A>&nbsp;
+I/O Maps
+</FONT></TD></TR></TABLE><BR>
+  
 EE Map<BR>
 <B>EE Timers</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -311,7 +366,7 @@ Parameters must be sent BEFORE the S command is sent.<BR>
 <A NAME="cdvdncommands"></A>&nbsp;
 CDVD N Commands
 </FONT></TD></TR></TABLE><BR>
-Parameters are in units of bytes and are little-endian. All N commands raise a CDVD IRQ (bit 1 of CDVD I_STAT).<BR><BR>
+Parameters are in units of bytes and are little-endian. All N commands raise IRQ2 (bit 1 of CDVD I_STAT).<BR><BR>
 <B>00h NOP</B><BR>
 <B>01h NOPsync</B><BR>
 Params: None.<BR>
@@ -369,12 +424,12 @@ Fetches the ToC from the disk, with a block size of 2064 bytes.<BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
-<A NAME="cdvdsreadsandseeks"></A>&nbsp;
+<A NAME="cdvdreadsandseeks"></A>&nbsp;
 CDVD Reads and Seeks
 </FONT></TD></TR></TABLE><BR>
 <B>Seeking</B><BR>
 If a read command is called, a seek must be performed.
-An IRQ is NOT raised when the seek finishes when executing a read.<BR>
+An IRQ is NOT raised when the seek finishes during a read command.<BR>
 When a seek begins, if the drive is currently not spinning, it takes 333 ms for the drive to spin and finish the seek.<BR>
 Otherwise, one of three seek modes is possible:<BR>
 - Contiguous read: When the seek delta is very small or zero, seek time = block_timing * delta<BR>
