@@ -86,7 +86,22 @@ EE Map<BR>
   10002010h 4h     IPU Control
   10002020h 4h     IPU bit pointer control
   10002030h 8h     Top of bitstream
-  10007010h 10h    In FIFO
+  10007000h 10h    Out FIFO (read)
+  10007010h 10h    In FIFO (write)
+</TD></TR></TABLE>
+<B>Graphics Interface (GIF)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  10003000h 4h     GIF_CTRL - Control register
+  10003010h 4h     GIF_MODE - Mode setting
+  10003020h 4h     GIF_STAT - Status
+  10003040h 4h     GIF_TAG0 - Bits 0-31 of tag before
+  10003050h 4h     GIF_TAG1 - Bits 32-63 of tag before
+  10003060h 4h     GIF_TAG2 - Bits 64-95 of tag before
+  10003070h 4h     GIF_TAG3 - Bits 96-127 of tag before
+  10003080h 4h     GIF_CNT - Transfer status counter
+  10003090h 4h     GIF_P3CNT - PATH3 transfer status counter
+  100030A0h 4h     GIF_P3TAG - Bits 0-31 of PATH3 tag when interrupted
+  10006000h 10h    GIF FIFO
 </TD></TR></TABLE>
 <B>DMA Controller (DMAC)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -257,6 +272,103 @@ The GIF sends textures and geometry to the GS. It takes data from three differen
 <A HREF="#gifpath3masking">GIF PATH3 Masking</A><BR>
 <BR>
 <BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gifio"></A>&nbsp;
+GIF I/O
+</FONT></TD></TR></TABLE><BR>
+<B>10003000h GIF_CTRL - Control register (W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Reset GIF
+  1-2   Unused
+  3     Temporary stop (1=stop transfers, 0=restart transfers)
+  4-31  Unused
+</TD></TR></TABLE><BR>
+<B>10003010h GIF_MODE - Mode of operation (W)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Mask PATH3 (1=Mask)
+  1     Unused
+  2     Intermittent mode
+</TD></TR></TABLE>
+When PATH3 is masked by this register and GIF DMA is ongoing, the mask applies once GIF DMA ends its transfer.<BR>
+<BR>
+<B>10003020h GIF_STAT - Status register (R)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     PATH3 masked by GIF_MODE
+  1     PATH3 masked by VIF1 MASKP3 register
+  2     Intermittent mode activated
+  3     Temporary stop 
+  4     Unused
+  5     PATH3 interrupted (by intermittent mode?)
+  6     PATH3 queued
+  7     PATH2 queued
+  8     PATH1 queued
+  9     Output path (1=transfer ongoing)
+  10-11 Active path
+        0=Idle
+        1=PATH1
+        2=PATH2
+        3=PATH3
+  12    Transfer direction (0=EE->GS, 1=GS->EE)
+  13-23 Unused
+  24-28 Data in GIF FIFO (in quadwords, max 16)
+  29-31 Unused
+</TD></TR></TABLE><BR>
+<B>10003040h GIF_TAG0</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Bits 0-31 of most recently read GIFtag
+</TD></TR></TABLE>
+<B>10003050h GIF_TAG1</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Bits 32-63 of most recently read GIFtag
+</TD></TR></TABLE>
+<B>10003060h GIF_TAG2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Bits 64-95 of most recently read GIFtag
+</TD></TR></TABLE>
+<B>10003070h GIF_TAG3</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Bits 96-127 of most recently read GIFtag
+</TD></TR></TABLE>
+These registers are only readable when the GIF has been paused by GIF_CTRL.<BR>
+For details on the GIFtag format, see<BR>
+<A HREF="#giftags">GIFtags</A><BR>
+<BR>
+<B>10003080h GIF_CNT</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-14  Backwards loop counter from NLOOP
+        Decrements to zero
+  15    Unused
+  16-19 Register descriptor in progress
+        0=highest
+        1=lowest
+        2=2nd lowest
+        ...
+        15=15th lowest
+  20-29 VU data address being transferred
+  30-31 Unused
+</TD></TR></TABLE>
+Only accessible when GIF is paused by GIF_CTRL.<BR>
+<BR>
+<B>10003090h GIF_P3CNT</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-14  Backwards loop counter from PATH3 NLOOP when PATH3 is interrupted
+  15-31 Unused
+</TD></TR></TABLE>
+Only accessible when GIF is paused by GIF_CTRL.<BR>
+<BR>
+<B>100030A0h GIF_P3TAG</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Bits 0-31 of PATH3 GIFtag when PATH3 is interrupted
+</TD></TR></TABLE>
+Only accessible when GIF is paused by GIF_CTRL.<BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="giftags"></A>&nbsp;
+GIFtags
+</FONT></TD></TR></TABLE><BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="dmac"></A>&nbsp;
