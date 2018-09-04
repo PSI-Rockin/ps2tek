@@ -244,6 +244,9 @@ IOP Map<BR>
 <A NAME="dmac"></A>&nbsp;
 DMA Controller (DMAC)
 </FONT></TD></TR></TABLE><BR>
+The DMAC gives an interface for the EE to access the rest of the system.
+It can transfer one quadword (16 bytes) at bus speed (half the rate of the EE's clock).<BR>
+<BR>
 <B>DMAC Reference</B><BR>
 <A HREF="#dmacio">DMAC I/O</A><BR>
 <A HREF="#dmacchainmode">DMAC Chain Mode</A><BR>
@@ -475,7 +478,25 @@ When tag_end=true, the transfer ends after QWC has been transferred.<BR>
   7    end     MADR=DMAtag.ADDR
                tag_end=true
 </TD></TR></TABLE><BR>
+<B>DMA Resuming</B><BR>
+If a transfer starts in source chain mode and QWC > 0,
+the DMAC assumes that the TAG field of CHCR was the last read DMAtag.
+This means that if the tag ID is REFE or END, the channel will stop after QWC has been transferred.<BR>
+Sony's movie-playing library requires this behavior,
+as it uses MADR to determine the current movie buffer position.<BR>
 <BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="dmacint"></A>&nbsp;
+DMAC Interrupts
+</FONT></TD></TR></TABLE><BR>
+Upon any transfer completion, the DMAC will raise the channel's stat flag in D_STAT.
+When (stat & mask) != 0, the DMAC asserts an INT1 signal to the EE.<BR>
+INT1 may also be asserted when MFIFO is empty, a stall occurs, or a bus error occurs.
+The bus error is non-maskable via D_STAT.<BR>
+NOTE: INT0 (INTC) has priority over INT1.
+If INT0 and INT1 are asserted at the same time, the INT0 interrupt will be processed first.
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
