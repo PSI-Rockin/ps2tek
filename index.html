@@ -1172,6 +1172,7 @@ provide EE services and IOP modules, and launch PS2/PSX games.<BR>
 <BR>
 <B>BIOS Reference</B><BR>
 <A HREF="#biosbootprocess">BIOS Boot Process</A><BR>
+<A HREF="#bioseesyscalls">BIOS EE Syscalls</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1201,4 +1202,131 @@ OSDSYS, once loaded, is responsible for bringing up the "Sony Computer Entertain
 - LOADCORE boots all of the IOP modules in the BIOS, starting with EXCEPMAN.<BR>
 - At some point, SIF is initialized. The IOP waits for the EE to send a message and replies over another SIF register.<BR>
 - Once all modules have been loaded, the IOP enters an infinite loop, waiting for the EE to send commands.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="bioseesyscalls"></A>&nbsp;
+BIOS EE Syscalls
+</FONT></TD></TR></TABLE><BR>
+When a SYSCALL instruction is executed, the EE jumps to 80000180h and sets COP0.Cause to 08h.
+The kernel syscall handler retrieves the syscall number by reading the last byte before the SYSCALL.
+In other words, the syscall id = read8(COP0.EPC-1).<BR>
+Negative syscalls (i.e., those with bit 7 set) use the current thread's stack for internal operations.
+Positive syscalls use the kernel stack.<BR>
+<BR>
+<B>List of EE Syscalls</B><BR>
+<B>01h void ResetEE(int reset_flag)</B><BR>
+Resets EE components depending on which bits are set in reset_flag:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0 - DMAC
+  1 - VU1
+  2 - VIF1
+  3 - GIF
+  4 - VU0
+  5 - VIF0
+  6 - IPU
+</TD></TR></TABLE>
+NOTE: INTC is reset regardless of the flag's settings.<BR>
+<BR>
+<B>02h void SetGsCrt(bool interlaced, int display_mode, bool frame)</B><BR>
+Initializes the PCRTC.<BR>
+<BR>
+<B>04h void Exit(int status)</B><BR>
+Returns to the OSDSYS browser. Internally calls LoadExecPS2("rom0:OSDSYS", 1, "BootBrowser").<BR>
+<BR>
+<B>06h void LoadExecPS2(const char* filename, int argc, char** argv)</B><BR>
+Loads an ELF with the specified arguments and executes it.
+This function also clears all of the internal kernel state, such as threads and semaphores, before execution.<BR>
+This function does not (and must not) return.<BR>
+<BR>
+<B>07h void ExecPS2(void* entry, void* gp, int argc, char** argv)</B><BR>
+Clears all of the internal kernel state and creates a thread with priority 0 (main thread).
+The thread begins executing from the entry point.<BR>
+This function does not (and must not) return.<BR>
+<BR>
+<B>10h int AddIntcHandler(int int_cause, int (*handler)(int), int next, void* arg, int flag)</B><BR>
+Adds an interrupt handler with the specified cause to a queue.
+This function returns the id of the handler or -1 if the operation fails.
+int_cause corresponds to a bit in INTC_STAT/INTC_MASK. For example, int_cause=2 will register a VBLANK handler.<BR>
+next is a previously registered handler id which this handler will be placed before.
+next==0 will place the handler in front of the queue, and next==-1 will place it at the back of the queue.<BR>
+arg and flag are stored in the handler struct but don't seem to be used otherwise?<BR>
+<B>
+<B>11h int RemoveIntcHandler(int int_cause, int handler_id)</B><BR>
+Removes the handler associated with the interrupt cause. Returns -1 if the operation fails.<BR>
+<BR>
+<B>12h int AddDmacHandler(int dma_cause, int (*handler)(int), int next, void* arg, int flag)</B><BR>
+Adds an interrupt handler for INT1 (DMAC) interrupts. Otherwise works the same as AddIntcHandler.<BR>
+<BR>
+<B>13h int RemoveDmacHandler(int dma_cause, int handler_id)</B><BR>
+Works same as RemoveIntcHandler.<BR>
+<BR>
+<B>20h int CreateThread(ThreadParam* t)</B><BR>
+Creates a thread with DORMANT status. ThreadParam has the following parameters:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  int status - Unused by the function
+  void (*entry)(void*) - Function to begin executing from
+  void* stack - Base of thread stack
+  int stackSize
+  void* _gp - Global pointer of thread
+  int initPriority - Initial priority given to thread (smaller=higher priority)
+</TD></TR></TABLE>
+Returns the id of the newly created thread, or -1 if the function fails.<BR>
+<BR>
+<B>3Ch void* InitMainThread/RFU060(uint32 gp, void* stack, int stack_size, char* args, int root)</B><BR>
+Initializes the main thread (obviously). Returns the stack pointer of the main thread.<BR>
+If stack == -1, the stack pointer equals the end of RDRAM - stack_size. Else, it equals stack - stack_size.<BR>
+This function should only be called before the program's main function.<BR>
+<BR>
+<B>3Dh void* InitHeap/RFU061(void* heap, int heap_size)</B><BR>
+Initializes the current thread's heap. If heap == -1, the end of the heap resides at the thread's stack pointer.
+Else, the end of the heap is heap + heap_size.<BR>
+Returns the end of the thread's heap.<BR>
+<BR>
+<B>3Eh void* EndOfHeap()</B><BR>
+Returns the current thread's heap base.<BR>
+<BR>
+<B>40h int CreateSema(SemaParam* s)</B><BR>
+Creates a semaphore. Returns the semaphore's id if successful and -1 if not.<BR>
+The parameters for sema_struct are as follows:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  int init_count - The initial value for "count" (see WaitSema and SignalSema for details)
+  int max_count
+  uint32 attr - Unused by kernel?
+  uint32 option - Unused by kernel?
+</TD></TR></TABLE><BR>
+<B>41h int DeleteSema(int sema_id)</B><BR>
+Deletes the semaphore, forcing a thread reschedule.
+Threads waiting on the semaphore will either be released or suspended, depending on their status.<BR>
+<BR>
+<B>42h int SignalSema(int sema_id)</B><BR>
+Signals a semaphore. If a thread has called WaitSema on this semaphore, this forces a thread rescheduling.
+Otherwise, the semaphore's count is incremented by one.<BR>
+Returns -1 if unsuccessful.<BR>
+<BR>
+<B>43h int iSignalSema(int sema_id)</B><BR>
+Similar to SignalSema, except this does not reschedule threads.
+The semaphore's thread is simply active.<BR>
+This function is called internally by SignalSema.
+Returns -1 if unsuccessful and -2 if the thread is released from its wait state.<BR>
+<BR>
+<B>44h int WaitSema(int sema_id)</B><BR>
+If the semaphore's "count" variable > 0, count is decremented. 
+Else, a thread rescheduling occurs, changing the active thread.<BR>
+<BR>
+<B>45h int PollSema(int sema_id)</B><BR>
+Decrements the semaphore's count variable. Returns -1 if unsuccessful.<BR>
+<BR>
+<B>64h void FlushCache(int mode)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Modes of operation
+  mode=0: Flush primary instruction cache
+  mode=1: Flush secondary instruction cache
+  mode=2: Flush data cache
+  All other modes flush BOTH secondary instruction cache and the data cache.
+</TD></TR></TABLE><BR>
+<B>74h void SetSyscall/RFU116(int index, int address)</B><BR>
+Replaces an entry on the syscall table with the specified address.<BR>
+This function does not perform any bounds checking.<BR>
+<BR>
 </BODY></HTML>
