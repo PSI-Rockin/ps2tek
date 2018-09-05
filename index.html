@@ -264,8 +264,8 @@ The GIF sends textures and geometry to the GS. It takes data from three differen
  - PATH1: VU1 via XGKICK instruction. Highest priority.<BR>
  - PATH2: VIF1 via DIRECT/DIRECTHL. Medium priority.<BR>
  - PATH3: GIF DMAC channel (channel 2). Lowest priority.<BR>
-Only one PATH runs at a time.
-Under normal conditions, when one PATH stops, the highest priority queued PATH begins transfer.<BR>
+Only one PATH may run at a time.
+Under normal conditions, when one PATH stops, the highest priority queued PATH will begin transfer.<BR>
 <BR>
 <B>GIF Reference</B><BR>
 <A HREF="#gifio">GIF I/O</A><BR>
@@ -405,11 +405,11 @@ GIF Data Formats
 The data format after a GIFtag varies depending on the value of GIFtag.58-59.
 The GIF can transfer to the GS in PACKED, REGLIST, or IMAGE formats.<BR>
 <BR>
-<B>PACKED</B><BR>
+<B>PACKED Format</B><BR>
 Data is transferred in units of quadwords (16 bytes).
 Total amount of data in the GIF primitive = NLOOP * NREGS.<BR>
 All registers not specified below output the lower 64-bits of the quadword to their GS register directly.
-The upper 64-bits are disregarded.<BR>
+The upper 64-bits are discarded.<BR>
 <BR>
 <B>Current reg=0h PRIM</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -492,14 +492,44 @@ Similar to XYZ2F/XYZ3F above, except there is no F register and Z is 32-bit.<BR>
   64-71   Register address
   72-127  Unused
 </TD></TR></TABLE>
-Outputs data to the given register.<BR>
+Outputs data to the given register address.<BR>
 <BR>
-WARNING: Do not use this register descriptor on PATH3 when PATH1 is also running, or the GS may lock up.<BR>
+WARNING: Do not use this register descriptor on PATH3 when PATH1 is also running, or the GS may lock up!<BR>
 <BR>
 <B>Current reg=Fh NOP</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Data not output to GS.
 </TD></TR></TABLE><BR>
+  
+<B>REGLIST Format</B><BR>
+Total data in GIF primitive = NREGS * NLOOP, in units of doublewords. (64-bits)<BR>
+In REGLIST, a doubleword is sent directly to the register descriptor.
+Every quadword contains data for two registers.
+When the data is prepared properly, this can multiply data density by up to a factor of 2.<BR>
+When NREGS * NLOOP is odd, the last doubleword in a primitive is discarded.<BR>
+<BR>
+<B>IMAGE Format</B><BR>
+Total data in GIF primitive = NLOOP only, in units of quadwords.<BR>
+IMAGE is a shortcut for writing to the GS HWREG register, which transfers textures and other data to VRAM.
+Each quadword has enough data for two writes to HWREG.<BR>
+<BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gifpath3masking"></A>&nbsp;
+GIF PATH3 Masking
+</FONT></TD></TR></TABLE><BR>
+PATH1 and PATH2 transfer to the GS without any internal buffering.
+However, PATH3 has a 16-quadword GIF FIFO.<BR>
+When PATH3 masking is enabled, data sent by PATH3 will reside in the FIFO until the mask is lifted.
+This is useful for queueing texture transfers while other paths are sending geometry. 
+GTA: San Andreas, Lemmings, and some other games rely on this.<BR>
+<BR>
+Furthermore, Wallace and Gromit at Project Zoo will enable the mask and start a GIF DMA transfer, expecting it to finish.
+Emulating PATH3 masking without emulating the GIF FIFO will cause it to hang on a black screen,
+as the DMA channel is unable to write any data.<BR>
+<BR>
+<BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="dmac"></A>&nbsp;
