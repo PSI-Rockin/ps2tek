@@ -801,7 +801,7 @@ The EE has two separate interrupt signals: INT0 (raised by INTC) and INT1 (raise
 <B>1000F010h INTC_MASK - Interrupt mask register (R/W)</B><BR>
 Status: Read INTC_STAT (1=IRQ raised)<BR>
 Acknowledge: Write INTC_STAT (0=No effect 1=Clear bit)<BR>
-Mask: Read/Write INTC_MASK (0=Disabled 1=Enabled)<BR>
+Mask: Write INTC_MASK (0=No effect, 1=Reverse)<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0     IRQ0   GS interrupt
   1     IRQ1   SBUS
