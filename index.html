@@ -13,6 +13,7 @@
   <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
   <A HREF="#ioptimers">IOP Timers</A><BR>
+  <A HREF="#bios">BIOS</A><BR>
 <BR>
 <BR>
   
@@ -1090,7 +1091,9 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
   0     Disable all interrupts
   1-31  Unused/garbage
 </TD></TR></TABLE>
-When bit 0=1, all IOP interrupts are disabled. Reading this register returns bit 0 AND clears it, re-enabling interrupts. Writing can set or reset bit 0.<br>
+When bit 0=1, all IOP interrupts are disabled.
+Reading this register returns bit 0 AND clears it, re-enabling interrupts.
+Writing can set or reset bit 0.<br>
 NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via this register.<BR>
 <BR>
 <B>Raising Interrupts</B><BR>
@@ -1159,4 +1162,43 @@ This raises an IRQ in I_STAT if both mode.4 and mode.10 are enabled.<BR>
 If mode.7 (LEVL) is not set, writes to target set mode.10 to 1.<BR>
 <BR>
 <BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="bios"></A>&nbsp;
+BIOS
+</FONT></TD></TR></TABLE><BR>
+The PS2 BIOS resides in a 4 MB ROM.
+Its purpose is to initialize hardware into a usable state,
+provide EE services and IOP modules, and launch PS2/PSX games.<BR>
+<BR>
+<B>BIOS Reference</B><BR>
+<A HREF="#biosbootprocess">BIOS Boot Process</A><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosbootprocess"></A>&nbsp;
+BIOS Boot Process
+</FONT></TD></TR></TABLE><BR>
+Upon reset, both the EE and IOP begin executing at BFC00000h.
+The BIOS checks which CPU is executing by checking COP0.PRid (register 15).
+If PRid >= 59h, the EE boot code is executed. Else, the IOP boot code is executed.<BR>
+<BR>
+<B>EE boot process</B><BR>
+- The EE clock speed is measured. (SCPH-10000 uses COP0.Count; SCPH-39001 counts HBLANKs using one of the timers.
+Unknown what other BIOSes use.)<BR>
+- The memory controller is initialized, giving access to the 32 MB of RDRAM.<BR>
+- The EE kernel is copied into RAM starting at virtual address 80000000h.
+The BIOS jumps to the entry point at 80001000h.<BR>
+- The TLB and PGIF handler are initialized and various hardware components are reset.<BR>
+- EENULL, an idle loop thread, is loaded into 00081FC0h.<BR>
+- SIF DMA is initialized. The EE writes to an SIF register and waits for a reply from the IOP.<BR>
+- The EELOAD module is loaded, which in turn loads OSDSYS.<BR>
+<BR>
+OSDSYS, once loaded, is responsible for bringing up the "Sony Computer Entertainment" screen and the browser.<BR>
+<BR>
+<B>IOP boot process</B><BR>
+- Various hardware registers are initialized, and IOPBOOT is loaded.<BR>
+- IOPBOOT finds SYSMEM and LOADCORE, loads them into memory, and executes their entry points.<BR>
+- LOADCORE boots all of the IOP modules in the BIOS, starting with EXCEPMAN.<BR>
+- At some point, SIF is initialized. The IOP waits for the EE to send a message and replies over another SIF register.<BR>
+- Once all modules have been loaded, the IOP enters an infinite loop, waiting for the EE to send commands.<BR>
 </BODY></HTML>
