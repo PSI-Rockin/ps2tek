@@ -1251,7 +1251,7 @@ int_cause corresponds to a bit in INTC_STAT/INTC_MASK. For example, int_cause=2 
 next is a previously registered handler id which this handler will be placed before.
 next==0 will place the handler in front of the queue, and next==-1 will place it at the back of the queue.<BR>
 arg and flag are stored in the handler struct but don't seem to be used otherwise?<BR>
-<B>
+<BR>
 <B>11h int RemoveIntcHandler(int int_cause, int handler_id)</B><BR>
 Removes the handler associated with the interrupt cause. Returns -1 if the operation fails.<BR>
 <BR>
