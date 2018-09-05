@@ -264,6 +264,8 @@ The GIF sends textures and geometry to the GS. It takes data from three differen
  - PATH1: VU1 via XGKICK instruction. Highest priority.<BR>
  - PATH2: VIF1 via DIRECT/DIRECTHL. Medium priority.<BR>
  - PATH3: GIF DMAC channel (channel 2). Lowest priority.<BR>
+Only one PATH runs at a time.
+Under normal conditions, when one PATH stops, the highest priority queued PATH begins transfer.<BR>
 <BR>
 <B>GIF Reference</B><BR>
 <A HREF="#gifio">GIF I/O</A><BR>
@@ -314,19 +316,19 @@ When PATH3 is masked by this register and GIF DMA is ongoing, the mask applies o
   24-28 Data in GIF FIFO (in quadwords, max 16)
   29-31 Unused
 </TD></TR></TABLE><BR>
-<B>10003040h GIF_TAG0</B><BR>
+<B>10003040h GIF_TAG0 (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Bits 0-31 of most recently read GIFtag
 </TD></TR></TABLE>
-<B>10003050h GIF_TAG1</B><BR>
+<B>10003050h GIF_TAG1 (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Bits 32-63 of most recently read GIFtag
 </TD></TR></TABLE>
-<B>10003060h GIF_TAG2</B><BR>
+<B>10003060h GIF_TAG2 (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Bits 64-95 of most recently read GIFtag
 </TD></TR></TABLE>
-<B>10003070h GIF_TAG3</B><BR>
+<B>10003070h GIF_TAG3 (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Bits 96-127 of most recently read GIFtag
 </TD></TR></TABLE>
@@ -334,7 +336,7 @@ These registers are only readable when the GIF has been paused by GIF_CTRL.<BR>
 For details on the GIFtag format, see<BR>
 <A HREF="#giftags">GIFtags</A><BR>
 <BR>
-<B>10003080h GIF_CNT</B><BR>
+<B>10003080h GIF_CNT (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-14  Backwards loop counter from NLOOP
         Decrements to zero
@@ -350,14 +352,14 @@ For details on the GIFtag format, see<BR>
 </TD></TR></TABLE>
 Only accessible when GIF is paused by GIF_CTRL.<BR>
 <BR>
-<B>10003090h GIF_P3CNT</B><BR>
+<B>10003090h GIF_P3CNT (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-14  Backwards loop counter from PATH3 NLOOP when PATH3 is interrupted
   15-31 Unused
 </TD></TR></TABLE>
 Only accessible when GIF is paused by GIF_CTRL.<BR>
 <BR>
-<B>100030A0h GIF_P3TAG</B><BR>
+<B>100030A0h GIF_P3TAG (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Bits 0-31 of PATH3 GIFtag when PATH3 is interrupted
 </TD></TR></TABLE>
@@ -369,6 +371,135 @@ Only accessible when GIF is paused by GIF_CTRL.<BR>
 <A NAME="giftags"></A>&nbsp;
 GIFtags
 </FONT></TD></TR></TABLE><BR>
+The basic unit of GIF transfer data is the GIF packet.
+Each packet is split into one or more primitives. Every primitive must be preceded by a GIFtag.<BR>
+<BR>
+<B>GIFtag Format</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-14    NLOOP - Data per register to transfer
+  15      EOP - End of packet
+  16-45   Unused
+  46      Enable PRIM field
+  47-57   Data to be sent to GS PRIM register if GIFtag.46 == 1
+  58-59   Data format
+          0=PACKED
+          1=REGLIST
+          2=IMAGE
+          3=IMAGE
+  60-63   NREGS - Number of registers
+          0=16 registers
+  64-127  Register field, 4 bits each
+</TD></TR></TABLE><BR>
+When NLOOP == 0, all fields are ignored except EOP and no further processing is done.<BR>
+When GIFtag.46 == 0, an idle cycle is inserted before processing begins.<BR>
+Registers are handled in little-endian order; i.e. bits 64-67 are processed first, then 68-71, and so on.<BR>
+<BR>
+NOTE: The GS Q register is initialized to 1.0f when reading a GIFtag.<BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gifdataformats"></A>&nbsp;
+GIF Data Formats
+</FONT></TD></TR></TABLE><BR>
+The data format after a GIFtag varies depending on the value of GIFtag.58-59.
+The GIF can transfer to the GS in PACKED, REGLIST, or IMAGE formats.<BR>
+<BR>
+<B>PACKED</B><BR>
+Data is transferred in units of quadwords (16 bytes).
+Total amount of data in the GIF primitive = NLOOP * NREGS.<BR>
+All registers not specified below output the lower 64-bits of the quadword to their GS register directly.
+The upper 64-bits are disregarded.<BR>
+<BR>
+<B>Current reg=0h PRIM</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-10    Data to write to GS PRIM
+  11-127  Unused
+</TD></TR></TABLE><BR>
+<B>Current reg=1h RGBA</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Writes to RGBAQ register (Q is unchanged)
+  0-7     R
+  8-31    Unused
+  32-39   G
+  40-63   Unused
+  64-71   B
+  72-95   Unused
+  96-103  A
+  104-127 Unused
+</TD></TR></TABLE>
+R, G, B, and A are 8-bit values. Q is set by the STQ command.<BR>
+<BR>
+<B>Current reg=2h STQ</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Writes to ST register and Q component of RGBAQ.
+  0-31    S
+  32-63   T
+  64-95   Q
+  96-127  Unused
+</TD></TR></TABLE>
+S, T, and Q are single-precision (32-bit) floats in IEEE 754 format.<BR>
+<BR>
+<B>Current reg=3h UV</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-13    U
+  14-31   Unused
+  32-45   V
+  46-127  Unused
+</TD></TR></TABLE>
+U and V are 14-bit unsigned fixed-point integers with a 4-bit fractional component.<BR>
+<BR>
+<B>Current reg=4h XYZ2F/XYZ3F</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15    X
+  16-31   Unused
+  32-47   Y
+  48-67   Unused
+  68-91   Z
+  92-99   Unused
+  100-107 F
+  108-110 Unused
+  111     Disable drawing (1=write to XYZ3F, 0=write to XYZ2F)
+  112-127 Unused
+</TD></TR></TABLE>
+X and Y are signed 16-bit fixed-point integers with a 4-bit fractional component.<BR>
+Z is a 24-bit integer, and F is an 8-bit integer.<BR>
+The "disable drawing" bit controls whether the data is written to XYZ2F or XYZ3F.<BR>
+<BR>
+<B>Current reg=5h XYZ2/XYZ3</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15    X
+  16-31   Unused
+  32-47   Y
+  48-63   Unused
+  64-95   Z
+  96-110  Unused
+  111     Disable drawing (1=write to XYZ3F, 0=write to XYZ2F)
+  112-127 Unused
+</TD></TR></TABLE>
+Similar to XYZ2F/XYZ3F above, except there is no F register and Z is 32-bit.<BR>
+<BR>
+<B>Current reg=Ah FOG</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-99    Unused
+  100-107 F
+  108-127 Unused
+</TD></TR></TABLE><BR>
+
+<B>Current reg=Eh A+D (output data to specified address)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-63    Data
+  64-71   Register address
+  72-127  Unused
+</TD></TR></TABLE>
+Outputs data to the given register.<BR>
+<BR>
+WARNING: Do not use this register descriptor on PATH3 when PATH1 is also running, or the GS may lock up.<BR>
+<BR>
+<B>Current reg=Fh NOP</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Data not output to GS.
+</TD></TR></TABLE><BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="dmac"></A>&nbsp;
