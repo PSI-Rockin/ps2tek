@@ -1172,6 +1172,7 @@ provide EE services and IOP modules, and launch PS2/PSX games.<BR>
 <BR>
 <B>BIOS Reference</B><BR>
 <A HREF="#biosbootprocess">BIOS Boot Process</A><BR>
+<A HREF="#bioseethreading">BIOS EE Threading</A><BR>
 <A HREF="#bioseesyscalls">BIOS EE Syscalls</A><BR>
 <BR>
 <BR>
@@ -1205,12 +1206,114 @@ OSDSYS, once loaded, is responsible for bringing up the "Sony Computer Entertain
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="bioseethreading"></A>&nbsp;
+BIOS EE Threading
+</FONT></TD></TR></TABLE><BR>
+The EE kernel uses a cooperative priority-based thread scheduler.
+It can support up to 256 threads and 256 semaphores. However, only up to 128 threads may be active at a time.<BR>
+<BR>
+<B>Structs</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct ThreadParam //Used as argument for CreateThread, ReferThreadStatus
+  {
+    int status;
+    void *func; //function to execute when thread begins
+    void *stack;
+    int stack_size;
+    void *gp_reg;
+    int initial_priority;
+    int current_priority;
+    u32 attr;
+    u32 option;
+  }
+</TD></TR></TABLE>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SemaParam //Used as argument for CreateSema
+  {
+    int count, //used by WaitSema and SignalSema
+	      max_count,
+	      init_count, //initial value for count
+	      wait_threads; //number of threads associated with this semaphore
+	  u32 attr, //not used by kernel
+	      option; //not used by kernel
+  }
+</TD></TR></TABLE>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  //Thread statuses
+  #define THS_RUN 0x01
+  #define THS_READY 0x02
+  #define THS_WAIT 0x04
+  #define THS_SUSPEND 0x08
+  #define THS_DORMANT 0x10
+  struct TCB //Internal thread structure
+  {
+    struct TCB *prev;
+    struct TCB *next;
+    int status;
+    void *func;
+    void *current_stack;
+    void *gp_reg;
+    short current_priority;
+    short init_priority;
+    int wait_sema; //?
+    int sema_id;
+    int wakeup_count;
+    int attr;
+    int option;
+    void *_func; //???
+    int argc;
+    char **argv;
+    void *initial_stack;
+    int stack_size;
+    int *root; //function to return to when exiting thread?
+    void *heap_base;
+  }
+</TD></TR></TABLE>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct sema //Internal semaphore structure
+  {
+    struct sema *free; //pointer to empty slot for a new semaphore
+	  int count;
+	  int max_count;
+	  int attr;
+	  int option;
+	  int wait_threads;
+	  struct TCB *wait_next,
+               *wait_prev;
+  }
+</TD></TR></TABLE><BR>
+
+<B>Thread Scheduler</B><BR>
+The kernel uses a 128-element doubly-linked list for managing thread priorities.
+The general algorithm for the scheduler is as follows:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  void reschedule(uint32 EPC, uint32 stack)
+    Set current thread entry function to EPC (instruction after exception)
+    Set current thread stack base to stack
+    Set current thread status to READY
+    Loop through active thread priority list, starting from 0 (highest priority)
+      If an active thread is found, set current thread to it and break
+      If no active thread is found, print an error and call Exit(1)
+    Set found thread's status to RUN and return its entry function and stack pointer
+</TD></TR></TABLE>
+Scheduling is only invoked by syscalls and relies on absolute priority.
+Threads with lower priority will never run as long as there is an active thread with higher priority.<BR>
+<BR>
+<B>Semaphores</B><BR>
+Threads that call WaitSema on a semaphore with a "count" of zero are placed in a WAIT state
+and removed from the active thread list.<BR>
+Conversely, calling SignalSema can re-add all threads waiting on a semaphore to the list.<BR>
+Semaphores are useful for blocking execution of a thread until a task completes.
+Sony's official SIF protocol, for instance, use a semaphore to place the caller thread to sleep 
+and activate an idle thread while the IOP processes a request.
+The caller thread is reactivated in the SIF interrupt handler.<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="bioseesyscalls"></A>&nbsp;
 BIOS EE Syscalls
 </FONT></TD></TR></TABLE><BR>
 When a SYSCALL instruction is executed, the EE jumps to 80000180h and sets COP0.Cause to 08h.
-The kernel syscall handler retrieves the syscall number by reading the last byte before the SYSCALL.
-In other words, the syscall id = read8(COP0.EPC-1).<BR>
+The kernel syscall handler retrieves the syscall number from the v1 register.<BR>
 Negative syscalls (i.e., those with bit 7 set) use the current thread's stack for internal operations.
 Positive syscalls use the kernel stack.<BR>
 <BR>
@@ -1262,16 +1365,21 @@ Adds an interrupt handler for INT1 (DMAC) interrupts. Otherwise works the same a
 Works same as RemoveIntcHandler.<BR>
 <BR>
 <B>20h int CreateThread(ThreadParam* t)</B><BR>
-Creates a thread with DORMANT status. ThreadParam has the following parameters:
-<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  int status - Unused by the function
-  void (*entry)(void*) - Function to begin executing from
-  void* stack - Base of thread stack
-  int stackSize
-  void* _gp - Global pointer of thread
-  int initPriority - Initial priority given to thread (smaller=higher priority)
-</TD></TR></TABLE>
+Creates a thread with DORMANT status. The thread is not placed in the priority linked-list.<BR>
+Only t->func, t->initial_priority, t->stack, t->stack_size, and t->gp_reg are used.
+The new thread re-uses the heap of its parent thread.<BR>
 Returns the id of the newly created thread, or -1 if the function fails.<BR>
+<BR>
+<B>21h void DeleteThread(int thread_id)</B><BR>
+Deletes a thread. The function only succeeds if the thread has DORMANT status and is not the current thread.<BR>
+<BR>
+<B>22h void StartThread(int thread_id, void* arg)</B><BR>
+Adds a DORMANT thread to the active thread list and gives it READY status, forcing a thread reschedule.
+arg is intended to be used by the callee thread if it becomes the current thread.<BR>
+The function fails if the thread is the current thread or is not DORMANT.<BR>
+<BR>
+<B>23h void ExitThread()</B><BR>
+Removes the current thread from the active thread list and gives it DORMANT status, forcing a thread reschedule.<BR>
 <BR>
 <B>3Ch void* InitMainThread/RFU060(uint32 gp, void* stack, int stack_size, char* args, int root)</B><BR>
 Initializes the main thread (obviously). Returns the stack pointer of the main thread.<BR>
@@ -1288,13 +1396,8 @@ Returns the current thread's heap base.<BR>
 <BR>
 <B>40h int CreateSema(SemaParam* s)</B><BR>
 Creates a semaphore. Returns the semaphore's id if successful and -1 if not.<BR>
-The parameters for sema_struct are as follows:<BR>
-<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  int init_count - The initial value for "count" (see WaitSema and SignalSema for details)
-  int max_count
-  uint32 attr - Unused by kernel?
-  uint32 option - Unused by kernel?
-</TD></TR></TABLE><BR>
+Only s->init_count and s->max_count need to be specified. s->attr and s->option may also be specified.<BR>
+<BR>
 <B>41h int DeleteSema(int sema_id)</B><BR>
 Deletes the semaphore, forcing a thread reschedule.
 Threads waiting on the semaphore will either be released or suspended, depending on their status.<BR>
