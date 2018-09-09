@@ -1244,6 +1244,7 @@ It can support up to 256 threads and 256 semaphores. However, only up to 128 thr
   #define THS_READY 0x02
   #define THS_WAIT 0x04
   #define THS_SUSPEND 0x08
+  #define THS_WAITSUSPEND 0x0C //THS_WAIT | THS_SUSPEND
   #define THS_DORMANT 0x10
   struct TCB //Internal thread structure
   {
@@ -1273,13 +1274,12 @@ It can support up to 256 threads and 256 semaphores. However, only up to 128 thr
   struct sema //Internal semaphore structure
   {
     struct sema *free; //pointer to empty slot for a new semaphore
-	  int count;
-	  int max_count;
-	  int attr;
-	  int option;
-	  int wait_threads;
-	  struct TCB *wait_next,
-               *wait_prev;
+    int count;
+    int max_count;
+    int attr;
+    int option;
+    int wait_threads;
+    struct TCB *wait_next, *wait_prev;
   }
 </TD></TR></TABLE><BR>
 
@@ -1315,7 +1315,9 @@ BIOS EE Syscalls
 When a SYSCALL instruction is executed, the EE jumps to 80000180h and sets COP0.Cause to 08h.
 The kernel syscall handler retrieves the syscall number from the v1 register.<BR>
 Negative syscalls (i.e., those with bit 7 set) use the current thread's stack for internal operations.
-Positive syscalls use the kernel stack.<BR>
+Positive syscalls use the kernel stack.
+Unknown what the purpose of this is, but user-defined interrupt handlers use negative syscalls only
+(specifically negative "i" variants of syscalls).<BR>
 <BR>
 <B>List of EE Syscalls</B><BR>
 <B>01h void ResetEE(int reset_flag)</B><BR>
@@ -1336,6 +1338,9 @@ Initializes the PCRTC.<BR>
 <BR>
 <B>04h void Exit(int status)</B><BR>
 Returns to the OSDSYS browser. Internally calls LoadExecPS2("rom0:OSDSYS", 1, "BootBrowser").<BR>
+<BR>
+<B>05h void _ExceptionEpilogue/RFU005()</B><BR>
+Internal syscall used by kernel exception handlers. Returns to the user program.<BR>
 <BR>
 <B>06h void LoadExecPS2(const char* filename, int argc, char** argv)</B><BR>
 Loads an ELF with the specified arguments and executes it.
@@ -1379,10 +1384,99 @@ arg is intended to be used by the callee thread if it becomes the current thread
 The function fails if the thread is the current thread or is not DORMANT.<BR>
 <BR>
 <B>23h void ExitThread()</B><BR>
-Removes the current thread from the active thread list and gives it DORMANT status, forcing a thread reschedule.<BR>
+Removes the current thread from the active thread list, resets it, and gives it DORMANT status,
+forcing a thread reschedule.<BR>
+<BR>
+<B>24h void ExitDeleteThread()</B><BR>
+Deletes the current thread, forcing a thread reschedule.<BR>
+<BR>
+<B>25h void TerminateThread(int thread_id)</B><BR>
+Has different behavior depending on the thread's status:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  No status (0), RUN, DORMANT - No effect.
+  READY - Removes thread from active thread list, resets it, and gives it DORMANT status, forcing a thread reschedule.
+  WAIT, WAITSUSPEND - Same as READY but also decrements the thread's semaphore's "wait_threads" by one.
+  All other statuses - Resets the thread and gives the thread DORMANT status, forcing a thread reschedule.
+</TD></TR></TABLE>
+<BR>
+<B>26h void iTerminateThread(int thread_id)</B><BR>
+Same as TerminateThread, but does not force a thread reschedule. Used internally by TerminateThread.<BR>
+Returns -1 if unsuccessful.<BR>
+<BR>
+<B>29h void ChangeThreadPriority(int thread_id, int priority)</B><BR>
+Changes the thread's priority, forcing a thread reschedule. If thread_id==0, the current thread's id is used.<BR>
+This function fails if the thread is DORMANT.<BR>
+<BR>
+<B>2Ah int iChangeThreadPriority(int thread_id, int priority)</B><BR>
+Same as ChangeThreadPriority, but does not force a thread reschedule. Used internally by ChangeThreadPriority.<BR>
+Returns -1 upon a failure.<BR>
+<BR>
+<B>2Bh void RotateThreadReadyQueue(int priority)</B><BR>
+<BR>
+<B>2Ch int _iRotateThreadReadyQueue(int priority)</B><BR>
+<BR>
+<B>2Dh void ReleaseWaitThread(int thread_id)</B><BR>
+If the thread has WAIT status, it is given READY status and added to the active thread list.
+If it has WAITSUSPEND status, it is given SUSPEND status.<BR>
+Both (and only) these cases force a thread reschedule. The reference to the thread's semaphore is also removed.<BR>
+<BR>
+<B>2Eh int iReleaseWaitThread(int thread_id)</B><BR>
+Same as ReleaseWaitThread, but does not force a thread reschedule. Internally used by ReleaseWaitThread.<BR>
+Returns -1 if unsuccessful.<BR>
+<B>2Fh int GetThreadId()</B><BR>
+Returns the current thread's id.<BR>
+<BR>
+<B>30h int ReferThreadStatus(int thread_id, ThreadParam* status)</B><BR>
+<B>31h int iReferThreadStatus(int thread_id, ThreadParam* status)</B><BR>
+Fills out the ThreadParam struct with the given thread's information. Returns -1 if unsuccessful.<BR>
+The "i" variant performs exactly the same function.<BR>
+<BR>
+<B>32h void SleepThread()</B><BR>
+If the current thread's "wakeup_count" is greater than zero, it is decremented.
+Else, the current thread is removed from the active thread list and given WAIT status, forcing a thread reschedule.<BR>
+<BR>
+<B>33h void WakeupThread(int thread_id)</B><BR>
+Has different behavior depending on the thread's status:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  WAIT - Set to READY and re-added to active thread list, forcing a thread reschedule
+  WAITSUSPEND - Placed in SUSPEND status, forcing a thread reschedule.
+  READY, SUSPEND - Increments "wakeup_count", forcing a thread reschedule.
+  Other statuses - No effect.
+</TD></TR></TABLE><BR>
+<B>34h int iWakeupThread(int thread_id)</B><BR>
+Same as WakeupThread, but does not force a thread reschedule. Internally used by WakeupThread.<BR>
+Returns -1 if unsuccessful.<BR>
+<BR>
+<B>35h int CancelWakeupThread(int thread_id)</B><BR>
+<B>36h int iCancelWakeupThread(int thread_id)</B><BR>
+Resets the thread's "wakeup_count" to zero. Returns -1 if unsuccessful, or the old wakeup_count otherwise.<BR>
+<BR>
+<B>37h int SuspendThread(int thread_id)</B><BR>
+<B>38h int iSuspendThread(int thread_id)</B><BR>
+Has different behavior depending on the thread's status:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  READY, RUN - Removed from active thread list and placed in SUSPEND status.
+  WAIT - Placed in WAITSUSPEND status.
+  All other statuses - No effect.
+</TD></TR></TABLE>
+Returns -1 on failure or thread_id otherwise.<BR>
+BUG: This function does NOT force a thread reschedule! If the current thread is suspended, it will continue to run!<BR>
+<BR>
+<B>39h void ResumeThread(int thread_id)</B><BR>
+Has different behavior depending on the thread's status:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  SUSPEND - Placed in READY or RUN status and added to active thread list, forcing a thread reschedule.
+  WAITSUSPEND - Placed in WAIT status, forcing a thread reschedule.
+  All other statuses - No effect
+</TD></TR></TABLE><BR>
+<B>3Ah int iResumeThread(int thread_id)</B><BR>
+Same as ResumeThread, but does not force a thread reschedule. Internally used by ResumeThread.<BR>
+Returns -1 if unsuccessful or thread_id otherwise.<BR>
+<BR>
+<B>3Bh void JoinThread()</B><BR>
 <BR>
 <B>3Ch void* InitMainThread/RFU060(uint32 gp, void* stack, int stack_size, char* args, int root)</B><BR>
-Initializes the main thread (obviously). Returns the stack pointer of the main thread.<BR>
+Initializes the current thread. Returns the stack pointer of the thread.<BR>
 If stack == -1, the stack pointer equals the end of RDRAM - stack_size. Else, it equals stack - stack_size.<BR>
 This function should only be called before the program's main function.<BR>
 <BR>
@@ -1409,13 +1503,13 @@ Returns -1 if unsuccessful.<BR>
 <BR>
 <B>43h int iSignalSema(int sema_id)</B><BR>
 Similar to SignalSema, except this does not reschedule threads.
-The semaphore's thread is simply active.<BR>
+The semaphore's threads are simply re-added to the active thread list.<BR>
 This function is called internally by SignalSema.
 Returns -1 if unsuccessful and -2 if the thread is released from its wait state.<BR>
 <BR>
-<B>44h int WaitSema(int sema_id)</B><BR>
+<B>44h void WaitSema(int sema_id)</B><BR>
 If the semaphore's "count" variable > 0, count is decremented. 
-Else, a thread rescheduling occurs, changing the active thread.<BR>
+Else, a thread rescheduling occurs, changing the active thread. The caller thread's status is set to WAIT.<BR>
 <BR>
 <B>45h int PollSema(int sema_id)</B><BR>
 Decrements the semaphore's count variable. Returns -1 if unsuccessful.<BR>
