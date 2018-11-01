@@ -9,6 +9,7 @@
   <A HREF="#iomaps">I/O Maps</A><BR>
   <A HREF="#gif">Graphics Interface (GIF)</A><BR>
   <A HREF="#dmac">DMA Controller (DMAC)</A><BR>
+  <A HREF="#gs">Graphics Synthesizer (GS)</A><BR>
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
   <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
@@ -786,11 +787,16 @@ DMAC Interrupts
 Upon any transfer completion, the DMAC will raise the channel's stat flag in D_STAT.
 When (stat & mask) != 0, the DMAC asserts an INT1 signal to the EE.<BR>
 INT1 may also be asserted when MFIFO is empty, a stall occurs, or a bus error occurs.
-The bus error is non-maskable via D_STAT.<BR>
+The bus error is not maskable via D_STAT.<BR>
 NOTE: INT0 (INTC) has priority over INT1.
 If INT0 and INT1 are asserted at the same time, the INT0 interrupt will be processed first.<BR>
 <BR>
 <BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gs"></A>&nbsp;
+Graphics Synthesizer (GS)
+</FONT></TD></TR></TABLE><BR>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
@@ -1478,7 +1484,7 @@ Returns -1 if unsuccessful or thread_id otherwise.<BR>
 <BR>
 <B>3Ch void* InitMainThread/RFU060(uint32 gp, void* stack, int stack_size, char* args, int root)</B><BR>
 Initializes the current thread. Returns the stack pointer of the thread.<BR>
-If stack == -1, the stack pointer equals the end of RDRAM - stack_size. Else, it equals stack - stack_size.<BR>
+If stack == -1, the stack pointer equals the end of RDRAM - stack_size. Else, it equals stack + stack_size.<BR>
 This function should only be called before the program's main function.<BR>
 <BR>
 <B>3Dh void* InitHeap/RFU061(void* heap, int heap_size)</B><BR>
@@ -1527,4 +1533,12 @@ Decrements the semaphore's count variable. Returns -1 if unsuccessful.<BR>
 Replaces an entry on the syscall table with the specified address.<BR>
 This function does not perform any bounds checking.<BR>
 <BR>
+<B>7Bh void ExecOSD(int argc, char** argv)</B><BR>
+Shorthand for LoadExecPS2("rom0:OSDSYS", argc, argv).<BR>
+<B>7Dh void PSMode()</B><BR>
+<BR>
+<B>7Eh int MachineType()</B><BR>
+<BR>
+<B>7Fh int GetMemorySize()</B><BR>
+Returns the amount of RDRAM on the console in bytes.
 </BODY></HTML>
