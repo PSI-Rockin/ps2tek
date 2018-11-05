@@ -802,6 +802,7 @@ Graphics Synthesizer (GS)
 <A HREF="#gsprimitives">GS Primitives</A><BR>
 <A HREF="#gsvertexattributes">GS Vertex Attributes</A><BR>
 <A HREF="#gsframeandzbuffers">GS Frame and Z Buffers</A><BR>
+<A HREF="#gstransfers">GS Transfers</A><BR>
 <A HREF="#gstestsandpixelcontrol">GS Tests and Pixel Control</A><BR>
 <BR>
 <BR>
@@ -987,8 +988,79 @@ This mask is applied before format conversions, e.g., bit 63 of FRAME will affec
          0Ah=PSMZ16S
   32     Buffer mask (1=do not update zbuffer)
 </TD></TR></TABLE>
-The zbuffer's width is the same as the framebuffer's, specified in FRAME.
-
+The zbuffer's width is the same as the framebuffer's, specified in FRAME.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gstransfers"></A>&nbsp;
+GS Transfers
+</FONT></TD></TR></TABLE><BR>
+The GS supports GIF->VRAM, VRAM->VRAM, and VRAM->GIF data transfers.<BR>
+<BR>
+<B>50h BITBLTBUF</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-13    Source base pointer in words/64
+  16-21   Source buffer width in pixels/64
+  24-29   Source format
+          00h=PSMCT32
+          01h=PSMCT24
+          02h=PSMCT16
+          0Ah=PSMCT16S
+          13h=PSMCT8
+          14h=PSMCT4
+          1Bh=PSMCT8H
+          24h=PSMCT4HL
+          2Ch=PSMCT4HH
+          30h=PSMZ32
+          31h=PSMZ24
+          32h=PSMZ16
+          3Ah=PSMZ16S
+  32-45   Destination base pointer in words/64
+  48-53   Destination buffer width in pixels/64
+  56-61   Destination format (same as source format)
+</TD></TR></TABLE>
+In VRAM->VRAM transfers, the source and destination formats must have the same bits per pixel.<BR>
+<BR>
+<B>51h TRXPOS</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-10    X for source rectangle
+  16-26   Y for source rectangle
+  32-42   X for destination rectangle
+  48-58   Y for destination rectangle
+  59-60   Transmission order for VRAM->VRAM transfers
+          0=Upper-left->lower-right
+          1=Lower-left->upper-right
+          2=Upper-right->lower-left
+          3=Lower-right->upper-left
+</TD></TR></TABLE>
+X and Y are in units of pixels and define the upper-left corner of their respective rectangle.<BR>
+NOTE: During transfer, X and Y wrap around if they exceed 2048, e.g., by the following formula:<BR>
+  X = (TRXPOS.X + TRXREG.width) % 2048<BR>
+<BR>
+<B>52h TRXREG</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-11    Width in pixels of transmission area
+  32-43   Height in pixels of transmission area
+</TD></TR></TABLE><BR>
+<B>53h TRXDIR</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-1     Transmission direction
+          0=GIF->VRAM
+          1=VRAM->GIF
+          2=VRAM->VRAM
+          3=Deactivated
+</TD></TR></TABLE>
+Note that the privileged register BUSDIR must be set appropriately.<BR>
+<BR>
+<B>54h HWREG</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-63    Data to be transferred for GIF->VRAM
+</TD></TR></TABLE>
+The "IMAGE" GIFtag format is a shortcut for writing to this register. Data is packed according to the format.
+For example, PSMCT4 will have 16 4-bit pixels per doubleword.<BR>
+<BR>
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="gstestsandpixelcontrol"></A>&nbsp;
 GS Tests and Pixel Control
