@@ -797,6 +797,247 @@ If INT0 and INT1 are asserted at the same time, the INT0 interrupt will be proce
 <A NAME="gs"></A>&nbsp;
 Graphics Synthesizer (GS)
 </FONT></TD></TR></TABLE><BR>
+<B>GS Reference</B><BR>
+<A HREF="#gsregisterlist">GS Register List</A><BR>
+<A HREF="#gsprimitives">GS Primitives</A><BR>
+<A HREF="#gsvertexattributes">GS Vertex Attributes</A><BR>
+<A HREF="#gsframeandzbuffers">GS Frame and Z Buffers</A><BR>
+<A HREF="#gstestsandpixelcontrol">GS Tests and Pixel Control</A><BR>
+<BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gsregisterlist"></A>&nbsp;
+GS Register List
+</FONT></TD></TR></TABLE><BR>
+<B>Internal registers (accessible via GIF)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  00h     PRIM
+  01h     RGBAQ
+  02h     ST
+  03h     UV
+  04h     XYZF2
+  05h     XYZ2
+  06h/07h TEX0_1/2
+  08h/09h CLAMP_1/2
+  0Ah     FOG
+  0Ch     XYZF3
+  0Dh     XYZ3
+  14h/15h TEX1_1/2
+  16h/17h TEX2_1/2
+  18h/19h XYOFFSET_1/2
+  1Ah     PRMODECONT
+  1Bh     PRMODE
+  1Ch     TEXCLUT
+  22h     SCANMSK
+  34h/35h MIPTBP1_1/2
+  36h/37h MIPTBP2_1/2
+  3Bh     TEXA
+  3Dh     FOGCOL
+  3Fh     TEXFLUSH
+  40h/41h SCISSOR_1/2
+  42h/43h ALPHA_1/2
+  44h     DIMX
+  45h     DTHE
+  46h     COLCLAMP
+  47h/48h TEST_1/2
+  49h     PABE
+  4Ah/4Bh FBA_1/2
+  4Ch/4Dh FRAME_1/2
+  4Eh/4Fh ZBUF_1/2
+  50h     BITBLTBUF
+  51h     TRXPOS
+  52h     TRXREG
+  53h     TRXDIR
+  54h     HWREG
+  60h     SIGNAL
+  61h     FINISH
+  62h     LABEL
+</TD></TR></TABLE><BR>
+<B>Privileged registers (accessible via EE)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  12000000h    PMODE
+  12000020h    SMODE2
+  12000070h    DISPFB1
+  12000080h    DISPLAY1
+  12000090h    DISPFB2
+  120000A0h    DISPLAY2
+  120000B0h    EXTBUF
+  120000C0h    EXTDATA
+  120000D0h    EXTWRITE
+  120000E0h    BGCOLOR
+  12001000h    CSR
+  12001010h    IMR
+  12001040h    BUSDIR
+  12001080h    SIGLBLID
+</TD></TR></TABLE><BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gsprimitives"></A>&nbsp;
+GS Primitives
+</FONT></TD></TR></TABLE><BR>
+The GS supports point, line, triangle, and sprite (2D rectangle with two points) primitives.<BR>
+<BR>
+<B>00h PRIM</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-2   Primitive type
+        0=Point
+        1=Line
+        2=LineStrip
+        3=Triangle
+        4=TriangleStrip
+        5=TriangleFan
+        6=Sprite
+        7=Reserved
+  3     Gourand shading
+  4     Texture mapping
+  5     Fog
+  6     Alpha blending
+  7     Antialiasing
+  8     Use UV for texture coordinates (0=Use STQ)
+  9     Use Context 2's registers for drawing (0=Use Context 1)
+  10    Fix fragment value (related to antialiasing?)
+</TD></TR></TABLE><BR>
+<B>1Ah PRMODECONT</B>
+When this register is set to 1, bits 3-10 in PRIM are used when rendering primitives.
+Otherwise, bits 3-10 in PRMODE are used.<BR>
+<BR>
+<B>1Bh PRMODE</B><BR>
+Same as PRIM, except bits 0-2 are unused.<BR>
+PRMODE can be useful when you want to draw multiple primitives with different attributes but the same type.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gsvertexattributes"></A>&nbsp;
+GS Vertex Attributes
+</FONT></TD></TR></TABLE><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+<B>01h RGBAQ</B><BR>
+  0-7    Red
+  8-15   Green
+  16-23  Blue
+  24-31  Alpha
+  32-63  Q
+</TD></TR></TABLE>
+These attributes are applied to newly created vertices.<BR>
+<BR>
+<B>04h/0Ch XYZF2/XYZF3</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15   X
+  16-31  Y
+  32-55  Z
+  56-63  Fog coefficient (placed in FOG register)
+</TD></TR></TABLE>
+This defines a new vertex to be placed in the vertex queue, a process known as the vertex kick.
+X and Y are 12-bit fixed-point integers with a 4-bit fractional component, ranging from 0 to 4095.9375.<BR>
+When 1, 2, or 3 vertices have been defined as per the primitive type, a "drawing kick" occurs,
+where the GS begins drawing the primitive.<BR>
+NOTE: Drawing kicks can only occur on XYZF2! XYZF3 will clear the queue as needed but will not draw any primitives.
+XYZF3 exists to allow the programmer to easily cull polygons, as the GS has no native support for culling.<BR>
+<BR>
+<B>05h/0Dh XYZ2/XYZ3</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15   X
+  16-31  Y
+  32-63  Z
+</TD></TR></TABLE>
+Same as XYZF2/XYZF3, except Z is a 32-bit unsigned integer rather than a 24-bit unsigned integer.<BR>
+XYZ2 can also result in a drawing kick, whereas XYZ3 cannot.<BR>
+<BR>
+<B>18h/19h XYOFFSET_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15   X
+  32-47  Y
+</TD></TR></TABLE>
+When a vertex kick occurs, XYOFFSET is subtracted from the vertex's X and Y coordinates.<BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gsframeandzbuffers"></A>&nbsp;
+GS Frame and Z Buffers
+</FONT></TD></TR></TABLE><BR>
+<B>4Ch/4Dh FRAME_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-8    Base pointer in words/2048
+  16-21  Buffer width in pixels/64
+  24-29  Format
+         00h=PSMCT32
+         01h=PSMCT24
+         02h=PSMCT16
+         0Ah=PSMCT16S
+         30h=PSMZ32
+         31h=PSMZ24
+         32h=PSMZ16
+         3Ah=PSMZ16S
+  32-63  Framebuffer mask
+</TD></TR></TABLE>
+Bits 32-63 prevent the specified bits in the framebuffer from being updated by the following formula:<BR>
+final_color = (final_color & ~mask) | (frame_color & mask)
+This mask is applied before format conversions, e.g., bit 63 of FRAME will affect bit 15 (alpha bit) of a 16-bit color.<BR>
+<BR>
+<B>4Eh/4Fh ZBUF_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-8    Base pointer in words/2048
+  24-27  Format
+         00h=PSMZ32
+         01h=PSMZ24
+         02h=PSMZ16
+         0Ah=PSMZ16S
+  32     Buffer mask (1=do not update zbuffer)
+</TD></TR></TABLE>
+The zbuffer's width is the same as the framebuffer's, specified in FRAME.
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gstestsandpixelcontrol"></A>&nbsp;
+GS Tests and Pixel Control
+</FONT></TD></TR></TABLE><BR>
+<B>40h/41h SCISSOR_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-10   X0
+  16-26  X1
+  32-42  Y0
+  48-58  Y1
+</TD></TR></TABLE>
+SCISSOR defines a rectangle with 11-bit unsigned integer coordinates, which range from 0 to 2047.
+During drawing, pixels that fall outside the boundaries of this rectangle fail automatically and are not processed.<BR>
+<BR>
+<B>47h/48h TEST_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0      Alpha test enabled
+  1-3    Alpha test method
+         0=NEVER (all pixels fail)
+         1=ALWAYS (all pixels pass)
+         2=LESS (pixel alpha < AREF passes)
+         3=LEQUAL (pixel alpha <= AREF passes)
+         4=EQUAL (pixel alpha == AREF passes)
+         5=GEQUAL (pixel alpha >= AREF passes)
+         6=GREATER (pixel alpha > AREF passes)
+         7=NEQUAL (pixel alpha != AREF passes)
+  4-11   AREF
+  12-13  Alpha test failure processing
+         0=Neither framebuffer nor zbuffer are updated.
+         1=Only framebuffer is updated.
+         2=Only zbuffer is updated.
+         3=Only RGB in framebuffer is updated.
+  14     Destination alpha test enabled
+  15     Destination alpha test method
+         0=destination alpha bit == 0 passes
+         1=destination alpha bit == 1 passes
+  16     Depth test enabled (0 is prohibited?)
+  17-18  Depth test method
+         0=NEVER (all pixels fail)
+         1=ALWAYS (all pixels pass)
+         2=GEQUAL (pixel Z >= zbuffer Z passes)
+         3=GREATER (pixel Z > zbuffer Z passes)
+</TD></TR></TABLE>
+NOTE on destination alpha test:<BR>
+The alpha bit tested depends on the framebuffer format. If the format is PSMCT32, bit 7 of alpha is tested.
+If the format is PSMCT16, the sole alpha bit is tested.
+If the format is PSMCT24, all pixels pass due to the lack of alpha.<BR>
+<BR>
+<BR>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
@@ -1535,6 +1776,7 @@ This function does not perform any bounds checking.<BR>
 <BR>
 <B>7Bh void ExecOSD(int argc, char** argv)</B><BR>
 Shorthand for LoadExecPS2("rom0:OSDSYS", argc, argv).<BR>
+<BR>
 <B>7Dh void PSMode()</B><BR>
 <BR>
 <B>7Eh int MachineType()</B><BR>
