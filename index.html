@@ -803,6 +803,7 @@ Graphics Synthesizer (GS)
 <A HREF="#gsvertexattributes">GS Vertex Attributes</A><BR>
 <A HREF="#gsframeandzbuffers">GS Frame and Z Buffers</A><BR>
 <A HREF="#gstransfers">GS Transfers</A><BR>
+<A HREF="#gstextures">GS Textures</A><BR>
 <A HREF="#gstestsandpixelcontrol">GS Tests and Pixel Control</A><BR>
 <BR>
 <BR>
@@ -913,8 +914,8 @@ PRMODE can be useful when you want to draw multiple primitives with different at
 <A NAME="gsvertexattributes"></A>&nbsp;
 GS Vertex Attributes
 </FONT></TD></TR></TABLE><BR>
-<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
 <B>01h RGBAQ</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-7    Red
   8-15   Green
   16-23  Blue
@@ -1050,7 +1051,7 @@ NOTE: During transfer, X and Y wrap around if they exceed 2048, e.g., by the fol
           2=VRAM->VRAM
           3=Deactivated
 </TD></TR></TABLE>
-Note that the privileged register BUSDIR must be set appropriately.<BR>
+Note that the privileged register BUSDIR must be set appropriately for GIF->VRAM and VRAM->GIF.<BR>
 <BR>
 <B>54h HWREG</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -1059,6 +1060,131 @@ Note that the privileged register BUSDIR must be set appropriately.<BR>
 The "IMAGE" GIFtag format is a shortcut for writing to this register. Data is packed according to the format.
 For example, PSMCT4 will have 16 4-bit pixels per doubleword.<BR>
 <BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gstextures"></A>&nbsp;
+GS Textures
+</FONT></TD></TR></TABLE><BR>
+<B>06h/07h TEX0_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-13    Base pointer in words/64
+  14-19   Buffer width in pixels/64
+  20-25   Texture format
+          00h=PSMCT32
+          01h=PSMCT24
+          02h=PSMCT16
+          0Ah=PSMCT16S
+          13h=PSMCT8
+          14h=PSMCT4
+          1Bh=PSMCT8H
+          24h=PSMCT4HL
+          2Ch=PSMCT4HH
+          30h=PSMZ32
+          31h=PSMZ24
+          32h=PSMZ16
+          3Ah=PSMZ16S
+  26-29   Texture width (width = min(2^value, 1024))
+  30-33   Texture height (height = min(2^value, 1024))
+  34      Alpha control (0=texture is RGB, 1=texture is RGBA)
+  35-36   Color function
+          0=Modulate
+          1=Decal
+          2=Highlight
+          3=Highlight2
+  37-50   CLUT base pointer in words/64
+  51-54   CLUT format
+          00h=PSMCT32
+          02h=PSMCT16
+          0Ah=PSMCT16S
+  55      CLUT uses CSM2 (0=CSM1)
+  56-60   CLUT entry offset/16 (In CSM2, this value must be 0)
+  61-63   CLUT cache control
+          0=Do not reload cache
+          1=Reload cache
+          2=Reload cache and copy CLUT base pointer to CBP0
+          3=Reload cache and copy CLUT base pointer to CBP1
+          4=IF CLUT base pointer != CBP0, reload cache and copy pointer to CBP0
+          5=IF CLUT base pointer != CBP1, reload cache and copy pointer to CBP1
+</TD></TR></TABLE><BR>
+<B>14h/15h TEX1_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0       LOD (level of detail) calculation method
+          0=LOD=(log2(1/abs(Q))<<L)+K
+          1=LOD=K
+  2-4     Max mipmap level (0-6)
+  5       Magnification filter: Use bilinear filtering when LOD < 0 (0=nearest filtering)
+  6-8     Filter when LOD >= 0 (reduced texture)
+          0=nearest
+          1=bilinear
+          2=nearest_mipmap_nearest
+          3=nearest_mipmap_bilinear
+          4=bilinear_mipmap_nearest
+          5=bilinear_mipmap_bilinear
+  9       Automatic calculation of mipmap levels 1-3 (0=use MIPTBP1)
+  19-20   L parameter
+  32-43   K parameter (signed fixed-point, 7 bits whole, 4 bits fractional)
+</TD></TR></TABLE><BR>
+<B>16h/17h TEX2_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  20-25   Texture format (same as TEX0)
+  37-50   CLUT base pointer in words/64
+  51-54   CLUT format
+  55      CLUT uses CSM2 (0=CSM1)
+  56-60   CLUT entry offset/16
+  61-63   CLUT cache control (same as TEX0)
+</TD></TR></TABLE>
+TEX2 is a subset of TEX0. This is useful for modifying texture format and CLUT information when the texture base pointer,
+width, etc. must stay the same.<BR>
+<BR>
+<B>3Fh TEXFLUSH</B><BR>
+Writing any value to this register will invalidate the texture cache. Do this in the following situations:<BR>
+- Using newly transferred texture data<BR>
+- Using newly transferred CLUT data or reloading the CLUT cache<BR>
+- Using framebuffer or zbuffer data as textures<BR>
+<BR>
+<B>Texture coordinates</B><BR>
+The GS supports STQ texture coordinates and UV texel coordinates. The relationship between the two is as follows.<BR>
+U=(S/Q)*TEX0.texwidth<BR>
+V=(T/Q)*TEX0.texheight<BR>
+<BR>
+Q is defined by RGBAQ and used for perspective correction. 
+It is not possible to use perspective correction when directly using UV coordinates.<BR>
+<BR>
+<B>02h ST</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31    S (lower 8 bits are rounded down to zero)
+  32-63   T (lower 8 bits are rounded down to zero)
+</TD></TR></TABLE>
+S and T are (mostly) IEEE 754-compliant single-precision floating-point values.
+For both S and T, the range [0.0, 1.0] refers to the whole texture.<BR>
+<BR>
+<B>03h UV</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-13    U
+  16-29   V
+</TD></TR></TABLE>
+U and V are unsigned 10-bit fixed-point integers with a 4-bit fractional component.
+The ranges [0, TEXWIDTH] and [0, TEXHEIGHT] for U and V respectively refer to the whole texture.<BR>
+<BR>
+<B>Color function</B>
+TEX0 defines four possible color functions that can be used to blend texture and vertex colors:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+               RGB                            RGBA
+  Modulate     Rv = (Rv * Rt) >> 7            <- Same
+               Gv = (Gv * Gt) >> 7            <- Same
+               Bv = (Bv * Bt) >> 7            <- Same
+               Av = Av                        Av = (Av * At) >> 7
+  Decal        Rv = Rt                        <- Same
+               Gv = Gt                        <- Same
+               Bv = Bt                        <- Same
+               Av = Av                        Av = At
+  Highlight    Rv = ((Rv * Rt) >> 7) + Av     <- Same
+               Gv = ((Gv * Gt) >> 7) + Av     <- Same
+               Bv = ((Bv * Bt) >> 7) + Av     <- Same
+               Av = Av                        Av = At + Av
+  Highlight2   Same as Highlight              Same as Highlight, but Av = At
+</TD></TR></TABLE><BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1104,7 +1230,7 @@ During drawing, pixels that fall outside the boundaries of this rectangle fail a
          2=GEQUAL (pixel Z >= zbuffer Z passes)
          3=GREATER (pixel Z > zbuffer Z passes)
 </TD></TR></TABLE>
-NOTE on destination alpha test:<BR>
+Note on destination alpha test:<BR>
 The alpha bit tested depends on the framebuffer format. If the format is PSMCT32, bit 7 of alpha is tested.
 If the format is PSMCT16, the sole alpha bit is tested.
 If the format is PSMCT24, all pixels pass due to the lack of alpha.<BR>
