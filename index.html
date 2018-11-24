@@ -1814,6 +1814,18 @@ Adds an interrupt handler for INT1 (DMAC) interrupts. Otherwise works the same a
 <B>13h int RemoveDmacHandler(int dma_cause, int handler_id)</B><BR>
 Works same as RemoveIntcHandler.<BR>
 <BR>
+<B>14h bool _EnableIntc(int cause_bit)</B><BR>
+Enables the indicated bit in INTC_MASK. Returns true if this bit was set to 0 and false if it was already set to 1.<BR>
+<BR>
+<B>15h bool _DisableIntc(int cause_bit)</B><BR>
+Disables the indicated bit in INTC_MASK. Returns true if this bit was set to 1 and false if it was already set to 0.<BR>
+<BR>
+<B>16h bool _EnableDmac(int cause_bit)</B><BR>
+Same as _EnableIntc, but for D_STAT's mask.<BR>
+<BR>
+<B>17h bool _DisableDmac(int cause_bit)</B><BR>
+Same as _DisableIntc, but for D_STAT's mask.<BR>
+<BR>
 <B>20h int CreateThread(ThreadParam* t)</B><BR>
 Creates a thread with DORMANT status. The thread is not placed in the priority linked-list.<BR>
 Only t->func, t->initial_priority, t->stack, t->stack_size, and t->gp_reg are used.
@@ -1968,9 +1980,18 @@ Decrements the semaphore's count variable. Returns -1 if unsuccessful.<BR>
   mode=2: Flush data cache
   All other modes flush BOTH secondary instruction cache and the data cache.
 </TD></TR></TABLE><BR>
+<B>70h uint64_t GsGetIMR()</B><BR>
+Returns the value of the privileged register GS_IMR.<BR>
+<BR>
+<B>71h void GsPutIMR(uint64_t value)</B><BR>
+Sets GS_IMR to the value.<BR><BR>
 <B>74h void SetSyscall/RFU116(int index, int address)</B><BR>
 Replaces an entry on the syscall table with the specified address.<BR>
 This function does not perform any bounds checking.<BR>
+<BR>
+<B>78h void SifSetDChain()</B><BR>
+Initializes the SIF0 channel by resetting QWC and setting CHCR to 184h 
+(channel busy, chain mode, TTE bit in tag enabled).<BR>
 <BR>
 <B>7Bh void ExecOSD(int argc, char** argv)</B><BR>
 Shorthand for LoadExecPS2("rom0:OSDSYS", argc, argv).<BR>
