@@ -1212,7 +1212,8 @@ During rasterization, if fog is enabled in PRIM/PRMODE, F is linearly interpolat
 The fog equation is then applied to an outputted texture color after the color function has been applied:<BR>
 Output = ((F * input) >> 8) + (((255 - F) * FOGCOL) >> 8)<BR>
 So a value of 0xFF results in no change and a value of 0 completely converts the color to FOGCOL.<BR>
-You can fog equation is just another alpha blending equation.<BR>
+You can see that fog equation is just another alpha blending equation.<BR>
+<BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1245,6 +1246,7 @@ Internally, alpha-blending treats each color component as 9-bit. The output is t
 </TD></TR></TABLE>
 When COLCLAMP is 1, RGB components will be 0 if negative after alpha-blending or 0xFF if 0x100 or above. Otherwise,
 each color component will be ANDed with 0xFF.<BR>
+<BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1602,7 +1604,7 @@ Writing can set or reset bit 0.<br>
 NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via this register.<BR>
 <BR>
 <B>Raising Interrupts</B><BR>
-If I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs,
+If !I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs,
 COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1812,6 +1814,7 @@ Semaphores are useful for blocking execution of a thread until a task completes.
 Sony's official SIF protocol, for instance, use a semaphore to place the caller thread to sleep 
 and activate an idle thread while the IOP processes a request.
 The caller thread is reactivated in the SIF interrupt handler.<BR>
+<BR>
 <BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
