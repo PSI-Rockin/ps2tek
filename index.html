@@ -804,6 +804,8 @@ Graphics Synthesizer (GS)
 <A HREF="#gsframeandzbuffers">GS Frame and Z Buffers</A><BR>
 <A HREF="#gstransfers">GS Transfers</A><BR>
 <A HREF="#gstextures">GS Textures</A><BR>
+<A HREF="#gsfog">GS Fog</A><BR>
+<A HREF="#gsalphablending">GS Alpha Blending</A><BR>
 <A HREF="#gstestsandpixelcontrol">GS Tests and Pixel Control</A><BR>
 <BR>
 <BR>
@@ -938,6 +940,8 @@ where the GS begins drawing the primitive.<BR>
 NOTE: Drawing kicks can only occur on XYZF2! XYZF3 will clear the queue as needed but will not draw any primitives.
 XYZF3 exists to allow the programmer to easily cull polygons, as the GS has no native support for culling.<BR>
 <BR>
+See <A HREF="#gsfog">GS Fog</A> for details on fog.<BR>
+<BR>
 <B>05h/0Dh XYZ2/XYZ3</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-15   X
@@ -976,7 +980,7 @@ GS Frame and Z Buffers
   32-63  Framebuffer mask
 </TD></TR></TABLE>
 Bits 32-63 prevent the specified bits in the framebuffer from being updated by the following formula:<BR>
-final_color = (final_color & ~mask) | (frame_color & mask)
+final_color = (final_color & ~mask) | (frame_color & mask)<BR>
 This mask is applied before format conversions, e.g., bit 63 of FRAME will affect bit 15 (alpha bit) of a 16-bit color.<BR>
 <BR>
 <B>4Eh/4Fh ZBUF_1/2</B><BR>
@@ -1185,6 +1189,62 @@ TEX0 defines four possible color functions that can be used to blend texture and
                Av = Av                        Av = At + Av
   Highlight2   Same as Highlight              Same as Highlight, but Av = At
 </TD></TR></TABLE><BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gsfog"></A>&nbsp;
+GS Fog
+</FONT></TD></TR></TABLE><BR>
+<B>3Dh FOGCOL</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-7   R
+  8-15  G
+  16-23 B
+</TD></TR></TABLE>
+FOGCOL represents the color of a "distant" object, or one enshrounded in fog. See below for details.<BR>
+<BR>
+<B>0Ah FOG</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-7  Fog effect
+</TD></TR></TABLE>
+FOG gives a fog effect F to the current vertex. XYZ2F/XYZ3F also modify this register.<BR>
+During rasterization, if fog is enabled in PRIM/PRMODE, F is linearly interpolated for all vertices.
+The fog equation is then applied to an outputted texture color after the color function has been applied:<BR>
+Output = ((F * input) >> 8) + (((255 - F) * FOGCOL) >> 8)<BR>
+So a value of 0xFF results in no change and a value of 0 completely converts the color to FOGCOL.<BR>
+You can fog equation is just another alpha blending equation.<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gsalphablending"></A>&nbsp;
+GS Alpha Blending
+</FONT></TD></TR></TABLE><BR>
+<B>42h/43h ALPHA_1/2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-1   Spec A
+  2-3   Spec B
+  4-5   Spec C
+  6-7   Spec D
+  8-15  Alpha FIX
+</TD></TR></TABLE>
+The GS's alpha blending formula is fixed but it contains four variables that can be reconfigured:<BR>
+Output = (((A - B) * C) >> 7) + D<BR>
+A, B, and D are colors and C is an alpha value. Their specific values come from the ALPHA register:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+      A                B                C                   D
+  0   Source RGB       Source RGB       Source alpha        Source RGB
+  1   Framebuffer RGB  Framebuffer RGB  Framebuffer alpha   Framebuffer RGB
+  2   0                0                FIX                 0
+  3   Reserved         Reserved         Reserved            Reserved
+</TD></TR></TABLE>
+Internally, alpha-blending treats each color component as 9-bit. The output is then clamped accordingly by COLCLAMP.<BR>
+<BR>
+<B>46h COLCLAMP</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0    8-bit signed clamp (0=8-bit AND)
+</TD></TR></TABLE>
+When COLCLAMP is 1, RGB components will be 0 if negative after alpha-blending or 0xFF if 0x100 or above. Otherwise,
+each color component will be ANDed with 0xFF.<BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1752,6 +1812,7 @@ Semaphores are useful for blocking execution of a thread until a task completes.
 Sony's official SIF protocol, for instance, use a semaphore to place the caller thread to sleep 
 and activate an idle thread while the IOP processes a request.
 The caller thread is reactivated in the SIF interrupt handler.<BR>
+<BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="bioseesyscalls"></A>&nbsp;
@@ -1759,7 +1820,7 @@ BIOS EE Syscalls
 </FONT></TD></TR></TABLE><BR>
 When a SYSCALL instruction is executed, the EE jumps to 80000180h and sets COP0.Cause to 08h.
 The kernel syscall handler retrieves the syscall number from the v1 register.<BR>
-Negative syscalls (i.e., those with bit 7 set) use the current thread's stack for internal operations.
+Negative syscalls use the current thread's stack for internal operations.
 Positive syscalls use the kernel stack.
 Unknown what the purpose of this is, but user-defined interrupt handlers use negative syscalls only
 (specifically negative "i" variants of syscalls).<BR>
