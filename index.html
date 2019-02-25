@@ -1335,12 +1335,12 @@ For example, a DIV stores its result in Q, and ESQRT stores its result in P.<BR>
 <B>MAC Flags</B><BR>
 Each FMAC unit (corresponding to a vector field) has four MAC flags, which can be read by various instructions.<BR>
 The MAC flags are overflow, underflow, sign, and zero. The full 16-bit MAC flag register has this format:<BR>
-<BR>
-15                                              0<BR>
--------------------------------------------------<BR>
-|Ox|Oy|Oz|Ow|Ux|Uy|Uz|Uw|Sx|Sy|Sz|Sw|Zx|Zy|Zz|Zw|<BR>
--------------------------------------------------<BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+15                                              0
+-------------------------------------------------
+|Ox|Oy|Oz|Ow|Ux|Uy|Uz|Uw|Sx|Sy|Sz|Sw|Zx|Zy|Zz|Zw|
+-------------------------------------------------
+</TD></TR></TABLE><BR>
 Zero is set when the result is 0.0f or -0.0f (which also clears overflow and underflow), and 
 sign is set when the result is negative (bit 31 is set).<BR>
 Overflow and underflow are set when the exponent field is 0xFF or 0x0 respectively.<BR>
@@ -1351,14 +1351,18 @@ However, an instruction like FMAND will read the flags in the register read stag
 <B>Clip Flags</B><BR>
 The clipping flags register is 24-bit and contains the result of up to four CLIP instructions.
 Every CLIP instruction produces six flags: -x, +x, -y, +y, -z, +z. They are stored in the following format:<BR>
-5                 0<BR>
--------------------<BR>
-|-z|+z|-y|+y|-x|+x|<BR>
--------------------<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+5                 0
+-------------------
+|-z|+z|-y|+y|-x|+x|
+-------------------
+</TD></TR></TABLE><BR>
 Like the MAC flags, the clip flags are also pipelined (and thus delayed).<BR>
 <BR>
 <B>Status Flags</B><BR>
-todo
+todo<BR>
+<BR>
+<BR>
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
