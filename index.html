@@ -10,6 +10,7 @@
   <A HREF="#gif">Graphics Interface (GIF)</A><BR>
   <A HREF="#dmac">DMA Controller (DMAC)</A><BR>
   <A HREF="#gs">Graphics Synthesizer (GS)</A><BR>
+  <A HREF="#vu">Vector Unit (VU)</A><BR>
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
   <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
@@ -1298,6 +1299,66 @@ If the format is PSMCT16, the sole alpha bit is tested.
 If the format is PSMCT24, all pixels pass due to the lack of alpha.<BR>
 <BR>
 <BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vu"></A>&nbsp;
+Vector Unit (VU)
+</FONT></TD></TR></TABLE><BR>
+The EE contains two Vector Units (VU0 and VU1), custom SIMD processors designed for fast floating-point manipulation.<BR>
+Both VUs can run concurrently with the EE Core in micro mode. VU0 is also available in macro mode as COP2.<BR>
+The architecture is similar to MIPS, including branch delays and the use of register zero as a constant.
+<BR>
+<A HREF="#vuregisters">VU Registers</A><BR>
+<A HREF="#vuinstructionformat">VU Instruction Format</A><BR>
+<A HREF="#vufmacpipeline">VU FMAC Pipeline</A><BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vuregisters"></A>&nbsp;
+VU Registers
+</FONT></TD></TR></TABLE><BR>
+<B>General-purpose registers</B><BR>
+Each VU contains 32 vector floating-point registers (vf00-vf31) and 16 16-bit integer registers (vi00-vi15).<BR>
+A vector register has 4 32-bit single-precision floating-point elements: {x, y, z, w}<BR>
+vi00 is hardwired to 0. vf00 is hardwired to the vector {0.0, 0.0, 0.0, 1.0}. That is to say, vf00.w = 1.0.<BR>
+<BR>
+<B>Accumulator (ACC)</B><BR>
+The accumulator is a special register with the same format as the 32 general-purpose vector registers.<BR>
+It is intended to be used as an intermediate result by certain instructions.<BR>
+<BR>
+<B>Q and P</B><BR>
+Q and P are 32-bit floating point registers.
+Operations that use the FDIV or EFU units store their result in the Q and P registers respectively.<BR>
+For example, a DIV stores its result in Q, and ESQRT stores its result in P.<BR>
+<BR>
+<B>MAC Flags</B><BR>
+Each FMAC unit (corresponding to a vector field) has four MAC flags, which can be read by various instructions.<BR>
+The MAC flags are overflow, underflow, sign, and zero. The full 16-bit MAC flag register has this format:<BR>
+<BR>
+15                                              0<BR>
+-------------------------------------------------<BR>
+|Ox|Oy|Oz|Ow|Ux|Uy|Uz|Uw|Sx|Sy|Sz|Sw|Zx|Zy|Zz|Zw|<BR>
+-------------------------------------------------<BR>
+<BR>
+Zero is set when the result is 0.0f or -0.0f (which also clears overflow and underflow), and 
+sign is set when the result is negative (bit 31 is set).<BR>
+Overflow and underflow are set when the exponent field is 0xFF or 0x0 respectively.<BR>
+<B>IMPORTANT:</B> MAC flags are modified in the "writeback" stage in the FMAC pipeline.
+However, an instruction like FMAND will read the flags in the register read stage, and this does not constitute a hazard.
+<BR>This means every modification to the MAC flags has a delay of four cycles (not necessarily four instructions).<BR>
+<BR>
+<B>Clip Flags</B><BR>
+The clipping flags register is 24-bit and contains the result of up to four CLIP instructions.
+Every CLIP instruction produces six flags: -x, +x, -y, +y, -z, +z. They are stored in the following format:<BR>
+5                 0<BR>
+-------------------<BR>
+|-z|+z|-y|+y|-x|+x|<BR>
+-------------------<BR>
+Like the MAC flags, the clip flags are also pipelined (and thus delayed).<BR>
+<BR>
+<B>Status Flags</B><BR>
+todo
  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
