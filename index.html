@@ -1696,9 +1696,8 @@ Writes set the counter to the value written.<BR>
   3     Zero return - reset counter on interrupt
   4     Compare interrupt enabled
   5     Overflow interrupt enabled
-  6     Repeat/no effect?
-  7     LEVL - toggle bit 10 on IRQs
-        If not set, bit 10 is set to 0 on IRQ
+  6     Repeat interrupt - if unset, bit 10 is set to 0 after interrupt occurs.
+  7     LEVL - toggle bit 10 on IRQs if bit 6 is set.
   8     Use external signal
         If set:
           Timer 0: pixel clock (13.5 MHz regardless of screen mode)
@@ -1782,7 +1781,7 @@ OSDSYS, once loaded, is responsible for bringing up the "Sony Computer Entertain
 BIOS EE Threading
 </FONT></TD></TR></TABLE><BR>
 The EE kernel uses a cooperative priority-based thread scheduler.
-It can support up to 256 threads and 256 semaphores. However, only up to 128 threads may be active at a time.<BR>
+It can support up to 256 threads and 256 semaphores. 128 priority levels are available.<BR>
 <BR>
 <B>Structs</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -1856,7 +1855,7 @@ It can support up to 256 threads and 256 semaphores. However, only up to 128 thr
 </TD></TR></TABLE><BR>
 
 <B>Thread Scheduler</B><BR>
-The kernel uses a 128-element doubly-linked list for managing thread priorities.
+The kernel uses an array of 128 doubly-linked lists for managing thread priorities.
 The general algorithm for the scheduler is as follows:
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   void reschedule(uint32 EPC, uint32 stack)
@@ -1888,10 +1887,9 @@ BIOS EE Syscalls
 </FONT></TD></TR></TABLE><BR>
 When a SYSCALL instruction is executed, the EE jumps to 80000180h and sets COP0.Cause to 08h.
 The kernel syscall handler retrieves the syscall number from the v1 register.<BR>
-Negative syscalls use the current thread's stack for internal operations.
-Positive syscalls use the kernel stack.
-Unknown what the purpose of this is, but user-defined interrupt handlers use negative syscalls only
-(specifically negative "i" variants of syscalls).<BR>
+Negative syscalls use the current thread's stack for internal operations and are meant to be used in interrupt handlers.
+Positive syscalls use the kernel stack, and some of them can trigger thread reschedules.
+<BR>
 <BR>
 <B>List of EE Syscalls</B><BR>
 <B>01h void ResetEE(int reset_flag)</B><BR>
