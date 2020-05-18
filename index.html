@@ -2018,14 +2018,15 @@ The "i" variant performs exactly the same function.<BR>
 <BR>
 <B>32h void SleepThread()</B><BR>
 If the current thread's "wakeup_count" is greater than zero, it is decremented.
-Else, the current thread is removed from the active thread list and given WAIT status, forcing a thread reschedule.<BR>
+Else, if the thread status is RUN or READY, the current thread is removed from the active thread list and set to WAIT, 
+	forcing a thread reschedule.<BR>
 <BR>
 <B>33h void WakeupThread(int thread_id)</B><BR>
 Has different behavior depending on the thread's status:<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  WAIT - Set to READY and re-added to active thread list, forcing a thread reschedule
-  WAITSUSPEND - Placed in SUSPEND status, forcing a thread reschedule.
-  READY, SUSPEND - Increments "wakeup_count", forcing a thread reschedule.
+  WAIT (sleeping) - Set to READY and re-added to active thread list, forcing a thread reschedule.
+  WAITSUSPEND (sleeping) - Placed in SUSPEND status, forcing a thread reschedule.
+  READY, SUSPEND, WAIT/WAITSUSPEND (semaphore) - Increments "wakeup_count", forcing a thread reschedule.
   Other statuses - No effect.
 </TD></TR></TABLE><BR>
 <B>34h int iWakeupThread(int thread_id)</B><BR>
