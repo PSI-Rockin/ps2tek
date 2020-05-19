@@ -1827,7 +1827,7 @@ It can support up to 256 threads and 256 semaphores. 128 priority levels are ava
     void *gp_reg;
     short current_priority;
     short init_priority;
-    int wait_sema; //?
+    int wait_type; //0=not waiting, 1=sleeping, 2=waiting on semaphore
     int sema_id;
     int wakeup_count;
     int attr;
@@ -1873,10 +1873,10 @@ Threads with lower priority will never run as long as there is an active thread 
 <B>Semaphores</B><BR>
 Threads that call WaitSema on a semaphore with a "count" of zero are placed in a WAIT state
 and removed from the active thread list.<BR>
-Conversely, calling SignalSema can re-add all threads waiting on a semaphore to the list.<BR>
+Conversely, calling SignalSema re-adds a thread waiting on a semaphore to the active list.<BR>
 Semaphores are useful for blocking execution of a thread until a task completes.
 Sony's official SIF protocol, for instance, use a semaphore to place the caller thread to sleep 
-and activate an idle thread while the IOP processes a request.
+while the IOP processes a request.
 The caller thread is reactivated in the SIF interrupt handler.<BR>
 <BR>
 <BR>
@@ -2098,24 +2098,44 @@ If the semaphore's "count" variable > 0, count is decremented.
 Else, a thread rescheduling occurs, changing the active thread. The caller thread's status is set to WAIT.<BR>
 <BR>
 <B>45h int PollSema(int sema_id)</B><BR>
+<B>46h int iPollSema(int sema_id)</B><BR>
 Decrements the semaphore's count variable. Returns -1 if unsuccessful.<BR>
 <BR>
 <B>64h void FlushCache(int mode)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Modes of operation
-  mode=0: Flush primary instruction cache
-  mode=1: Flush secondary instruction cache
-  mode=2: Flush data cache
-  All other modes flush BOTH secondary instruction cache and the data cache.
+  mode=0: Flush data cache (invalidate+writeback dirty contents to memory)
+  mode=1: Invalidate data cache
+  mode=2: Invalidate instruction cache
+  All other modes invalidate both caches.
 </TD></TR></TABLE><BR>
 <B>70h uint64_t GsGetIMR()</B><BR>
 Returns the value of the privileged register GS_IMR.<BR>
 <BR>
 <B>71h void GsPutIMR(uint64_t value)</B><BR>
-Sets GS_IMR to the value.<BR><BR>
+Sets GS_IMR to the value.<BR>
+<BR>
 <B>74h void SetSyscall/RFU116(int index, int address)</B><BR>
 Replaces an entry on the syscall table with the specified address.<BR>
 This function does not perform any bounds checking.<BR>
+<BR>
+<B>76h int SifDmaStat(unsigned int dma_id)</B><BR>
+Returns a positive value if the SIF transfer is queued, 0 if the transfer is in progress, and a negative value 
+if the transfer has completed.<BR>
+<BR>
+<B>77h unsigned int SifSetDma(SifDmaTransfer* trans, int len)</B><BR>
+Low-level syscall for starting SIF1 transfers. The format of SifDmaTransfer is as follows.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifDmaTransfer //Internal semaphore structure
+  {
+    void* src; //EE source
+    void* dest; //IOP destination
+    int size; //Size in bytes
+    int attr;
+  }
+</TD></TR></TABLE><BR>
+The len parameter is how large the SifDmaTransfer array is. Multiple SIF1 transfers are queued by the kernel.<BR>
+This function returns the ID of the current transfer. It does not wait for the transfer to complete.<BR>
 <BR>
 <B>78h void SifSetDChain()</B><BR>
 Initializes the SIF0 channel by resetting QWC and setting CHCR to 184h 
