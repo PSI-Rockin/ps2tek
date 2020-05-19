@@ -2134,7 +2134,7 @@ Low-level syscall for starting SIF1 transfers. The format of SifDmaTransfer is a
     int size; //Size in bytes
     int attr;
   }
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 The len parameter is how large the SifDmaTransfer array is. Multiple SIF1 transfers are queued by the kernel.<BR>
 This function returns the ID of the current transfer. It does not wait for the transfer to complete.<BR>
 <BR>
@@ -2172,7 +2172,7 @@ The format of an export table is as follows.<BR>
     char name[8]; //Name of the module. Must include a NULL terminator.
     void* export[0]; //An arbitrarily sized array of function pointers. 
   }
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 The format of a import table is similar.<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   struct export_table
@@ -2183,7 +2183,7 @@ The format of a import table is similar.<BR>
     char name[8];
     void* import[0]; //An arbitrarily sized array of jr ra; addiu zero, zero, X instruction pairs. More on that below.
   }
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 LOADCORE is responsible for linking modules to each other. When a new module is loaded, LOADCORE parses its import tables. 
 When an import table matches an export table, it looks up functions by taking X from addiu zero, zero, X, which is 
 used as an index in the export's function pointer array. Each jr ra is then replaced with j $function. In other words, 
