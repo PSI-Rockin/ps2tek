@@ -1745,6 +1745,7 @@ provide EE services and IOP modules, and launch PS2/PSX games.<BR>
 <A HREF="#biosbootprocess">BIOS Boot Process</A><BR>
 <A HREF="#bioseethreading">BIOS EE Threading</A><BR>
 <A HREF="#bioseesyscalls">BIOS EE Syscalls</A><BR>
+<A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2149,5 +2150,48 @@ Shorthand for LoadExecPS2("rom0:OSDSYS", argc, argv).<BR>
 <B>7Eh int MachineType()</B><BR>
 <BR>
 <B>7Fh int GetMemorySize()</B><BR>
-Returns the amount of RDRAM on the console in bytes.
+Returns the amount of RDRAM on the console in bytes.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopmodulelinking"></A>&nbsp;
+BIOS IOP Module Linking
+</FONT></TD></TR></TABLE><BR>
+IOP modules are dynamically linked to each other, but Sony devised an ingenious way to handle this without exposing symbols.
+<BR>
+Linking is accomplished through export tables and import tables. A module can only have one export table, which defines
+the functions other modules may access. Import tables give a module access to another module's export table.<BR>
+<BR>
+The format of an export table is as follows.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct export_table
+  {
+    uint magic; //Must equal 0x41C00000!
+    uint unk;
+    uint version; //0x101 would be version 1.01
+    char name[8]; //Name of the module. Must include a NULL terminator.
+    void* export[0]; //An arbitrarily sized array of function pointers. 
+  }
+</TD></TR></TABLE><BR>
+The format of a import table is similar.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct export_table
+  {
+    uint magic; //Must equal 0x41E00000!
+    uint unk;
+    uint version;
+    char name[8];
+    void* import[0]; //An arbitrarily sized array of jr ra; addiu zero, zero, X instruction pairs. More on that below.
+  }
+</TD></TR></TABLE><BR>
+LOADCORE is responsible for linking modules to each other. When a new module is loaded, LOADCORE parses its import tables. 
+When an import table matches an export table, it looks up functions by taking X from addiu zero, zero, X, which is 
+used as an index in the export's function pointer array. Each jr ra is then replaced with j $function. In other words, 
+the return statement is replaced with a direct jump to an imported module's function.<BR>
+<BR>
+Since functions are only linked by their IDs, rather than their names, in theory this keeps others from learning the 
+names of the functions. In practice, game developers often created custom IOP modules which they forgot to strip, which is 
+how the symbols in Sony's IOP modules are known.<BR>
+<BR>
+<BR>
 </BODY></HTML>
