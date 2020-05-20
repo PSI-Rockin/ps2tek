@@ -1756,6 +1756,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
 <A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
 <A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
+<A HREF="#biosiopintrman">BIOS IOP INTRMAN - Interrupt Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2286,7 +2287,8 @@ BIOS IOP LOADCORE - Kernel Loader and Linker
 BIOS IOP EXCEPMAN - Exception Manager
 </FONT></TD></TR></TABLE><BR>
 EXCEPMAN installs exception vectors at RAM addresses 0x40 and 0x80, but they do not do anything useful by themselves. 
-Other modules will use EXCEPMAN to install their own handlers.
+Other modules will use EXCEPMAN to install their own handlers.<BR>
+<BR>
 <B>Exports</B><BR>
 <B>04h RegisterExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
 Alias for RegisterPriorityExceptionHandler(exception, 2, handler).<BR>
@@ -2298,6 +2300,43 @@ Alias for RegisterPriorityExceptionHandler(exception, 2, handler).<BR>
 <B>07h ReleaseExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
 <BR>
 <B>08h ReleaseDefaultExceptionHandler(ExceptionHandler handler)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopintrman"></A>&nbsp;
+BIOS IOP INTRMAN - Interrupt Manager
+</FONT></TD></TR></TABLE><BR>
+INTRMAN installs the default interrupt and syscall vectors, though like EXCEPMAN, it is up to other modules to install 
+useful handlers.<BR>
+<BR>
+<B>Exports</B><BR>
+<B>04h int RegisterIntrHandler(int irq, int mode, int (*handler)(void *), void *arg)</B><BR>
+<BR>
+<B>05h int ReleaseIntrHandler(int irq)</B><BR>
+<BR>
+<B>06h int EnableIntr(int irq)</B><BR>
+<BR>
+<B>07h int DisableIntr(int irq)</B><BR>
+<BR>
+<B>08h int CpuDisableIntr()</B><BR>
+<BR>
+<B>09h int CpuEnableIntr()</B><BR>
+<BR>
+<B>0Eh int CpuInvokeInKmode(void *function, ...)</B><BR>
+<BR>
+<B>0Fh void DisableDispatchIntr(int irq)</B><BR>
+<BR>
+<B>10h void EnableDispatchIntr(int irq)</B><BR>
+<BR>
+<B>11h int CpuSuspendIntr(int *state)</B><BR>
+<BR>
+<B>12h int CpuResumeIntr(int state)</B><BR>
+<BR>
+<B>17h int QueryIntrContext()</B><BR>
+<BR>
+<B>18h int QueryIntrStack(void *sp)</B><BR>
+<BR>
+<B>19h int iCatchMultiIntr(void)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
