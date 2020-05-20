@@ -1746,14 +1746,15 @@ provide EE services and IOP modules, and launch PS2/PSX games.<BR>
 <A HREF="#biosbootprocess">BIOS Boot Process</A><BR>
 <A HREF="#bioseethreading">BIOS EE Threading</A><BR>
 <A HREF="#bioseesyscalls">BIOS EE Syscalls</A><BR>
-<A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
 <BR>
 <B>BIOS IOP Modules</B><BR>
 Unlike the EE, the IOP does not have a monolithic kernel. 
 Instead, the kernel and device drivers are split into many modules.<BR>
 These modules are represented as IRX files, which are custom relocatable ELFs.<BR>
 <BR>
+<A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
 <A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
+<A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2210,7 +2211,7 @@ The format of an export table is as follows.<BR>
 </TD></TR></TABLE>
 The format of a import table is similar.<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  struct export_table
+  struct import_table
   {
     uint magic; //Must equal 0x41E00000!
     uint unk;
@@ -2251,6 +2252,30 @@ BIOS IOP SYSMEM - Memory Management
 <B>0Dh int Kprintf(const char* format,...)</B><BR>
 <BR>
 <B>0Eh void KprintfSet(KprintfHandler* handler, void* context)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosioploadcore"></A>&nbsp;
+BIOS IOP LOADCORE - Kernel Loader and Linker
+</FONT></TD></TR></TABLE><BR>
+<B>Exports</B><BR>
+<B>04h void FlushIcache()</B><BR>
+<BR>
+<B>05h void FlushDcache()</B><BR>
+<BR>
+<B>06h int RegisterLibraryEntries(export_table* t)</B><BR>
+<BR>
+<B>07h int ReleaseLibraryEntries(export_table* t)</B><BR>
+<BR>
+<B>0Ah int RegisterNonAutoLinkEntries(export_table* t)</B><BR>
+<BR>
+<B>0Bh void* QueryLibraryEntryTable(iop_library* library)</B><BR>
+<BR>
+<B>0Ch int* QueryBootMode(int mode)</B><BR>
+<BR>
+<B>0Dh void RegisterBootMode(boot_mode* b)</B><BR>
+<BR>
+<B>14h int RegisterPostBootCallback(BootupCallback func, int priority, int *stat)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
