@@ -1755,6 +1755,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
 <A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
 <A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
+<A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2195,7 +2196,7 @@ BIOS IOP Module Linking
 </FONT></TD></TR></TABLE><BR>
 IOP modules are dynamically linked to each other, but Sony devised an ingenious way to handle this without exposing symbols.
 <BR>
-Linking is accomplished through export tables and import tables. A module can only have one export table, which defines
+Linking is accomplished through export tables and import tables. A module can have multiple export tables, which define
 the functions other modules may access. Import tables give a module access to another module's export table.<BR>
 <BR>
 The format of an export table is as follows.<BR>
@@ -2203,8 +2204,9 @@ The format of an export table is as follows.<BR>
   struct export_table
   {
     uint magic; //Must equal 0x41C00000!
-    uint unk;
-    uint version; //0x101 would be version 1.01
+    export_table* next; //Internal data for LOADCORE
+    ushort version; //0x101 would be version 1.01
+    ushort mode; //Unknown what this does
     char name[8]; //Name of the module. Must include a NULL terminator.
     void* export[0]; //An arbitrarily sized array of function pointers. 
   }
@@ -2214,8 +2216,9 @@ The format of a import table is similar.<BR>
   struct import_table
   {
     uint magic; //Must equal 0x41E00000!
-    uint unk;
-    uint version;
+    import_table* next; //Internal data for LOADCORE
+    ushort version;
+    ushort mode;
     char name[8];
     void* import[0]; //An arbitrarily sized array of jr ra; addiu zero, zero, X instruction pairs. More on that below.
   }
@@ -2276,6 +2279,25 @@ BIOS IOP LOADCORE - Kernel Loader and Linker
 <B>0Dh void RegisterBootMode(boot_mode* b)</B><BR>
 <BR>
 <B>14h int RegisterPostBootCallback(BootupCallback func, int priority, int *stat)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopexcepman"></A>&nbsp;
+BIOS IOP EXCEPMAN - Exception Manager
+</FONT></TD></TR></TABLE><BR>
+EXCEPMAN installs exception vectors at RAM addresses 0x40 and 0x80, but they do not do anything useful by themselves. 
+Other modules will use EXCEPMAN to install their own handlers.
+<B>Exports</B><BR>
+<B>04h RegisterExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
+Alias for RegisterPriorityExceptionHandler(exception, 2, handler).<BR>
+<BR>
+<B>05h RegisterPriorityExceptionHandler(int exception, int priority, ExceptionHandler handler)</B><BR>
+<BR>
+<B>06h RegisterDefaultExceptionHandler(ExceptionHandler handler)</B><BR>
+<BR>
+<B>07h ReleaseExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
+<BR>
+<B>08h ReleaseDefaultExceptionHandler(ExceptionHandler handler)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
