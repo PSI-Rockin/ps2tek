@@ -1748,6 +1748,13 @@ provide EE services and IOP modules, and launch PS2/PSX games.<BR>
 <A HREF="#bioseesyscalls">BIOS EE Syscalls</A><BR>
 <A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
 <BR>
+<B>BIOS IOP Modules</B><BR>
+Unlike the EE, the IOP does not have a monolithic kernel. 
+Instead, the kernel and device drivers are split into many modules.<BR>
+These modules are represented as IRX files, which are custom relocatable ELFs.<BR>
+<BR>
+<A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
+<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="biosfilestructure"></A>&nbsp;
@@ -1765,11 +1772,11 @@ Each ROMDIR entry has the following format.<BR>
 </TD></TR></TABLE>
 First four entries in an SCPH-39001 ROMDIR:<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-0x00002740: 52455345 54000000 00000C00 40270000      RESET
-0x00002750: 524F4D44 49520000 00005400 D0050000      ROMDIR
-0x00002760: 45585449 4E464F00 00000000 80070000      EXTINFO
-0x00002770: 524F4D56 45520000 00000000 10000000      ROMVER
-...
+  0x00002740: 52455345 54000000 00000C00 40270000      RESET
+  0x00002750: 524F4D44 49520000 00005400 D0050000      ROMDIR
+  0x00002760: 45585449 4E464F00 00000000 80070000      EXTINFO
+  0x00002770: 524F4D56 45520000 00000000 10000000      ROMVER
+  ...
 </TD></TR></TABLE>
 To find the start of ROMDIR, look for the first occurrence of "RESET" in the BIOS.<BR>
 To find a specific file in the BIOS, find its entry in ROMDIR and then add the file sizes of all previous files to get the 
@@ -2220,6 +2227,29 @@ the return statement is replaced with a direct jump to an imported module's func
 Since functions are only linked by their IDs, rather than their names, in theory this keeps others from learning the 
 names of the functions. In practice, game developers often created custom IOP modules which they forgot to strip, which is 
 how the symbols in Sony's IOP modules are known.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopsysmem"></A>&nbsp;
+BIOS IOP SYSMEM - Memory Management
+</FONT></TD></TR></TABLE><BR>
+<B>04h - void* AllocSysMemory(int mode, int size, void* ptr)</B><BR>
+<BR>
+<B>05h - int FreeSysMemory(void* ptr)</B><BR>
+<BR>
+<B>06h - uint QueryMemSize()</B><BR>
+<BR>
+<B>07h - uint QueryMaxFreeMemSize()</B><BR>
+<BR>
+<B>08h - uint QueryTotalFreeMemSize()</B><BR>
+<BR>
+<B>09h - void* QueryBlockTopAddress(void* addr)</B><BR>
+<BR>
+<B>0Ah - int QueryBlockSize(void* addr)</B><BR>
+<BR>
+<B>0Dh - int Kprintf(const char* format,...)</B><BR>
+<BR>
+<B>0Eh - void KprintfSet(KprintfHandler* handler, void* context)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
