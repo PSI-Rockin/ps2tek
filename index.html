@@ -2233,23 +2233,24 @@ how the symbols in Sony's IOP modules are known.<BR>
 <A NAME="biosiopsysmem"></A>&nbsp;
 BIOS IOP SYSMEM - Memory Management
 </FONT></TD></TR></TABLE><BR>
-<B>04h - void* AllocSysMemory(int mode, int size, void* ptr)</B><BR>
+<B>Exports</B><BR>
+<B>04h void* AllocSysMemory(int mode, int size, void* ptr)</B><BR>
 <BR>
-<B>05h - int FreeSysMemory(void* ptr)</B><BR>
+<B>05h int FreeSysMemory(void* ptr)</B><BR>
 <BR>
-<B>06h - uint QueryMemSize()</B><BR>
+<B>06h uint QueryMemSize()</B><BR>
 <BR>
-<B>07h - uint QueryMaxFreeMemSize()</B><BR>
+<B>07h uint QueryMaxFreeMemSize()</B><BR>
 <BR>
-<B>08h - uint QueryTotalFreeMemSize()</B><BR>
+<B>08h uint QueryTotalFreeMemSize()</B><BR>
 <BR>
-<B>09h - void* QueryBlockTopAddress(void* addr)</B><BR>
+<B>09h void* QueryBlockTopAddress(void* addr)</B><BR>
 <BR>
-<B>0Ah - int QueryBlockSize(void* addr)</B><BR>
+<B>0Ah int QueryBlockSize(void* addr)</B><BR>
 <BR>
-<B>0Dh - int Kprintf(const char* format,...)</B><BR>
+<B>0Dh int Kprintf(const char* format,...)</B><BR>
 <BR>
-<B>0Eh - void KprintfSet(KprintfHandler* handler, void* context)</B><BR>
+<B>0Eh void KprintfSet(KprintfHandler* handler, void* context)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
