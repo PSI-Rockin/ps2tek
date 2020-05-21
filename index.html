@@ -1759,6 +1759,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopintrman">BIOS IOP INTRMAN - Interrupt Manager</A><BR>
 <A HREF="#biosiopssbusc">BIOS IOP SSBUSC - Subsystem Bus Controller</A><BR>
 <A HREF="#biosiopdmacman">BIOS IOP DMACMAN - DMAC Manager</A><BR>
+<A HREF="#biosioptimrman">BIOS IOP TIMRMAN - Timer Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2310,6 +2311,8 @@ BIOS IOP INTRMAN - Interrupt Manager
 </FONT></TD></TR></TABLE><BR>
 INTRMAN installs the default interrupt and syscall vectors, though like EXCEPMAN, it is up to other modules to install 
 useful handlers.<BR>
+Note: the actual module name is INTRMANI - "intrman" is the export table name.<BR>
+There is also an INTRMANP variant, possibly for PSX compatibility?<BR>
 <BR>
 <B>Exports</B><BR>
 <B>04h int RegisterIntrHandler(int irq, int mode, int (*handler)(void *), void *arg)</B><BR>
@@ -2429,6 +2432,54 @@ Note: The names below are made up, because no known modules expose symbols for D
 <B>22h void DmaEnableChan(uint chan)</B><BR>
 <BR>
 <B>23h void DmaDisableChan(uint chan)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosioptimrman"></A>&nbsp;
+BIOS IOP TIMRMAN - Timer Manager
+</FONT></TD></TR></TABLE><BR>
+Note: Like for INTRMAN, the actual module name is TIMEMANI - "timrman" is the export table name.<BR>
+There is also a TIMEMANP variant, possibly for PSX mode?<BR>
+<BR>
+<B>Exports</B><BR>
+<B>04h int AllocHardTimer(int source, int size, int prescale)</B><BR>
+<BR>
+<B>05h int ReferHardTimer(int source, int size, int mode, int modemask)</B><BR>
+<BR>
+<B>06h int FreeHardTimer(int timid)</B><BR>
+<BR>
+<B>07h void SetTimerMode(int timid, int mode)</B><BR>
+<BR>
+<B>08h uint GetTimerStatus(int timid)</B><BR>
+<BR>
+<B>09h void SetTimerCounter(int timid, uint count)</B><BR>
+<BR>
+<B>0Ah uint GetTimerCounter(int timid)</B><BR>
+<BR>
+<B>0Bh void SetTimerCompare(int timid, uint compare)</B><BR>
+<BR>
+<B>0Ch uint GetTimerCompare(int timid)</B><BR>
+<BR>
+<B>0Dh void SetHoldMode(int holdnum, int mode)</B><BR>
+<BR>
+<B>0Eh int GetHoldMode(int holdnum)</B><BR>
+<BR>
+<B>0Fh uint GetHoldReg(int holdnum)</B><BR>
+<BR>
+<B>10h int GetHardTimerIntrCode(int timid)</B><BR>
+<BR>
+<BR>
+Below are functions only found in newer TIMRMAN modules. (i.e., not in the BIOS)<BR>
+<BR>
+<B>14h int SetTimerHandler(int timid, ulong compare, uint (*handler)(void*), void *common)</B><BR>
+<BR>
+<B>15h int SetOverflowHandler(int timid, uint (*handler)(void*), void *common)</B><BR>
+<BR>
+<B>16h int SetupHardTimer(int timid, int source, int mode, int prescale)</B><BR>
+<BR>
+<B>17h int StartHardTimer(int timid)</B><BR>
+<BR>
+<B>18h int StopHardTimer(int timid)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
