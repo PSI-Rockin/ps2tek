@@ -1757,6 +1757,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
 <A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
 <A HREF="#biosiopintrman">BIOS IOP INTRMAN - Interrupt Manager</A><BR>
+<A HREF="#biosiopssbusc">BIOS IOP SSBUSC - Subsystem Bus Controller</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2337,6 +2338,42 @@ useful handlers.<BR>
 <B>18h int QueryIntrStack(void *sp)</B><BR>
 <BR>
 <B>19h int iCatchMultiIntr(void)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopssbusc"></A>&nbsp;
+BIOS IOP SSBUSC - Subsystem Bus Controller
+</FONT></TD></TR></TABLE><BR>
+Not entirely sure what SSBUSC does. It seems to involve memory mapping and access times for the IOP?<BR>
+<BR>
+<B>Exports</B><BR>
+<B>04h int SetDelay(int device, uint value)</B><BR>
+<BR>
+<B>05h int GetDelay(int device)</B><BR>
+<BR>
+<B>06h int SetBaseAddress(int device, uint value)</B><BR>
+<BR>
+<B>07h int GetBaseAddress(int device)</B><BR>
+<BR>
+<B>08h int SetRecoveryTime(uint value)</B><BR>
+<BR>
+<B>09h int GetRecoveryTime()</B><BR>
+<BR>
+<B>0Ah int SetHoldTime(uint value)</B><BR>
+<BR>
+<B>0Bh int GetHoldTime()</B><BR>
+<BR>
+<B>0Ch int SetFloatTime(uint value)</B><BR>
+<BR>
+<B>0Dh int GetFloatTime()</B><BR>
+<BR>
+<B>0Eh int SetStrobeTime(uint value)</B><BR>
+<BR>
+<B>0Fh int GetStrobeTime()</B><BR>
+<BR>
+<B>10h int SetCommonDelay(uint value)</B><BR>
+<BR>
+<B>11h int GetCommonDelay()</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
