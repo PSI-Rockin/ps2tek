@@ -1758,6 +1758,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
 <A HREF="#biosiopintrman">BIOS IOP INTRMAN - Interrupt Manager</A><BR>
 <A HREF="#biosiopssbusc">BIOS IOP SSBUSC - Subsystem Bus Controller</A><BR>
+<A HREF="#biosiopdmacman">BIOS IOP DMACMAN - DMAC Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2374,6 +2375,60 @@ Not entirely sure what SSBUSC does. It seems to involve memory mapping and acces
 <B>10h int SetCommonDelay(uint value)</B><BR>
 <BR>
 <B>11h int GetCommonDelay()</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopdmacman"></A>&nbsp;
+BIOS IOP DMACMAN - DMA Manager
+</FONT></TD></TR></TABLE><BR>
+Note: The names below are made up, because no known modules expose symbols for DMACMAN.<BR>
+<BR>
+<B>Exports</B><BR>
+<B>04h void DmaSetMadr(int chan, uint value)</B><BR>
+<BR>
+<B>05h uint DmaGetMadr(int chan)</B><BR>
+<BR>
+<B>06h void DmaSetBcr(int chan, uint value)</B><BR>
+<BR>
+<B>07h uint DmaGetBcr(int chan)</B><BR>
+<BR>
+<B>08h void DmaSetChcr(int chan, uint value)</B><BR>
+<BR>
+<B>09h uint DmaGetChcr(int chan)</B><BR>
+<BR>
+<B>0Ah void DmaSetTadr(int chan, uint value)</B><BR>
+<BR>
+<B>0Bh uint DmaGetTadr(int chan)</B><BR>
+<BR>
+<B>0Eh void DmaSetDpcr(uint value)</B><BR>
+<BR>
+<B>0Fh uint DmaGetDpcr()</B><BR>
+<BR>
+<B>10h void DmaSetDpcr2(uint value)</B><BR>
+<BR>
+<B>11h uint DmaGetDpcr2()</B><BR>
+<BR>
+<B>12h void DmaSetDpcr3(uint value)</B><BR>
+<BR>
+<B>13h uint DmaGetDpcr3()</B><BR>
+<BR>
+<B>14h void DmaSetDicr(uint value)</B><BR>
+<BR>
+<B>15h uint DmaGetDicr()</B><BR>
+<BR>
+<B>16h void DmaSetDicr2(uint value)</B><BR>
+<BR>
+<B>17h uint DmaGetDicr2()</B><BR>
+<BR>
+<B>1Ch int DmaRequestTransfer(uint chan, void* addr, uint size, uint count, int dir)</B><BR>
+<BR>
+<B>20h void DmaStartTransfer(uint chan)</B><BR>
+<BR>
+<B>21h void DmaSetChanPrio(uint chan, uint val)</B><BR>
+<BR>
+<B>22h void DmaEnableChan(uint chan)</B><BR>
+<BR>
+<B>23h void DmaDisableChan(uint chan)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
