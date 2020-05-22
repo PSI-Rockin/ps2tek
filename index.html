@@ -2670,7 +2670,22 @@ BIOS IOP THSEMAP - Semaphores
 <A NAME="biosiopthmsgbx"></A>&nbsp;
 BIOS IOP THMSGBX - Message Boxes
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>04h int CreateMbx(MbxParam* m)</B><BR>
+<BR>
+<B>05h int DeleteMbx(int mid)</B><BR>
+<BR>
+<B>06h int SendMbx(int mid, void* msg)</B><BR>
+<BR>
+<B>07h int iSendMbx(int mid, void* msg)</B><BR>
+<BR>
+<B>08h int ReceiveMbx(void** msg, int mid)</B><BR>
+<BR>
+<B>09h int PollMbx(void** msg, int mid)</B><BR>
+<BR>
+<B>0Bh int ReferMbxStatus(int mid, MbxInfo* info)</B><BR>
+<BR>
+<B>0Ch int iReferMbxStatus(int mid, MbxInfo* info)</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
