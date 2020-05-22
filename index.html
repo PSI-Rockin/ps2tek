@@ -1771,6 +1771,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopstdio">BIOS IOP STDIO - C Standard Input/Output</A><BR>
 <A HREF="#biosiopsifman">BIOS IOP SIFMAN - SIF Low-level Manager</A><BR>
 <A HREF="#biosiopigreeting">BIOS IOP IGREETING - Boot Info Display</A><BR>
+<A HREF="#biosiopsifcmd">BIOS IOP SIFCMD - SIF RPC Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3024,5 +3025,68 @@ Example output:<BR>
   ROMGEN=2002-0207, IOP info (CPUID=1f, CACH_CONFIG=0, 2MB, IOP mode)
   <20020207-164243,ROMconf,PS20160AC20020207.bin:11552>
 </TD></TR></TABLE><BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopsifcmd"></A>&nbsp;
+BIOS IOP SIFCMD - SIF RPC Manager
+</FONT></TD></TR></TABLE><BR>
+SIFCMD provides a server/client abstraction around SIFMAN, allowing modules to create their own RPC servers that listen 
+to incoming requests from the EE.<BR>
+<BR>
+<B>Exports</B>
+<B>02h int sceSifExitRpc()</B><BR>
+<BR>
+<B>04h int sceSifInitCmd()</B><BR>
+<BR>
+<B>05h void sceSifExitCmd()</B><BR>
+<BR>
+<B>06h uint sceSifGetSreg(int index)</B><BR>
+<BR>
+<B>07h void sceSifSetSreg(int index, uint value)</B><BR>
+<BR>
+<B>08h SifCmdHandlerData* sceSifSetCmdBuffer(SifCmdHandlerData *cmdBuffer, int size)</B><BR>
+<BR>
+<B>09h SifCmdHandlerData* sceSifSetSysCmdBuffer(SifCmdHandlerData *sysCmdBuffer, int size)</B><BR>
+<BR>
+<B>0Ah void sceSifAddCmdHandler(int cid, SifCmdHandler_t handler, void *harg)</B><BR>
+<BR>
+<B>0Bh void sceSifRemoveCmdHandler(int cid)</B><BR>
+<BR>
+<B>0Ch uint sceSifSendCmd(int cmd, void *packet, int packet_size, void *src_extra, void *dest_extra, 
+int size_extra)</B><BR>
+<BR>
+<B>0Dh uint isceSifSendCmd(int cmd, void *packet, int packet_size, void *src_extra, void *dest_extra, 
+int size_extra)</B><BR>
+<BR>
+<B>0Eh void sceSifInitRpc(int mode)</B><BR>
+<BR>
+<B>0Fh int sceSifBindRpc(SifRpcClientData *client, int rpc_number, int mode)</B><BR>
+<BR>
+<B>10h int sceSifCallRpc(SifRpcClientData *client, int rpc_number, int mode, void *send,
+  int ssize, void *receive, int rsize, SifRpcEndFunc end_func, void *end_param)</B><BR>
+<BR>
+<B>11h void sceSifRegisterRpc(SifRpcServerData *sd, int sid, SifRpcFunc func, void *buf,
+  SifRpcFunc cfunc, void *cbuf, SifRpcDataQueue *qd)</B><BR>
+<BR>
+<B>12h int sceSifCheckStatRpc(SifRpcClientData *cd)</B><BR>
+<BR>
+<B>13h SifRpcDataQueue* sceSifSetRpcQueue(SifRpcDataQueue *q, int thread_id)</B><BR>
+<BR>
+<B>14h SifRpcServerData* sceSifGetNextRequest(SifRpcDataQueue *qd)</B><BR>
+<BR>
+<B>15h void sceSifExecRequest(SifRpcServerData *srv)</B><BR>
+<BR>
+<B>16h void sceSifRpcLoop(SifRpcDataQueue *qd)</B><BR>
+<BR>
+<B>17h int sceSifGetOtherData(SifRpcReceiveData *rd, void *src, void *dest, int size, int mode)</B><BR>
+<BR>
+<B>18h SifRpcServerData* sceSifRemoveRpc(SifRpcServerData *sd, SifRpcDataQueue *qd)</B><BR>
+<BR>
+<B>19h SifRpcDataQueue* sceSifRemoveRpcQueue(SifRpcDataQueue_t *qd)</B><BR>
+<BR>
+<B>1Ah void sceSifSetSif1CB(void *func, int param)</B><BR>
+<BR>
+<B>1Bh void sceSifClearSif1CB()</B><BR>
+<BR>
 <BR>
 </BODY></HTML>
