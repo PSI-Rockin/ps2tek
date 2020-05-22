@@ -2297,16 +2297,16 @@ EXCEPMAN installs exception vectors at RAM addresses 0x40 and 0x80, but they do 
 Other modules will use EXCEPMAN to install their own handlers.<BR>
 <BR>
 <B>Exports</B><BR>
-<B>04h RegisterExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
+<B>04h int RegisterExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
 Alias for RegisterPriorityExceptionHandler(exception, 2, handler).<BR>
 <BR>
-<B>05h RegisterPriorityExceptionHandler(int exception, int priority, ExceptionHandler handler)</B><BR>
+<B>05h int RegisterPriorityExceptionHandler(int exception, int priority, ExceptionHandler handler)</B><BR>
 <BR>
-<B>06h RegisterDefaultExceptionHandler(ExceptionHandler handler)</B><BR>
+<B>06h int RegisterDefaultExceptionHandler(ExceptionHandler handler)</B><BR>
 <BR>
-<B>07h ReleaseExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
+<B>07h int ReleaseExceptionHandler(int exception, ExceptionHandler handler)</B><BR>
 <BR>
-<B>08h ReleaseDefaultExceptionHandler(ExceptionHandler handler)</B><BR>
+<B>08h int ReleaseDefaultExceptionHandler(ExceptionHandler handler)</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2622,7 +2622,26 @@ BIOS IOP THBASE - Basic Threading
 <A NAME="biosiopthevent"></A>&nbsp;
 BIOS IOP THEVENT - Event Flags
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>04h int CreateEventFlag(EventParam* e)</B><BR>
+<BR>
+<B>05h int DeleteEventFlag(int ef)</B><BR>
+<BR>
+<B>06h int SetEventFlag(int ef, uint bits)</B><BR>
+<BR>
+<B>07h int iSetEventFlag(int ef, uint bits)</B><BR>
+<BR>
+<B>08h int ClearEventFlag(int ef, uint bits)</B><BR>
+<BR>
+<B>09h int iClearEventFlag(int ef, uint bits)</B><BR>
+<BR>
+<B>0Ah int WaitEventFlag(int ef, uint bits, int mode, uint *resbits)</B><BR>
+<BR>
+<B>0Bh int PollEventFlag(int ef, uint bits, int mode, uint *resbits)</B><BR>
+<BR>
+<B>0Dh int ReferEventFlagStatus(int ef, EventInfo *info)</B><BR>
+<BR>
+<B>0Eh int iReferEventFlagStatus(int ef, EventInfo *info)</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
