@@ -2615,7 +2615,70 @@ THREADMAN contains multiple export tables. To make things more organized, they a
 <A NAME="biosiopthbase"></A>&nbsp;
 BIOS IOP THBASE - Basic Threading
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>04h int CreateThread(ThreadParam *t)</B><BR>
+<BR>
+<B>05h int DeleteThread(int tid)</B><BR>
+<BR>
+<B>06h int StartThread(int tid, void *arg)</B><BR>
+<BR>
+<B>07h int StartThreadArgs(int tid, int args, void *argp)</B><BR>
+<BR>
+<B>08h int ExitThread()</B><BR>
+<BR>
+<B>09h int ExitDeleteThread()</B><BR>
+<BR>
+<B>0Ah int TerminateThread(int tid)</B><BR>
+<BR>
+<B>0Bh int iTerminateThread(int tid)</B><BR>
+<BR>
+<B>0Eh int ChangeThreadPriority(int tid, int priority)</B><BR>
+<BR>
+<B>0Fh int iChangeThreadPriority(int tid, int priority)</B><BR>
+<BR>
+<B>10h int RotateThreadReadyQueue(int priority)</B><BR>
+<BR>
+<B>11h int iRotateThreadReadyQueue(int priority)</B><BR>
+<BR>
+<B>12h int ReleaseWaitThread(int tid)</B><BR>
+<BR>
+<B>13h int iReleaseWaitThread(int tid)</B><BR>
+<BR>
+<B>14h int GetThreadId()</B><BR>
+<BR>
+<B>15h int CheckThreadStack()</B><BR>
+<BR>
+<B>16h int ReferThreadStatus(int tid, ThreadInfo *info)</B><BR>
+<BR>
+<B>17h int iReferThreadStatus(int tid, ThreadInfo *info)</B><BR>
+<BR>
+<B>18h int SleepThread()</B><BR>
+<BR>
+<B>19h int WakeupThread(int tid)</B><BR>
+<BR>
+<B>1Ah int iWakeupThread(int tid)</B><BR>
+<BR>
+<B>1Bh int CancelWakeupThread(int tid)</B><BR>
+<BR>
+<B>1Ch int iCancelWakeupThread(int tid)</B><BR>
+<BR>
+<B>21h int DelayThread(int usec)</B><BR>
+<BR>
+<B>22h int GetSystemTime(SysClock* clock)</B><BR>
+<BR>
+<B>23h int SetAlarm(SysClock* clock, uint (*alarm_cb)(void *), void* arg)</B><BR>
+<BR>
+<B>24h int iSetAlarm(SysClock* clock, uint (*alarm_cb)(void *), void* arg)</B><BR>
+<BR>
+<B>25h int CancelAlarm(uint (*alarm_cb)(void *), void* arg)</B><BR>
+<BR>
+<B>26h int iCancelAlarm(uint (*alarm_cb)(void *), void* arg)</B><BR>
+<BR>
+<B>27h void USec2SysClock(uint usec, SysClock* clock)</B><BR>
+<BR>
+<B>28h void SysClock2USec(SysClock* clock, uint* sec, uint* usec)</B><BR>
+<BR>
+<B>29h int GetSystemStatusFlag()</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
