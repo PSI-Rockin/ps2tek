@@ -1762,6 +1762,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosioptimrman">BIOS IOP TIMRMAN - Timer Manager</A><BR>
 <A HREF="#biosiopsysclib">BIOS IOP SYSCLIB - Standard C Library</A><BR>
 <A HREF="#biosiopheaplib">BIOS IOP HEAPLIB - Heap Allocation Library</A><BR>
+<A HREF="#biosiopeeconf">BIOS IOP EECONF - EE Configuration</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2582,6 +2583,14 @@ BIOS IOP HEAPLIB - Heap Allocation Library
 <B>07h int FreeHeapMemory(void *heap, void *ptr)</B><BR>
 <BR>
 <B>08h int HeapTotalFreeSize(void *heap)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopeeconf"></A>&nbsp;
+BIOS IOP EECONF - EE Configuration
+</FONT></TD></TR></TABLE><BR>
+Not sure what this does. It seems to clear out NVRAM for configuration settings and initialize some things after a reboot? 
+Needs more research. No exports.<BR>
 <BR>
 <BR>
 </BODY></HTML>
