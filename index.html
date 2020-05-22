@@ -1764,6 +1764,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopheaplib">BIOS IOP HEAPLIB - Heap Allocation Library</A><BR>
 <A HREF="#biosiopeeconf">BIOS IOP EECONF - EE Configuration</A><BR>
 <A HREF="#biosiopthreadman">BIOS IOP THREADMAN - Thread Manager</A><BR>
+<A HREF="#biosiopvblank">BIOS IOP VBLANK - VBLANK Interrupt Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2793,6 +2794,24 @@ BIOS IOP THVPOOL - Variable-length Memory Pools
 <B>0Bh int ReferVplStatus(int vpid, VPoolInfo *info)</B><BR>
 <BR>
 <B>0Ch int iReferVplStatus(int vpid, VPoolInfo *info)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopvblank"></A>&nbsp;
+BIOS IOP VBLANK - VBLANK Interrupt Manager
+</FONT></TD></TR></TABLE><BR>
+<B>Exports</B><BR>
+<B>04h void WaitVblankStart()</B><BR>
+<BR>
+<B>05h void WaitVblankEnd()</B><BR>
+<BR>
+<B>06h void WaitVblank()</B><BR>
+<BR>
+<B>07h void WaitNonVblank()</B><BR>
+<BR>
+<B>08h int RegisterVblankHandler(int end, int priority, int (*handler)(void *), void *arg</B><BR>
+<BR>
+<B>09h int ReleaseVblankHandler(int end, int (*handler)(void *)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
