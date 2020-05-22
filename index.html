@@ -2648,7 +2648,22 @@ BIOS IOP THEVENT - Event Flags
 <A NAME="biosiopthsemap"></A>&nbsp;
 BIOS IOP THSEMAP - Semaphores
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>04h int CreateSema(SemaParam *s)</B><BR>
+<BR>
+<B>05h int DeleteSema(int sid)</B><BR>
+<BR>
+<B>06h int SignalSema(int sid)</B><BR>
+<BR>
+<B>07h int iSignalSema(int sid)</B><BR>
+<BR>
+<B>08h int WaitSema(int sid)</B><BR>
+<BR>
+<B>09h int PollSema(int sid)</B><BR>
+<BR>
+<B>0Bh int ReferSemaStatus(int sid, SemaInfo *info)</B><BR>
+<BR>
+<B>0Ch int iReferSemaStatus(int sid, SemaInfo *info)</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
