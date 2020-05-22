@@ -1760,6 +1760,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopssbusc">BIOS IOP SSBUSC - Subsystem Bus Controller</A><BR>
 <A HREF="#biosiopdmacman">BIOS IOP DMACMAN - DMAC Manager</A><BR>
 <A HREF="#biosioptimrman">BIOS IOP TIMRMAN - Timer Manager</A><BR>
+<A HREF="#biosiopsysclib">BIOS IOP SYSCLIB - Standard C Library</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2478,6 +2479,92 @@ Below are functions only found in newer TIMRMAN modules. (i.e., not in the BIOS)
 <B>17h int StartHardTimer(int timid)</B><BR>
 <BR>
 <B>18h int StopHardTimer(int timid)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopsysclib"></A>&nbsp;
+BIOS IOP SYSCLIB - Standard C Library
+</FONT></TD></TR></TABLE><BR>
+<B>Exports</B><BR>
+<B>04h int setjmp(jmp_buf env)</B><BR>
+<BR>
+<B>05h void longjmp(jmp_buf env)</B><BR>
+<BR>
+<B>06h char _toupper(char c)</B><BR>
+Note: non-standard, returns char instead of int.<BR>
+<BR>
+<B>07h char _tolower(char c)</B><BR>
+Note: non-standard, returns char instead of int.<BR>
+<BR>
+<B>08h uchar look_ctype_table(char character)</B><BR>
+<BR>
+<B>09h void* get_ctype_table()</B><BR>
+<BR>
+<B>0Ah void* memchr(const void *s, int c, size_t n)</B><BR>
+<BR>
+<B>0Bh int memcmp(const void *p, const void *q, size_t size)</B><BR>
+<BR>
+<B>0Ch void* memcpy(void *dest, const void *src, size_t size)</B><BR>
+<BR>
+<B>0Dh void* memmove(void *dest, const void *src, size_t size)</B><BR>
+<BR>
+<B>0Eh void* memset(void *ptr, int c, size_t size)</B><BR>
+<BR>
+<B>0Fh int bcmp(const void *s1, const void *s2, size_t size)</B><BR>
+<BR>
+<B>10h void bcopy(const void *src, void *dest, size_t size)</B><BR>
+<BR>
+<B>11h void bzero(void *ptr, size_t size)</B><BR>
+<BR>
+<B>12h int prnt(PrintCallback func, void *context, const char *format, va_list ap)</B><BR>
+<BR>
+<B>13h int sprintf(char *str, const char *format, ...)</B><BR>
+<BR>
+<B>14h char* strcat(char *dest, const char *src)</B><BR>
+<BR>
+<B>15h char* strchr(const char *s, int c)</B><BR>
+<BR>
+<B>16h int strcmp(const char *p, const char *q)</B><BR>
+<BR>
+<B>17h char* strcpy(char *dest, const char *src)</B><BR>
+<BR>
+<B>18h size_t strcspn(const char *s, const char *reject)</B><BR>
+<BR>
+<B>19h char* index(const char *s, int c)</B><BR>
+<BR>
+<B>1Ah char* rindex(const char *s, int c)</B><BR>
+<BR>
+<B>1Bh size_t strlen(const char *s)</B><BR>
+<BR>
+<B>1Ch char* strncat(char *dest, const char *src, size_t size)</B><BR>
+<BR>
+<B>1Dh int strncmp(const char *p, const char *q, size_t size)</B><BR>
+<BR>
+<B>1Eh char* strncpy(char *dest, const char *src, size_t size)</B><BR>
+<BR>
+<B>1Fh char* strpbrk(const char *s, const char *accept)</B><BR>
+<BR>
+<B>20h char* strrchr(const char *s, int c)</B><BR>
+<BR>
+<B>21h size_t strspn(const char *s, const char *accept)</B><BR>
+<BR>
+<B>22h char* strstr(const char *haystack, const char *needle)</B><BR>
+<BR>
+<B>23h char* strtok(char *s, const char *delim)</B><BR>
+<BR>
+<B>24h long strtol(const char *s, char **endptr, int base)</B><BR>
+<BR>
+<B>25h char* atob(char *s, int *i)</B><BR>
+<BR>
+<B>26h ulong strtoul(const char *s, char **endptr, int base)</B><BR>
+<BR>
+<B>28h void* wmemcopy(uint *dest, const uint *src, size_t size)</B><BR>
+<BR>
+<B>29h void* wmemset(uint *dest, uint c, size_t size)</B><BR>
+<BR>
+<B>2Ah int vsprintf(char *str, const char *format, va_list ap)</B><BR>
+<BR>
+<B>2Bh char* strtok_r(char *s, const char *delim, char **lasts)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
