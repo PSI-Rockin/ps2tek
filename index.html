@@ -1766,6 +1766,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopthreadman">BIOS IOP THREADMAN - Thread Manager</A><BR>
 <A HREF="#biosiopvblank">BIOS IOP VBLANK - VBLANK Interrupt Manager</A><BR>
 <A HREF="#biosiopioman">BIOS IOP IOMAN - File Input/Output Manager</A><BR>
+<A HREF="#biosiopmodload">BIOS IOP MODLOAD - Module Loader</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2882,6 +2883,30 @@ Below are functions only found in newer IOMAN modules.<BR>
 <B>21h int readlink(const char *path, char *buf, unsigned int buflen)</B><BR>
 <BR>
 <B>22h int ioctl2(int fd, int cmd, void *arg, uint arglen, void *buf, uint buflen)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopmodload"></A>&nbsp;
+BIOS IOP MODLOAD - Module Loader
+</FONT></TD></TR></TABLE><BR>
+<B>Exports</B><BR>
+<B>04h int ReBootStart(const char *command, uint flags)</B><BR>
+<BR>
+<B>05h int LoadModuleAddress(const char *name, void* addr, int offs)</B><BR>
+<BR>
+<B>06h int LoadModule(const char *name)</B><BR>
+<BR>
+<B>07h int LoadStartModule(const char *name, int arglen, const char *args, int *result)</B><BR>
+<BR>
+<B>08h int StartModule(int id, const char *name, int arglen, const char *args, int *result)</B><BR>
+<BR>
+<B>09h int LoadModuleBufferAddress(void *buffer, void* addr, int offs)</B><BR>
+<BR>
+<B>0Ah int LoadModuleBuffer(void *buffer)</B><BR>
+<BR>
+<B>0Ch void SetSecrmanCallbacks(void *CardBootFunc, void *DiskBootFunc, void *LoadfileFunc)</B><BR>
+<BR>
+<B>0Dh void SetCheckKelfPathCallback(void *CheckKelfPathFunc)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
