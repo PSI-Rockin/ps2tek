@@ -2755,14 +2755,44 @@ BIOS IOP THMSGBX - Message Boxes
 <A NAME="biosiopthfpool"></A>&nbsp;
 BIOS IOP THFPOOL - Fixed-length Memory Pools
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>04h int CreateFpl(FPoolParam* fp)</B><BR>
+<BR>
+<B>05h int DeleteFpl(int fpid)</B><BR>
+<BR>
+<B>06h void* AllocateFpl(int fpid)</B><BR>
+<BR>
+<B>07h void* pAllocateFpl(int fpid)</B><BR>
+<BR>
+<B>08h void* ipAllocateFpl(int fpid)</B><BR>
+<BR>
+<B>09h int FreeFpl(int fpid, void *mem)</B><BR>
+<BR>
+<B>0Bh int ReferFplStatus(int fpid, FPoolInfo *info)</B><BR>
+<BR>
+<B>0Ch int iReferFplStatus(int fpid, FPoolInfo *info)</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="biosiopthvpool"></A>&nbsp;
 BIOS IOP THVPOOL - Variable-length Memory Pools
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>04h int CreateVpl(VPoolParam* vp)</B><BR>
+<BR>
+<B>05h int DeleteVpl(int vpid)</B><BR>
+<BR>
+<B>06h void* AllocateVpl(int vpid, int size)</B><BR>
+<BR>
+<B>07h void* pAllocateVpl(int vpid, int size)</B><BR>
+<BR>
+<B>08h void* ipAllocateVpl(int vpid, int size)</B><BR>
+<BR>
+<B>09h int FreeVpl(int vpid, void *mem)</B><BR>
+<BR>
+<B>0Bh int ReferVplStatus(int vpid, VPoolInfo *info)</B><BR>
+<BR>
+<B>0Ch int iReferVplStatus(int vpid, VPoolInfo *info)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
