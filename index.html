@@ -1767,6 +1767,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopvblank">BIOS IOP VBLANK - VBLANK Interrupt Manager</A><BR>
 <A HREF="#biosiopioman">BIOS IOP IOMAN - File Input/Output Manager</A><BR>
 <A HREF="#biosiopmodload">BIOS IOP MODLOAD - Module Loader</A><BR>
+<A HREF="#biosiopromdrv">BIOS IOP ROMDRV - ROM File Driver</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2907,6 +2908,14 @@ BIOS IOP MODLOAD - Module Loader
 <B>0Ch void SetSecrmanCallbacks(void *CardBootFunc, void *DiskBootFunc, void *LoadfileFunc)</B><BR>
 <BR>
 <B>0Dh void SetCheckKelfPathCallback(void *CheckKelfPathFunc)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopromdrv"></A>&nbsp;
+BIOS IOP ROMDRV - ROM File Driver
+</FONT></TD></TR></TABLE><BR>
+This module has no exports. It simply installs an IOMAN driver for rom0 and rom1, the boot ROM and DVD ROM 
+respectively.<BR>
 <BR>
 <BR>
 </BODY></HTML>
