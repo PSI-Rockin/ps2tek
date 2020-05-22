@@ -1765,6 +1765,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopeeconf">BIOS IOP EECONF - EE Configuration</A><BR>
 <A HREF="#biosiopthreadman">BIOS IOP THREADMAN - Thread Manager</A><BR>
 <A HREF="#biosiopvblank">BIOS IOP VBLANK - VBLANK Interrupt Manager</A><BR>
+<A HREF="#biosiopioman">BIOS IOP IOMAN - File Input/Output Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2812,6 +2813,75 @@ BIOS IOP VBLANK - VBLANK Interrupt Manager
 <B>08h int RegisterVblankHandler(int end, int priority, int (*handler)(void *), void *arg</B><BR>
 <BR>
 <B>09h int ReleaseVblankHandler(int end, int (*handler)(void *)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopioman"></A>&nbsp;
+BIOS IOP IOMAN - File Input/Output Manager
+</FONT></TD></TR></TABLE><BR>
+IOMAN provides a C-style interface for file operations - other modules must install their own drivers for IOMAN to be 
+effective.<BR>
+IOMAN does install a TTY driver intended for use with STDIO. On retail BIOSes, the TTY functions are all stubbed. 
+Unknown if other IOMAN modules in other BIOSes install proper drivers, or if the drivers are re-installed by something 
+else.<BR>
+<BR>
+<B>Exports</B><BR>
+<B>04h int open(const char *name, int mode)</B><BR>
+<BR>
+<B>05h int close(int fd)</B><BR>
+<BR>
+<B>06h int read(int fd, void *ptr, size_t size)</B><BR>
+<BR>
+<B>07h int write(int fd, void *ptr, size_t size)</B><BR>
+<BR>
+<B>08h int lseek(int fd, int pos, int whence)</B><BR>
+<BR>
+<B>09h int ioctl(int fd, int command, void *arg)</B><BR>
+<BR>
+<B>0Ah int remove(const char *name)</B><BR>
+<BR>
+<B>0Bh int mkdir(const char *path)</B><BR>
+<BR>
+<B>0Ch int rmdir(const char *path)</B><BR>
+<BR>
+<B>0Dh int dopen(const char *path, int mode)</B><BR>
+<BR>
+<B>0Eh int dclose(int fd)</B><BR>
+<BR>
+<B>0Fh int dread(int fd, void *buf)</B><BR>
+<BR>
+<B>10h int getstat(const char *name, IOStat *stat)</B><BR>
+<BR>
+<B>11h int chstat(const char *name, IOStat *stat, uint statmask)</B><BR>
+<BR>
+<B>12h int format(const char *dev)</B><BR>
+<BR>
+<B>14h int AddDrv(IODevice *device)</B><BR>
+<BR>
+<B>15h int DelDrv(const char *name)</B><BR>
+<BR>
+Below are functions only found in newer IOMAN modules.<BR>
+<B>17h void StdioInit(int mode)</B><BR>
+<BR>
+<B>19h int rename(const char *old, const char *new)</B><BR>
+<BR>
+<B>1Ah int chdir(const char *name)</B><BR>
+<BR>
+<B>1Bh int sync(const char *dev, int flag)</B><BR>
+<BR>
+<B>1Ch int mount(const char *fsname, const char *dev, int flag, void *arg, int arglen)</B><BR>
+<BR>
+<B>1Dh int umount(const char *fsname)</B><BR>
+<BR>
+<B>1Eh long long lseek64(int fd, long long offset, int whence)</B><BR>
+<BR>
+<B>1Fh int devctl(const char *name, int cmd, void *arg, uint arglen, void *buf, uint buflen)</B><BR>
+<BR>
+<B>20h int symlink(const char *old, const char *new)</B><BR>
+<BR>
+<B>21h int readlink(const char *path, char *buf, unsigned int buflen)</B><BR>
+<BR>
+<B>22h int ioctl2(int fd, int cmd, void *arg, uint arglen, void *buf, uint buflen)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
