@@ -1763,6 +1763,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopsysclib">BIOS IOP SYSCLIB - Standard C Library</A><BR>
 <A HREF="#biosiopheaplib">BIOS IOP HEAPLIB - Heap Allocation Library</A><BR>
 <A HREF="#biosiopeeconf">BIOS IOP EECONF - EE Configuration</A><BR>
+<A HREF="#biosiopthreadman">BIOS IOP THREADMAN - Thread Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2591,6 +2592,65 @@ BIOS IOP EECONF - EE Configuration
 </FONT></TD></TR></TABLE><BR>
 Not sure what this does. It seems to clear out NVRAM for configuration settings and initialize some things after a reboot? 
 Needs more research. No exports.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopthreadman"></A>&nbsp;
+BIOS IOP THREADMAN - Thread Manager
+</FONT></TD></TR></TABLE><BR>
+This is a relatively large module that handles everything related to threading and scheduling.<BR>
+The scheduler algorithm is currently unknown, though it is likely similar to the EE kernel's scheduler - that is to say, 
+cooperatively threaded. The IOP kernel has more functionality though, such as event flags and message boxes.<BR>
+THREADMAN contains multiple export tables. To make things more organized, they are split here into separate sections.<BR>
+<BR>
+<A HREF="#biosiopthbase">BIOS IOP THBASE - Basic Threading</A><BR>
+<A HREF="#biosiopthevent">BIOS IOP THEVENT - Event Flags</A><BR>
+<A HREF="#biosiopthsemap">BIOS IOP THSEMAP - Semaphores</A><BR>
+<A HREF="#biosiopthmsgbx">BIOS IOP THMSGBX - Message Boxes</A><BR>
+<A HREF="#biosiopthfpool">BIOS IOP THFPOOL - Fixed-length Memory Pools</A><BR>
+<A HREF="#biosiopthvpool">BIOS IOP THVPOOL - Variable-length Memory Pools</A><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopthbase"></A>&nbsp;
+BIOS IOP THBASE - Basic Threading
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopthevent"></A>&nbsp;
+BIOS IOP THEVENT - Event Flags
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopthsemap"></A>&nbsp;
+BIOS IOP THSEMAP - Semaphores
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopthmsgbx"></A>&nbsp;
+BIOS IOP THMSGBX - Message Boxes
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopthfpool"></A>&nbsp;
+BIOS IOP THFPOOL - Fixed-length Memory Pools
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopthvpool"></A>&nbsp;
+BIOS IOP THVPOOL - Variable-length Memory Pools
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
 <BR>
 <BR>
 </BODY></HTML>
