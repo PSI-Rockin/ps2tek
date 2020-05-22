@@ -1770,6 +1770,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopromdrv">BIOS IOP ROMDRV - ROM File Driver</A><BR>
 <A HREF="#biosiopstdio">BIOS IOP STDIO - C Standard Input/Output</A><BR>
 <A HREF="#biosiopsifman">BIOS IOP SIFMAN - SIF Low-level Manager</A><BR>
+<A HREF="#biosiopigreeting">BIOS IOP IGREETING - Boot Info Display</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3008,6 +3009,21 @@ BIOS IOP SIFMAN - SIF Low-level Manager
 <B>1Fh void sceSifResetDmaIntrHandler()</B><BR>
 <BR>
 <B>20h uint sceSifSetDmaIntr(SifDmaTransfer *trans, int len, void (*func)(), void *data)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopigreeting"></A>&nbsp;
+BIOS IOP IGREETING - Boot Info Display
+</FONT></TD></TR></TABLE><BR>
+No exports. This module outputs console information to the TTY, as well as what kind of boot has occurred (hard reset, 
+update reboot, etc).<BR>
+<BR>
+Example output:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  PlayStation 2 ======== Hard reset boot
+  ROMGEN=2002-0207, IOP info (CPUID=1f, CACH_CONFIG=0, 2MB, IOP mode)
+  <20020207-164243,ROMconf,PS20160AC20020207.bin:11552>
+</TD></TR></TABLE><BR>
 <BR>
 <BR>
 </BODY></HTML>
