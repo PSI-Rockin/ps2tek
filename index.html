@@ -1768,6 +1768,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopioman">BIOS IOP IOMAN - File Input/Output Manager</A><BR>
 <A HREF="#biosiopmodload">BIOS IOP MODLOAD - Module Loader</A><BR>
 <A HREF="#biosiopromdrv">BIOS IOP ROMDRV - ROM File Driver</A><BR>
+<A HREF="#biosiopstdio">BIOS IOP STDIO - C Standard Input/Output</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2916,6 +2917,34 @@ BIOS IOP ROMDRV - ROM File Driver
 </FONT></TD></TR></TABLE><BR>
 This module has no exports. It simply installs an IOMAN driver for rom0 and rom1, the boot ROM and DVD ROM 
 respectively.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopstdio"></A>&nbsp;
+BIOS IOP STDIO - C Standard Input/Output
+</FONT></TD></TR></TABLE><BR>
+<B>Exports</B><BR>
+<B>04h int printf(const char *format, ...)</B><BR>
+<BR>
+<B>05h int getchar()</B><BR>
+<BR>
+<B>06h int putchar(int c)</B><BR>
+<BR>
+<B>07h int puts(const char *s)</B><BR>
+<BR>
+<B>08h char *gets(char *s)</B><BR>
+<BR>
+<B>09h int fdprintf(int fd, const char *format, ...)</B><BR>
+<BR>
+<B>0Ah int fdgetc(int fd)</B><BR>
+<BR>
+<B>0Bh int fdputc(int c, int fd)</B><BR>
+<BR>
+<B>0Ch int fdputs(const char *s, int fd)</B><BR>
+<BR>
+<B>0Dh char *fdgets(char *buf, int fd)</B><BR>
+<BR>
+<B>0Eh int vfdprintf(int fd, const char *format, va_list ap)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
