@@ -1772,6 +1772,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopsifman">BIOS IOP SIFMAN - SIF Low-level Manager</A><BR>
 <A HREF="#biosiopigreeting">BIOS IOP IGREETING - Boot Info Display</A><BR>
 <A HREF="#biosiopsifcmd">BIOS IOP SIFCMD - SIF RPC Manager</A><BR>
+<A HREF="#biosiopreboot">BIOS IOP REBOOT - SIF Reboot Server</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3087,6 +3088,14 @@ int size_extra)</B><BR>
 <B>1Ah void sceSifSetSif1CB(void *func, int param)</B><BR>
 <BR>
 <B>1Bh void sceSifClearSif1CB()</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopreboot"></A>&nbsp;
+BIOS IOP REBOOT - SIF Reboot Server
+</FONT></TD></TR></TABLE><BR>
+REBOOT installs a custom SIF command handler for 0x80000003, waits for this command to be sent, then 
+calls MODLOAD.ReBootStart. It is technically not a server, but it can be thought of as such.<BR>
 <BR>
 <BR>
 </BODY></HTML>
