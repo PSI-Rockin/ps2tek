@@ -1761,6 +1761,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopdmacman">BIOS IOP DMACMAN - DMAC Manager</A><BR>
 <A HREF="#biosioptimrman">BIOS IOP TIMRMAN - Timer Manager</A><BR>
 <A HREF="#biosiopsysclib">BIOS IOP SYSCLIB - Standard C Library</A><BR>
+<A HREF="#biosiopheaplib">BIOS IOP HEAPLIB - Heap Allocation Library</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2565,6 +2566,22 @@ Note: non-standard, returns char instead of int.<BR>
 <B>2Ah int vsprintf(char *str, const char *format, va_list ap)</B><BR>
 <BR>
 <B>2Bh char* strtok_r(char *s, const char *delim, char **lasts)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopheaplib"></A>&nbsp;
+BIOS IOP HEAPLIB - Heap Allocation Library
+</FONT></TD></TR></TABLE><BR>
+<B>Exports</B><BR>
+<B>04h void* CreateHeap(int size, int flag)</B><BR>
+<BR>
+<B>05h void DeleteHeap(void* heap)</B><BR>
+<BR>
+<B>06h void* AllocHeapMemory(void *heap, size_t nbytes)</B><BR>
+<BR>
+<B>07h int FreeHeapMemory(void *heap, void *ptr)</B><BR>
+<BR>
+<B>08h int HeapTotalFreeSize(void *heap)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
