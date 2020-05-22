@@ -1769,6 +1769,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopmodload">BIOS IOP MODLOAD - Module Loader</A><BR>
 <A HREF="#biosiopromdrv">BIOS IOP ROMDRV - ROM File Driver</A><BR>
 <A HREF="#biosiopstdio">BIOS IOP STDIO - C Standard Input/Output</A><BR>
+<A HREF="#biosiopsifman">BIOS IOP SIFMAN - SIF Low-level Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2945,6 +2946,68 @@ BIOS IOP STDIO - C Standard Input/Output
 <B>0Dh char *fdgets(char *buf, int fd)</B><BR>
 <BR>
 <B>0Eh int vfdprintf(int fd, const char *format, va_list ap)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopsifman"></A>&nbsp;
+BIOS IOP SIFMAN - SIF Low-level Manager
+</FONT></TD></TR></TABLE><BR>
+<B>Exports</B><BR>
+<B>02h void sceSifExit()</B><BR>
+<BR>
+<B>04h void sceSifDma2Init()</B><BR>
+<BR>
+<B>05h void sceSifInit()</B><BR>
+<BR>
+<B>06h void sceSifSetDChain()</B><BR>
+<BR>
+<B>07h int sceSifSetDma(SifDmaTransfer *trans, int len)</B><BR>
+<BR>
+<B>08h int sceSifDmaStat(int trid)</B><BR>
+<BR>
+<B>09h void sceSifSetOneDma(SifDmaTransfer dmat)</B><BR>
+<BR>
+<B>0Ch void sceSifDma0Transfer(void *addr, int size, int mode)</B><BR>
+<BR>
+<B>0Dh void sceSifDma0Sync()</B><BR>
+<BR>
+<B>0Eh int sceSifDma0Sending()</B><BR>
+<BR>
+<B>0Fh void sceSifDma1Transfer(void *addr, int size, int mode)</B><BR>
+<BR>
+<B>10h void sceSifDma1Sync()</B><BR>
+<BR>
+<B>11h int sceSifDma1Sending()</B><BR>
+<BR>
+<B>12h void sceSifDma2Transfer(void *addr, int size, int mode)</B><BR>
+<BR>
+<B>13h void sceSifDma2Sync()</B><BR>
+<BR>
+<B>14h int sceSifDma2Sending()</B><BR>
+<BR>
+<B>15h uint sceSifGetMSFlag()</B><BR>
+<BR>
+<B>16h uint sceSifSetMSFlag(uint value)</B><BR>
+<BR>
+<B>17h uint sceSifGetSMFlag()</B><BR>
+<BR>
+<B>18h uint sceSifSetSMFlag(uint value)</B><BR>
+<BR>
+<B>19h uint sceSifGetMainAddr()</B><BR>
+<BR>
+<B>1Ah uint sceSifGetSubAddr()</B><BR>
+<BR>
+<B>1Bh uint sceSifSetSubAddr(uint value)</B><BR>
+<BR>
+<B>1Ch void sceSifIntrMain()</B><BR>
+<BR>
+<B>1Dh int sceSifCheckInit()</B><BR>
+<BR>
+<B>1Eh void sceSifSetDmaIntrHandler(void (*handler)(void *), void *arg)</B><BR>
+<BR>
+<B>1Fh void sceSifResetDmaIntrHandler()</B><BR>
+<BR>
+<B>20h uint sceSifSetDmaIntr(SifDmaTransfer *trans, int len, void (*func)(), void *data)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
