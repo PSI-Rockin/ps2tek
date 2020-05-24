@@ -1743,6 +1743,8 @@ pass values to each other, which happens during SIF initialization. However, onc
 SIF0 (IOP->EE) and SIF1 (EE->IOP) channels to communicate.<BR>
 <BR>
 <A HREF="#sifregisters">SIF Registers</A><BR>
+<A HREF="#sifrpcbasics">SIF RPC Basics</A><BR>
+<A HREF="#sifrpccommands">SIF RPC Commands</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1788,6 +1790,48 @@ Very little is known about this register.<BR>
   0-31  Unknown
 </TD></TR></TABLE>
 Nothing is known about this register, other than that it does get accessed during initialization.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sifrpcbasics"></A>&nbsp;
+SIF RPC Basics
+</FONT></TD></TR></TABLE><BR>
+<B>Calling RPC functions</B><BR>
+Assume that a game on the EE wants to open a file.<BR>
+<UL>
+<LI>The EE client sends a BIND request to the IOP. To do this, the game must know the ID of the server it wants to bind 
+to. Since it is trying to open a file, it would use 0x80000003, the ID of FILEIO.</LI>
+<LI>The IOP receives the request and looks up the server struct associated with the ID.</LI>
+<LI>The IOP finds the server and sends an END packet to the EE. This contains a pointer to the IOP server, along with some 
+other information. After receiving the END reply, the EE client can now call FILEIO functions.</LI>
+<LI>The EE sends a CALL request to the IOP. The IOP receives this and wakes up the RPC thread associated with the 
+server, passing the function number, data buffer, and size of the data to the RPC thread.</LI>
+<LI>FILEIO executes the open command and returns a result. The IOP sends an END packet to the EE, and it can optionally 
+directly DMA the result of the RPC command to a different buffer. In this case, it would be a file descriptor ID.</LI>
+</UL><BR>
+In more succinct terms, the EE first uses SifBindRpc to bind the server to the client, then it uses SifCallRpc to call an 
+IOP function.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sifrpccommands"></A>&nbsp;
+SIF RPC Commands
+</FONT></TD></TR></TABLE><BR>
+<B>80000000h Change SADDR</B><BR>
+<BR>
+<B>80000001h Set SREG</B><BR>
+<BR>
+<B>80000002h SIFCMD Init</B><BR>
+<BR>
+<B>80000003h Reboot IOP</B><BR>
+<BR>
+<B>80000008h End</B><BR>
+<BR>
+<B>80000009h Bind</B><BR>
+<BR>
+<B>8000000Ah Call</B><BR>
+<BR>
+<B>8000000Ch Get other data</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
