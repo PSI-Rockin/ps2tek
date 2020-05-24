@@ -1779,6 +1779,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopsifinit">BIOS IOP SIFINIT - SIF Initialization</A><BR>
 <A HREF="#biosiopfileio">BIOS IOP FILEIO - File Input/Output RPC Server</A><BR>
 <A HREF="#biosiopsecrman">BIOS IOP SECRMAN - Security Manager</A><BR>
+<A HREF="#biosiopeesync">BIOS IOP EESYNC - Boot Finish Messager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3363,6 +3364,15 @@ The bulk of this work is handled by the CDVD Drive, which contains the actual Ma
 <B>0Ch int SecrDiskBootBlock(void *src, void *dst, uint size)</B><BR>
 <BR>
 <B>0Dh void* SecrDiskBootFile(void *buff)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopeesync"></A>&nbsp;
+BIOS IOP EESYNC - Boot Finish Messager
+</FONT></TD></TR></TABLE><BR>
+This module installs a post-boot callback in LOADCORE that calls SIFMAN.sceSifSetSMFlag(0x40000).<BR>
+Not sure if anything on the EE side looks for this value, but the write does indicate that the IOP has finished 
+booting.<BR>
 <BR>
 <BR>
 </BODY></HTML>
