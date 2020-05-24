@@ -1778,6 +1778,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopcdvdfsv">BIOS IOP CDVDFSV - CDVD RPC Server</A><BR>
 <A HREF="#biosiopsifinit">BIOS IOP SIFINIT - SIF Initialization</A><BR>
 <A HREF="#biosiopfileio">BIOS IOP FILEIO - File Input/Output RPC Server</A><BR>
+<A HREF="#biosiopsecrman">BIOS IOP SECRMAN - Security Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3333,6 +3334,35 @@ Note: newer FILEIO modules have a different interface. Needs research.<BR>
 <B>IOPHEAP RPC (0x80000001)</B><BR>
 <BR>
 <B>FILEIO RPC (0x80000003)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopsecrman"></A>&nbsp;
+BIOS IOP SECRMAN - Security Manager
+</FONT></TD></TR></TABLE><BR>
+SECRMAN handles decrypting MagicGate-protected executables/data and authenticating PS2 memory cards.<BR>
+The bulk of this work is handled by the CDVD Drive, which contains the actual MagicGate keys.<BR>
+<BR>
+<B>Exports</B><BR>
+<B>04h void SecrSetMcCommandHandler(int (*func)(int port, int slot, Sio2Transfer *sio2_trans))</B><BR>
+<BR>
+<B>05h void SecrSetMcDevIDHandler(int (*func)(int port, int slot))</B><BR>
+<BR>
+<B>06h int SecrAuthCard(int port, int slot, int cnum)</B><BR>
+<BR>
+<B>07h void SecrResetAuthCard(int port, int slot, int cnum)</B><BR>
+<BR>
+<B>08h int SecrCardBootHeader(int port, int slot, void *buff, SecrBitTable *BitTable, int *pSize)</B><BR>
+<BR>
+<B>09h int SecrCardBootBlock(void *src, void *dest, uint size)</B><BR>
+<BR>
+<B>0Ah void* SecrCardBootFile(int port, int slot, void *buff)</B><BR>
+<BR>
+<B>0Bh int SecrDiskBootHeader(void *buff, SecrBitTable *BitTable, int *pSize)</B><BR>
+<BR>
+<B>0Ch int SecrDiskBootBlock(void *src, void *dst, uint size)</B><BR>
+<BR>
+<B>0Dh void* SecrDiskBootFile(void *buff)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
