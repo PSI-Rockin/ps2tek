@@ -15,6 +15,7 @@
   <A HREF="#cdvd">CDVD Drive</A><BR>
   <A HREF="#iopint">IOP Interrupts</A><BR>
   <A HREF="#ioptimers">IOP Timers</A><BR>
+  <A HREF="#sif">Subsystem Interface (SIF)</A><BR>
   <A HREF="#bios">BIOS</A><BR>
 <BR>
 <BR>
@@ -1731,6 +1732,61 @@ Prescalers adjust clockrate as follows:<BR>
 When count == target, a compare interrupt is raised.
 This raises an IRQ in I_STAT if both mode.4 and mode.10 are enabled.<BR>
 If mode.7 (LEVL) is not set, writes to target set mode.10 to 1.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sif"></A>&nbsp;
+Subsystem Interface (SIF)
+</FONT></TD></TR></TABLE><BR>
+The SIF is how the EE and IOP communicate with each other. SIF has some hardware registers that the CPUs can use to 
+pass values to each other, which happens during SIF initialization. However, once both sides have booted, they use the 
+SIF0 (IOP->EE) and SIF1 (EE->IOP) channels to communicate.<BR>
+<BR>
+<A HREF="#sifregisters">SIF Registers</A><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sifregisters"></A>&nbsp;
+SIF Registers
+</FONT></TD></TR></TABLE><BR>
+Note: EE base is at 1000F200h, IOP base is at 1D000000h.<BR>
+<BR>
+<B>1000F200h/1D000000h SIF_MSCOM (Only writable by EE)</B><BR>
+<B>1000F210h/1D000010h SIF_SMCOM (Only writable by IOP)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Value
+</TD></TR></TABLE>
+These registers could be used for generic communication, but in the PS2 they are used to tell the other side the address 
+of its DMA receive buffer. For example, the EE places its SIF0 receive address in MSCOM so that the IOP knows where to 
+transfer data to, and the opposite is true for SMCOM.<BR>
+<BR>
+<B>1000F220h/1D000020h SIF_MSFLG (IOP writes mask)</B><BR>
+<B>1000F230h/1D000030h SIF_SMFLG (EE writes mask)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Value
+</TD></TR></TABLE>
+These registers are used like semaphores. The following values are used:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  10000h: SIF DMA/hardware initialized
+  20000h: SIFCMD initialized
+  40000h: IOP has finished booting (sent by EESYNC)
+</TD></TR></TABLE>
+If the EE sends 20000h to MSFLG, the IOP can read this and clear MSFLG by writing 20000h to it. The opposite is true for 
+SMFLG.<BR>
+<BR>
+<B>1000F240h/1D000040h SIF_CTRL</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  1     Always 1?
+  8     Always 1 for EE, 0 for IOP?
+  28-31 Always 0xF?
+  Other Unknown
+</TD></TR></TABLE>
+Very little is known about this register.<BR>
+<B>1000F260h/1D000060h SIF_BD6</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Unknown
+</TD></TR></TABLE>
+Nothing is known about this register, other than that it does get accessed during initialization.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
