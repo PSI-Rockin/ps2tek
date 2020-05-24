@@ -1808,7 +1808,7 @@ other information. After receiving the END reply, the EE client can now call FIL
 server, passing the function number, data buffer, and size of the data to the RPC thread.</LI>
 <LI>FILEIO executes the open command and returns a result. The IOP sends an END packet to the EE, and it can optionally 
 directly DMA the result of the RPC command to a different buffer. In this case, it would be a file descriptor ID.</LI>
-</UL><BR>
+</UL>
 In more succinct terms, the EE first uses SifBindRpc to bind the server to the client, then it uses SifCallRpc to call an 
 IOP function.<BR>
 <BR>
