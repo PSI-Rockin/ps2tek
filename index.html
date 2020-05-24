@@ -1777,6 +1777,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopcdvdman">BIOS IOP CDVDMAN - CDVD Manager</A><BR>
 <A HREF="#biosiopcdvdfsv">BIOS IOP CDVDFSV - CDVD RPC Server</A><BR>
 <A HREF="#biosiopsifinit">BIOS IOP SIFINIT - SIF Initialization</A><BR>
+<A HREF="#biosiopfileio">BIOS IOP FILEIO - File Input/Output RPC Server</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3320,6 +3321,18 @@ BIOS IOP SIFINIT - SIF Initialization
 </FONT></TD></TR></TABLE><BR>
 A rather strange module... it only exists to call SIFMAN.sceSifInit. CDVDFSV already does this though, so the usefulness 
 of SIFINIT is questionable. Perhaps it had another purpose at one point during development?<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopfileio"></A>&nbsp;
+BIOS IOP FILEIO - File Input/Output RPC Server
+</FONT></TD></TR></TABLE><BR>
+FILEIO creates two RPC servers: one for allocating memory on the IOP and one for interfacing with IOMAN.<BR>
+Note: newer FILEIO modules have a different interface. Needs research.<BR>
+<BR>
+<B>IOPHEAP RPC (0x80000001)</B><BR>
+<BR>
+<B>FILEIO RPC (0x80000003)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
