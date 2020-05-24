@@ -1774,6 +1774,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopsifcmd">BIOS IOP SIFCMD - SIF RPC Manager</A><BR>
 <A HREF="#biosiopreboot">BIOS IOP REBOOT - SIF Reboot Server</A><BR>
 <A HREF="#biosioploadfile">BIOS IOP LOADFILE - Module Loader RPC Server</A><BR>
+<A HREF="#biosiopcdvdman">BIOS IOP CDVDMAN - CDVD Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3118,6 +3119,178 @@ NOTE: Newer LOADFILE modules seem to have a different interface. Needs more rese
 <B>04h SifLoadModuleEncrypted</B><BR>
 <BR>
 <B>05h SifLoadElfEncrypted</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopcdvdman"></A>&nbsp;
+BIOS IOP CDVDMAN - CDVD Manager
+</FONT></TD></TR></TABLE><BR>
+For hardware details of the CDVD drive, see <A HREF="#cdvd">CDVD Drive</A>.<BR>
+CDVDMAN installs an IOMAN driver for "cdrom".<BR>
+<BR>
+<B>Exports</B><BR>
+<B>04h int sceCdInit(int mode)</B><BR>
+<BR>
+<B>05h int sceCdStandby()</B><BR>
+<BR>
+<B>06h int sceCdRead(uint lbn, uint sectors, void* buff, sceCdRMode *mode</B><BR>
+<BR>
+<B>07h int sceCdSeek(uint lbn)</B><BR>
+<BR>
+<B>08h int sceCdGetError()</B><BR>
+<BR>
+<B>09h int sceCdGetToc(void* toc)</B><BR>
+<BR>
+<B>0Ah int sceCdSearchFile(sceCdlFILE *file, const char *name)</B><BR>
+<BR>
+<B>0Bh int sceCdSync(int mode)</B><BR>
+<BR>
+<B>0Ch int sceCdGetDiskType()</B><BR>
+<BR>
+<B>0Dh int sceCdDiskReady(int mode)</B><BR>
+<BR>
+<B>0Eh int sceCdTrayReq(int param, uint *tray_status)</B><BR>
+<BR>
+<B>0Fh int sceCdStop()</B><BR>
+<BR>
+<B>10h uint sceCdPosToInt(sceCdlLOCCD *p)</B><BR>
+<BR>
+<B>11h sceCdlLOCCD* sceCdIntToPos(uint sector, sceCdlLOCCD *p)</B><BR>
+<BR>
+<B>13h int sceCdGetToc2(void* buff, char unk)</B><BR>
+<BR>
+<B>14h int sceCdReadDVDV(u32 lbn, u32 sectors, void *buff, sceCdRMode *mode)</B><BR>
+<BR>
+<B>15h int sceCdCheckCmd()</B><BR>
+<BR>
+<B>16h int sceCdRI(void *buff, uint *result)</B><BR>
+<BR>
+<B>17h int sceCdWI(void *buff, uint *result)</B><BR>
+<BR>
+<B>18h int sceCdReadClock(sceCdCLOCK *clock)</B><BR>
+<BR>
+<B>19h int sceCdWriteClock(const sceCdCLOCK *clock)</B><BR>
+<BR>
+<B>1Ch int sceCdStatus()</B><BR>
+<BR>
+<B>1Dh int sceCdApplySCmd(int cmd, void *input, ushort size, void *output)</B><BR>
+<BR>
+<B>1Eh int sceCdSetHDMode(uint mode)</B><BR>
+<BR>
+<B>1Fh int sceCdOpenConfig(int block, int mode, int block_count, uint *result)</B><BR>
+<BR>
+<B>20h int sceCdCloseConfig(uint *result)</B><BR>
+<BR>
+<B>21h int sceCdReadConfig(void *buff, uint *result)</B><BR>
+<BR>
+<B>22h int sceCdWriteConfig(void *buff, uint *result)</B><BR>
+<BR>
+<B>23h int sceCdReadKey(char unk1, char unk2, uint cmd, void *key)</B><BR>
+<BR>
+<B>24h int sceCdDecSet(char unk1, char unk2, char shift)</B><BR>
+<BR>
+<B>25h int sceCdCallback(void (*cb_func)(int reason))</B><BR>
+<BR>
+<B>26h int sceCdPause()</B><BR>
+<BR>
+<B>27h int sceCdBreak()</B><BR>
+<BR>
+<B>28h int sceCdReadCDDA(u32 lbn, u32 sectors, void *buff, sceCdRMode *mode)</B><BR>
+<BR>
+<B>29h int sceCdReadConsoleId(void *buff, uint *result)</B><BR>
+<BR>
+<B>2Ah int sceCdWriteConsoleId(void *buff, uint *result)</B><BR>
+<BR>
+<B>2Bh int sceCdMV(void *buff, uint *result)</B><BR>
+<BR>
+<B>2Ch int sceCdGetReadPos()</B><BR>
+<BR>
+<B>2Dh int sceCdCtrlADout(int unk, uint *result)</B><BR>
+<BR>
+<B>2Eh int sceCdNop</B><BR>
+<BR>
+<B>2Fh void* sceGetFsvRbuf()</B><BR>
+<BR>
+<B>30h int sceCdstm0Cb(void (*cb)(int))</B><BR>
+<BR>
+<B>31h int sceCdstm1Cb(void (*cb)(int))</B><BR>
+<BR>
+<B>32h int sceCdSC(int code, uint *error)</B><BR>
+<BR>
+<B>33h int sceCdRC(sceCdCLOCK *clock)</B><BR>
+<BR>
+<B>34h int sceCdForbidDVDP(uint *result)</B><BR>
+<BR>
+<B>35h int sceCdReadSUBQ(void *buff, uint *result)</B><BR>
+<BR>
+<B>36h int sceCdApplyNCmd(uint cmd, void *input, ushort size, void *output)</B><BR>
+<BR>
+<B>37h int sceCdAutoAdjustCtrl(int mode, uint *result)</B><BR>
+<BR>
+<B>38h int sceCdStInit(uint buff_size, uint banks, void *buff)</B><BR>
+<BR>
+<B>39h int sceCdStRead(uint sectors, uint *buff, uint mode, uint *result)</B><BR>
+<BR>
+<B>3Ah int sceCdStSeek(uint lbn)</B><BR>
+<BR>
+<B>3Bh int sceCdStStart(uint lbn, uint *result)</B><BR>
+<BR>
+<B>3Ch int sceCdStStat()</B><BR>
+<BR>
+<B>3Dh int sceCdStStop()</B><BR>
+<BR>
+Below are exports only found in newer CDVDMAN modules.<BR>
+<B>3Eh int sceCdRead0(uint lbn, uint sectors, void *buff, sceCdRMode *mode, int csec, void *cb_func)</B><BR>
+<BR>
+<B>40h int sceCdRM(void *buff, uint *result)</B><BR>
+<BR>
+<B>41h int sceCdWM(void *buff, uint *result)</B><BR>
+<BR>
+<B>42h int sceCdReadChain(sceCdRChain *chain, sceCdRMode *mode)</B><BR>
+<BR>
+<B>43h int sceCdStPause()</B><BR>
+<BR>
+<B>44h int sceCdStResume()</B><BR>
+<BR>
+<B>45h int sceCdForbidRead(uint *result)</B><BR>
+<BR>
+<B>46h int sceCdBootCertify(const void *name)</B><BR>
+<BR>
+<B>47h int sceCdSpinCtrlIOP(uint speed)</B><BR>
+<BR>
+<B>48h int sceCdBlueLEDCtl(uchar value, uint *result)</B><BR>
+<BR>
+<B>49h int sceCdCancelPOffRdy(uint *result)</B><BR>
+<BR>
+<B>4Ah int sceCdPowerOff(uint *result)</B><BR>
+<BR>
+<B>4Bh int sceCdMmode(int media)</B><BR>
+<BR>
+<B>4Ch int sceCdReadFull(ulonglong lbn, ulonglong sectors, void *buff, sceCdRMode *mode)</B><BR>
+<BR>
+<B>4Dh int sceCdStSeekF(ulonglong lbn)</B><BR>
+<BR>
+<B>4Eh void* sceCdPOffCallback(void (*func)(void *),void *addr)</B><BR>
+<BR>
+<B>4Fh int sceCdReadDiskID(uint *id)</B><BR>
+<BR>
+<B>50h int sceCdReadGUID(ulonglong *guid)</B><BR>
+<BR>
+<B>51h int sceCdSetTimeout(int unk, int timeout)</B><BR>
+<BR>
+<B>52h int sceCdReadModelID(ulonglong *id)</B><BR>
+<BR>
+<B>53h int sceCdReadDvdDualInfo(int *is_dual, ulonglong *layer1_start)</B><BR>
+<BR>
+<B>54h int sceCdLayerSearchFile(sceCdlFILE *fp, const char *path, int layer)</B><BR>
+<BR>
+<B>5Ah int sceCdStatus2()</B><BR>
+<BR>
+<B>70h int sceCdApplySCmd2(uchar cmd, const void *input, ulonglong size, void *output)</B><BR>
+<BR>
+<B>72h int sceCdRE(ulonglong lbn, ulonglong sectors, void *buff, sceCdRMode *mode)</B><BR>
+<BR>
+<B>73h int sceCdRcBypassCtl(int mode, uint *result)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
