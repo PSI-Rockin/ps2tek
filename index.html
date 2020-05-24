@@ -1827,20 +1827,103 @@ whatever reason, one can use SifGetNextRequest and SifExecRequest.<BR>
 SIF RPC Commands
 </FONT></TD></TR></TABLE><BR>
 <B>80000000h Change SADDR</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifSaddrPkt
+  {
+    struct SifCmdHeader header;
+    void* buff;
+  }
+</TD></TR></TABLE>
+This just changes the EE's receive buffer on the IOP side. Used when SifInitRpc is called more than once.<BR>
 <BR>
 <B>80000001h Set SREG</B><BR>
+TODO. Seems to only be used by the IOP.<BR>
 <BR>
 <B>80000002h SIFCMD Init</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifInitPkt
+  {
+    struct SifCmdHeader header; //NOTE: The "opt" field is used by the IOP.
+    void* buff;
+  }
+</TD></TR></TABLE>
+This command is sent twice by the EE during SIFRPC initialization, the first with opt=0 and the second with opt=1.<BR>
+When opt=0, buff is used as the EE's SIF0 receive address, and the IOP sets SMFLG to 20000h.<BR>
+When opt=1, the IOP finishes SIFRPC initialization.<BR>
 <BR>
 <B>80000003h Reboot IOP</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifIopResetPkt
+  {
+    struct SifCmdHeader header;
+    int	arglen;
+    int	mode;
+    char arg[80]; //The command to be passed to MODLOAD
+  }
+</TD></TR></TABLE>
 <BR>
-<B>80000008h End</B><BR>
+<B>80000008h Request End</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+struct SifRpcRendPkt
+{
+   struct SifCmdHeader sifcmd;
+   int rec_id;
+   void	*pkt_addr;
+   int rpc_id;
+   struct SifRpcClientData *client;
+   uint cid;
+   struct SifRpcServerData *server;
+   void	*buff, *cbuff;
+}
+</TD></TR></TABLE>
 <BR>
 <B>80000009h Bind</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifRpcBindPkt
+  {
+     struct SifCmdHeader sifcmd;
+     int rec_id;
+     void	*pkt_addr;
+     int rpc_id;
+     struct SifRpcClientData *client;
+     int sid; //ID of the server
+  }
+</TD></TR></TABLE>
 <BR>
 <B>8000000Ah Call</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifRpcCallPkt
+  {
+     struct SifCmdHeader sifcmd;
+     int rec_id;	
+     void	*pkt_addr;
+     int rpc_id;
+     struct SifRpcClientData *client;
+     int rpc_number; //ID of the function to call on the server
+     int send_size;
+     void	*receive;
+     int recv_size;
+     int rmode;
+     struct SifRpcServerData *server;
+  }
+</TD></TR></TABLE>
 <BR>
 <B>8000000Ch Get other data</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifRpcOtherDataPkt
+  {
+     struct SifCmdHeader sifcmd;
+     int rec_id;
+     void	*pkt_addr;
+     int rpc_id;
+
+     struct SifRpcReceiveData	*receive;
+     void *src;
+     void	*dest;
+     int size;
+  }
+</TD></TR></TABLE>
+Used by a server to request more data from a client, which replies with an END packet.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
