@@ -1775,6 +1775,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopreboot">BIOS IOP REBOOT - SIF Reboot Server</A><BR>
 <A HREF="#biosioploadfile">BIOS IOP LOADFILE - Module Loader RPC Server</A><BR>
 <A HREF="#biosiopcdvdman">BIOS IOP CDVDMAN - CDVD Manager</A><BR>
+<A HREF="#biosiopcdvdfsv">BIOS IOPS CDVDFSV - CDVD RPC Server</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3107,7 +3108,7 @@ BIOS IOP LOADFILE - Module Loader RPC Server
 The first real SIF RPC server that is loaded. Mainly responsible for loading new IOP modules and EE ELFs.<BR>
 NOTE: Newer LOADFILE modules seem to have a different interface. Needs more research.<BR>
 <BR>
-<B>0x80000006 RPC Functions</B><BR>
+<B>LOADFILE RPC (0x80000006)</B><BR>
 <B>00h SifLoadModule</B><BR>
 <BR>
 <B>01h SifLoadElf</B><BR>
@@ -3291,6 +3292,25 @@ Below are exports only found in newer CDVDMAN modules.<BR>
 <B>72h int sceCdRE(ulonglong lbn, ulonglong sectors, void *buff, sceCdRMode *mode)</B><BR>
 <BR>
 <B>73h int sceCdRcBypassCtl(int mode, uint *result)</B><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopcdvdfsv"></A>&nbsp;
+BIOS IOP CDVDFSV - CDVD RPC Server
+</FONT></TD></TR></TABLE><BR>
+CDVDFSV creates several servers that allow the EE to interface with CDVDMAN. Some of these servers only perform a single 
+function... not sure why Sony organized it like this.<BR>
+Note: newer CDVDFSV modules seem to have a different interface. Needs research.<BR>
+<BR>
+<B>CdInit RPC (0x80000592)</B><BR>
+<BR>
+<B>CdSCmd RPC (0x80000593)</B><BR>
+<BR>
+<B>CdNCmd RPC (0x80000595)</B><BR>
+<BR>
+<B>CdSearchFile RPC (0x80000597)</B><BR>
+<BR>
+<B>CdDiskReady RPC (0x8000059A)</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
