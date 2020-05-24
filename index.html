@@ -1861,6 +1861,7 @@ When opt=1, the IOP finishes SIFRPC initialization.<BR>
     char arg[80]; //The command to be passed to MODLOAD
   }
 </TD></TR></TABLE>
+See <A HREF="#biosiopreboot">BIOS IOP REBOOT</A><BR> for details on the reboot procedure.<BR>
 <BR>
 <B>80000008h Request End</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -1946,6 +1947,8 @@ Instead, the kernel and device drivers are split into many modules.<BR>
 These modules are represented as IRX files, which are custom relocatable ELFs.<BR>
 <BR>
 <A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
+<BR>
+The below IOP modules are loaded on a hard reset through IOPBTCONF.<BR>
 <A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
 <A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
 <A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
@@ -3294,8 +3297,24 @@ int size_extra)</B><BR>
 <A NAME="biosiopreboot"></A>&nbsp;
 BIOS IOP REBOOT - SIF Reboot Server
 </FONT></TD></TR></TABLE><BR>
-REBOOT installs a custom SIF command handler for 0x80000003, waits for this command to be sent, then 
-calls MODLOAD.ReBootStart. It is technically not a server, but it can be thought of as such.<BR>
+REBOOT installs a custom SIF command handler for 80000003h and waits for this command to be sent.<BR>
+<BR>
+<B>IOP Reboot Procedure</B><BR>
+<UL>
+<LI>The EE sends SIF command 80000003h with an argument of "rom0:UDNL <last image file>..<first image file> [-v]". An 
+example image path is "cdrom0:\MODULES\IOPRP243.IMG;1" (sent by Atelier Iris: Eternal Mana). The -v flag is 
+recognized by UDNL but doesn't seem to have any effect.</LI>
+<LI>REBOOT calls MODLOAD.ReBootStart. MODLOAD cleans up all module libaries and jumps to IOPBOOT.</LI>
+<LI>IOPBOOT bootstraps SYSMEM and LOADCORE. LOADCORE loads all modules in IOPBTCON2.</LI>
+<LI>When MODLOAD is reloaded, it installs a post-boot callback in LOADCORE. This callback jumps to the UDNL module.</LI>
+<LI>UDNL scans all provided image files and finds the newest modules in each of them, then triggers yet another reset 
+by bootstrapping SYSMEM and LOADCORE.</LI>
+<LI>LOADCORE reads from IOPBTCONF and loads the newest modules in the image files or the ones in the boot ROM. The 
+reboot is now complete.</LI>
+</UL><BR>
+<B>Image File Format</B><BR>
+Like the BIOS, an image file contains a ROMDIR filesystem. An image file usually contains a RESET file of zero bytes, 
+ROMDIR, EXTINFO, and a list of newer IOP modules to load.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
