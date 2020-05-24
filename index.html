@@ -1773,6 +1773,7 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <A HREF="#biosiopigreeting">BIOS IOP IGREETING - Boot Info Display</A><BR>
 <A HREF="#biosiopsifcmd">BIOS IOP SIFCMD - SIF RPC Manager</A><BR>
 <A HREF="#biosiopreboot">BIOS IOP REBOOT - SIF Reboot Server</A><BR>
+<A HREF="#biosioploadfile">BIOS IOP LOADFILE - Module Loader RPC Server</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3096,6 +3097,27 @@ BIOS IOP REBOOT - SIF Reboot Server
 </FONT></TD></TR></TABLE><BR>
 REBOOT installs a custom SIF command handler for 0x80000003, waits for this command to be sent, then 
 calls MODLOAD.ReBootStart. It is technically not a server, but it can be thought of as such.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosioploadfile"></A>&nbsp;
+BIOS IOP LOADFILE - Module Loader RPC Server
+</FONT></TD></TR></TABLE><BR>
+The first real SIF RPC server that is loaded. Mainly responsible for loading new IOP modules and EE ELFs.<BR>
+NOTE: Newer LOADFILE modules seem to have a different interface. Needs more research.<BR>
+<BR>
+<B>0x80000006 RPC Functions</B><BR>
+<B>00h SifLoadModule</B><BR>
+<BR>
+<B>01h SifLoadElf</B><BR>
+<BR>
+<B>02h SifIopSetAddr</B><BR>
+<BR>
+<B>03h SifIopGetAddr</B><BR>
+<BR>
+<B>04h SifLoadModuleEncrypted</B><BR>
+<BR>
+<B>05h SifLoadElfEncrypted</B><BR>
 <BR>
 <BR>
 </BODY></HTML>
