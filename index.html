@@ -1861,7 +1861,7 @@ When opt=1, the IOP finishes SIFRPC initialization.<BR>
     char arg[80]; //The command to be passed to MODLOAD
   }
 </TD></TR></TABLE>
-See <A HREF="#biosiopreboot">BIOS IOP REBOOT</A><BR> for details on the reboot procedure.<BR>
+See <A HREF="#biosiopreboot">BIOS IOP REBOOT</A> for details on the reboot procedure.<BR>
 <BR>
 <B>80000008h Request End</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -3311,7 +3311,7 @@ recognized by UDNL but doesn't seem to have any effect.</LI>
 by bootstrapping SYSMEM and LOADCORE.</LI>
 <LI>LOADCORE reads from IOPBTCONF and loads the newest modules in the image files or the ones in the boot ROM. The 
 reboot is now complete.</LI>
-</UL><BR>
+</UL>
 <B>Image File Format</B><BR>
 Like the BIOS, an image file contains a ROMDIR filesystem. An image file usually contains a RESET file of zero bytes, 
 ROMDIR, EXTINFO, and a list of newer IOP modules to load.<BR>
