@@ -1860,7 +1860,7 @@ SIF RPC Structs and Definitions
     void *buff, *cbuff;
     SifRpcEndFunc end_function;
     void *end_param;
-    struct SifRpcServerData	*server;
+    struct SifRpcServerData *server;
   }
 </TD></TR></TABLE><BR>
 <B>Server</B><BR>
@@ -1877,7 +1877,7 @@ SIF RPC Structs and Definitions
     void *cbuff;
     int	size2;
 
-    struct SifRpcClientData	*client;
+    struct SifRpcClientData *client;
     void *pkt_addr;
     int	rpc_number;
 
@@ -1886,8 +1886,8 @@ SIF RPC Structs and Definitions
     int	rmode;
     int	rid;
 
-    struct SifRpcServerData	*link;
-    struct SifRpcServerData	*next;
+    struct SifRpcServerData *link;
+    struct SifRpcServerData *next;
     struct SifRpcDataQueue *base;
   }
 </TD></TR></TABLE><BR>
@@ -1896,7 +1896,7 @@ SIF RPC Structs and Definitions
   struct SifRpcDataQueue
   {
     int	thread_id, active;
-    struct SifRpcServerData	*link, *start, *end;
+    struct SifRpcServerData *link, *start, *end;
     struct SifRpcDataQueue *next;
   }
 </TD></TR></TABLE><BR>
@@ -1908,7 +1908,7 @@ SIF RPC Structs and Definitions
     int size;
     int attr;
   }
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
