@@ -1744,6 +1744,7 @@ SIF0 (IOP->EE) and SIF1 (EE->IOP) channels to communicate.<BR>
 <BR>
 <A HREF="#sifregisters">SIF Registers</A><BR>
 <A HREF="#sifrpcbasics">SIF RPC Basics</A><BR>
+<A HREF="#sifrpcstructs">SIF RPC Structs and Definitions</A><BR>
 <A HREF="#sifrpccommands">SIF RPC Commands</A><BR>
 <BR>
 <BR>
@@ -1823,6 +1824,94 @@ whatever reason, one can use SifGetNextRequest and SifExecRequest.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sifrpcstructs"></A>&nbsp;
+SIF RPC Structs and Definitions
+</FONT></TD></TR></TABLE><BR>
+<B>Functions</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  typedef void (*SifCmdHandler)(void *data, void *harg);
+  typedef void* (*SifRpcFunc)(int fno, void *buff, int length);
+  typedef void (*SifRpcEndFunc)(void *end_param);
+</TD></TR></TABLE><BR>
+<B>Packet Headers</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifCmdHeader
+  {
+    uint psize:8; //Size of the command packet
+    uint dsize:24; //Size of the payload, if any
+    void *dest; //Destination of the payload, if any
+    int	cid; //Command ID
+    uint opt;
+  }
+  struct SifRpcPktHeader
+  {
+    struct SifCmdHeader	sifcmd;
+    int	rec_id;
+    void *pkt_addr;
+    int	rpc_id;
+  }
+</TD></TR></TABLE><BR>
+<B>Client</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifRpcClientData
+  {
+    struct SifRpcHeader	hdr;
+    u32	command;
+    void *buff, *cbuff;
+    SifRpcEndFunc end_function;
+    void *end_param;
+    struct SifRpcServerData	*server;
+  }
+</TD></TR></TABLE><BR>
+<B>Server</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifRpcServerData
+  {
+    int	sid;
+
+    SifRpcFunc func;
+    void *buff;
+    int	size;
+
+    SifRpcFunc cfunc;
+    void *cbuff;
+    int	size2;
+
+    struct SifRpcClientData	*client;
+    void *pkt_addr;
+    int	rpc_number;
+
+    void *receive;
+    int	rsize;
+    int	rmode;
+    int	rid;
+
+    struct SifRpcServerData	*link;
+    struct SifRpcServerData	*next;
+    struct SifRpcDataQueue *base;
+  }
+</TD></TR></TABLE><BR>
+<B>Server Data Queue</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifRpcDataQueue
+  {
+    int	thread_id, active;
+    struct SifRpcServerData	*link, *start, *end;
+    struct SifRpcDataQueue *next;
+  }
+</TD></TR></TABLE><BR>
+<B>DMA Packet</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifDmaTransfer
+  {
+    void *src, *dest;
+    int size;
+    int attr;
+  }
+</TD></TR></TABLE><BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="sifrpccommands"></A>&nbsp;
 SIF RPC Commands
 </FONT></TD></TR></TABLE><BR>
@@ -1837,7 +1926,16 @@ SIF RPC Commands
 This just changes the EE's receive buffer on the IOP side. Used when SifInitRpc is called more than once.<BR>
 <BR>
 <B>80000001h Set SREG</B><BR>
-TODO. Seems to only be used by the IOP.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct SifCmdSRegData
+  {
+    SifCmdHeader header;
+    int	index;
+    uint value;
+  }
+</TD></TR></TABLE>
+Sets a software SIF register - that is, a variable in memory rather than an I/O register.<BR>
+Used by the IOP during SIF RPC initialization to tell the EE what the IOP has stored for the EE's receive buffer.<BR>
 <BR>
 <B>80000002h SIFCMD Init</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
