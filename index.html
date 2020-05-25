@@ -1746,6 +1746,7 @@ SIF0 (IOP->EE) and SIF1 (EE->IOP) DMA channels to communicate.<BR>
 <A HREF="#sifrpcbasics">SIF RPC Basics</A><BR>
 <A HREF="#sifrpcstructs">SIF RPC Structs and Definitions</A><BR>
 <A HREF="#sifrpccommands">SIF RPC Commands</A><BR>
+<A HREF="#sifrpcsystemservers">SIF RPC System Servers</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2033,6 +2034,34 @@ struct SifRpcRendPkt
   }
 </TD></TR></TABLE>
 Used by a server to request more data from a client, which replies with an END packet.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sifrpcsystemservers"></A>&nbsp;
+SIF RPC System Servers
+</FONT></TD></TR></TABLE><BR>
+System server IDs have bit 31 set (e.g. 80000000h). Known system IDs are listed here. Note that games can install custom 
+servers with any possible ID, as long as bit 31 is not set, so those are excluded from the list.<BR>
+<BR>
+<B>System Server IDs</B><BR>
+80000001h - File I/O (FILEIO)<BR>
+80000003h - IOP Heap Allocation (FILEIO)<BR>
+80000006h - Module/ELF Loader (LOADFILE)<BR>
+80000100h - Pad (PADMAN)<BR>
+80000101h - Pad extension? (PADMAN)<BR>
+80000400h - Memory cards (MCSERV)<BR>
+80000592h - CDVD Init (CDVDFSV)<BR>
+80000593h - CDVD S commands (CDVDFSV)<BR>
+80000595h - CDVD N commands (CDVDFSV)<BR>
+80000597h - CDVD SearchFile (CDVDFSV)<BR>
+8000059Ah - CDVD Disk Ready (CDVDFSV)<BR>
+80000701h - LIBSD Remote (SDRDRV, not in BIOS)<BR>
+80000901h - MTAP Port Open (MTAPMAN, not in BIOS)<BR>
+80000902h - MTAP Port Close (MTAPMAN)<BR>
+80000903h - MTAP Get Connection (MTAPMAN)<BR>
+80000904h - MTAP Unknown (MTAPMAN)<BR>
+80000905h - MTAP Unknown (MTAPMAN)<BR>
+80001400h - EyeToy (EYETOY, not in BIOS)<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
