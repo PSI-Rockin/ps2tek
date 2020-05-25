@@ -2114,6 +2114,13 @@ The below IOP modules are loaded on a hard reset through IOPBTCONF.<BR>
 <A HREF="#biosiopsecrman">BIOS IOP SECRMAN - Security Manager</A><BR>
 <A HREF="#biosiopeesync">BIOS IOP EESYNC - Boot Finish Messager</A><BR>
 <BR>
+Below modules are not loaded at startup, though they are in the BIOS. Instead, the EE must manually load them.<BR>
+<A HREF="#biosioplibsd">BIOS IOP LIBSD - Low-level Sound Library</A><BR>
+<A HREF="#biosiopsio2man">BIOS IOP SIO2MAN - SIO2 Manager</A><BR>
+<A HREF="#biosiopmcman">BIOS IOP MCMAN - Memory Card Manager</A><BR>
+<A HREF="#biosiopmcserv">BIOS IOP MCSERV - Memory Card RPC Server</A><BR>
+<A HREF="#biosioppadman">BIOS IOP PADMAN - Pad Input Manager</A><BR>
+<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="biosfilestructure"></A>&nbsp;
@@ -3722,6 +3729,41 @@ BIOS IOP EESYNC - Boot Finish Messager
 This module installs a post-boot callback in LOADCORE that calls SIFMAN.sceSifSetSMFlag(0x40000).<BR>
 Not sure if anything on the EE side looks for this value, but the write does indicate that the IOP has finished 
 booting.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosioplibsd"></A>&nbsp;
+BIOS IOP LIBSD - Low-level Sound Library
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopsio2man"></A>&nbsp;
+BIOS IOP SIO2MAN - SIO2 Manager
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopmcman"></A>&nbsp;
+BIOS IOP MCMAN - Memory Card Manager
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopmcserv"></A>&nbsp;
+BIOS IOP MCSERV - Memory Card RPC Server
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosioppadman"></A>&nbsp;
+BIOS IOP PADMAN - Pad Input Manager
+</FONT></TD></TR></TABLE><BR>
+(todo)<BR>
 <BR>
 <BR>
 </BODY></HTML>
