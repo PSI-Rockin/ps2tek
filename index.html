@@ -1992,7 +1992,7 @@ struct SifRpcRendPkt
   {
      struct SifCmdHeader sifcmd;
      int rec_id;
-     void	*pkt_addr;
+     void *pkt_addr;
      int rpc_id;
      struct SifRpcClientData *client;
      int sid; //ID of the server
@@ -2005,12 +2005,12 @@ struct SifRpcRendPkt
   {
      struct SifCmdHeader sifcmd;
      int rec_id;	
-     void	*pkt_addr;
+     void *pkt_addr;
      int rpc_id;
      struct SifRpcClientData *client;
      int rpc_number; //ID of the function to call on the server
      int send_size; //Size of data to send to the server
-     void	*receive; //Buffer to hold reply data from the server
+     void *receive; //Buffer to hold reply data from the server
      int recv_size; //Size of reply buffer
      int rmode;
      struct SifRpcServerData *server;
@@ -2023,12 +2023,12 @@ struct SifRpcRendPkt
   {
      struct SifCmdHeader sifcmd;
      int rec_id;
-     void	*pkt_addr;
+     void *pkt_addr;
      int rpc_id;
 
-     struct SifRpcReceiveData	*receive;
+     struct SifRpcReceiveData *receive;
      void *src;
-     void	*dest;
+     void *dest;
      int size;
   }
 </TD></TR></TABLE>
