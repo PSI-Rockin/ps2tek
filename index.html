@@ -3735,7 +3735,68 @@ booting.<BR>
 <A NAME="biosioplibsd"></A>&nbsp;
 BIOS IOP LIBSD - Low-level Sound Library
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>02h int sceSdQuit()</B><BR>
+<BR>
+<B>04h int sceSdInit(int flag)</B><BR>
+<BR>
+<B>05h void sceSdSetParam(ushort entry, ushort value)</B><BR>
+<BR>
+<B>06h ushort sceSdGetParam(ushort entry)</B><BR>
+<BR>
+<B>07h void sceSdSetSwitch(ushort entry, uint value)</B><BR>
+<BR>
+<B>08h uint sceSdGetSwitch(ushort entry)</B><BR>
+<BR>
+<B>09h void sceSdSetAddr(ushort entry, uint value)</B><BR>
+<BR>
+<B>0Ah uint sceSdGetAddr(ushort entry)</B><BR>
+<BR>
+<B>0Bh void sceSdSetCoreAttr(ushort entry, ushort value)</B><BR>
+<BR>
+<B>0Ch ushort sceSdGetCoreAttr(ushort entry)</B><BR>
+<BR>
+<B>0Dh ushort sceSdNote2Pitch(ushort center_note, ushort center_fine, ushort note, short fine)</B><BR>
+<BR>
+<B>0Eh ushort sceSdPitch2Note(ushort center_note, ushort center_fine, ushort pitch)</B><BR>
+<BR>
+<B>0Fh int sceSdProcBatch(sceSdBatch *batch, uint *result, uint num)</B><BR>
+<BR>
+<B>10h int sceSdProcBatchEx(sceSdBatch *batch, uint *result, uint num, uint voice)</B><BR>
+<BR>
+<B>11h int sceSdVoiceTrans(short chan, ushort mode, void *addr, void *spuaddr, uint size)</B><BR>
+<BR>
+<B>12h int sceSdBlockTrans(short chan, ushort mode, void *addr, uint size, ...)</B><BR>
+<BR>
+<B>13h uint sceSdVoiceTransStatus(short chan, short flag)</B><BR>
+<BR>
+<B>14h uint sceSdBlockTransStatus(short chan, short flag)</B><BR>
+<BR>
+<B>15h SdIntrCallback sceSdSetTransCallback(int core, SdIntrCallback cb)</B><BR>
+<BR>
+<B>16h SdIntrCallback sceSdSetIRQCallback(SdIntrCallback cb)</B><BR>
+<BR>
+<B>17h int sceSdSetEffectAttr(int core, sceSdEffectAttr *attr)</B><BR>
+<BR>
+<B>18h void sceSdGetEffectAttr(int core, sceSdEffectAttr *attr)</B><BR>
+<BR>
+<B>19h int sceSdClearEffectWorkArea(int core, int channel, int effect_mode)</B><BR>
+<BR>
+<B>1Ah sceSdTransIntrHandler sceSdSetTransIntrHandler(int chan, sceSdTransIntrHandler func, void *arg)</B><BR>
+<BR>
+<B>1Bh sceSdSpu2IntrHandler sceSdSetSpu2IntrHandler(sceSdSpu2IntrHandler func, void *arg)</B><BR>
+<BR>
+<B>1Ch void* sceSdGetTransIntrHandlerArgument(int arg)</B><BR>
+<BR>
+<B>1Dh void* sceSdGetSpu2IntrHandlerArgument()</B><BR>
+<BR>
+<B>1Eh int sceSdStopTrans(int chan)</B><BR>
+<BR>
+<B>1Fh int sceSdCleanEffectWorkArea(int core, int chan, int effect_mode)</B><BR>
+<BR>
+<B>20h int sceSdSetEffectMode(int core, sceSdEffectAttr *param)</B><BR>
+<BR>
+<B>21h int sceSdSetEffectModeParams(int core, sceSdEffectAttr *attr)</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
