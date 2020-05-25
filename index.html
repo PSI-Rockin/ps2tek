@@ -1740,7 +1740,7 @@ Subsystem Interface (SIF)
 </FONT></TD></TR></TABLE><BR>
 The SIF is how the EE and IOP communicate with each other. SIF has some hardware registers that the CPUs can use to 
 pass values to each other, which happens during SIF initialization. However, once both sides have booted, they use the 
-SIF0 (IOP->EE) and SIF1 (EE->IOP) channels to communicate.<BR>
+SIF0 (IOP->EE) and SIF1 (EE->IOP) DMA channels to communicate.<BR>
 <BR>
 <A HREF="#sifregisters">SIF Registers</A><BR>
 <A HREF="#sifrpcbasics">SIF RPC Basics</A><BR>
@@ -1797,6 +1797,14 @@ Nothing is known about this register, other than that it does get accessed durin
 <A NAME="sifrpcbasics"></A>&nbsp;
 SIF RPC Basics
 </FONT></TD></TR></TABLE><BR>
+Broadly, the SIF protocol can be split into three different layers of abstraction, from lowest to highest:<BR>
+<UL>
+<LI>SIF DMA: Accesses raw hardware registers to transfer data between the EE and IOP.</LI>
+<LI>SIF CMD: Manages interrupt handling, allowing programs to send commands to the other side.</LI>
+<LI>SIF RPC: Defines a server/client interface around SIF CMD, allowing programs to call functions on the other side 
+as if they were part of the program. For example, from the game's perspective, sceMcWrite is like any other function, 
+even though internally it has to send a request to the IOP to access the memory card.</LI>
+</UL>
 <B>Calling RPC functions</B><BR>
 Assume that a game on the EE wants to open a file.<BR>
 <UL>
@@ -1814,6 +1822,8 @@ In more succinct terms, the EE first uses SifBindRpc to bind the server to the c
 IOP function.<BR>
 <BR>
 <B>Registering an RPC server</B><BR>
+Servers can be registered on both the EE and the IOP. In the vast majority of cases however, only IOP modules register 
+servers.<BR>
 <UL>
 <LI>Create a new thread, which will be used by the server. All actions below are done on the new thread.</LI>
 <LI>Call SifSetRpcQueue first and then SifRegisterRpc to register the server.</LI>
@@ -1954,8 +1964,8 @@ When opt=1, the IOP finishes SIFRPC initialization.<BR>
   struct SifIopResetPkt
   {
     struct SifCmdHeader header;
-    int	arglen;
-    int	mode;
+    int	arglen; //Length of the command
+    int	mode; //Bit 31 enables debug logging, unknown what other values do
     char arg[80]; //The command to be passed to MODLOAD
   }
 </TD></TR></TABLE>
@@ -1970,7 +1980,7 @@ struct SifRpcRendPkt
    void	*pkt_addr;
    int rpc_id;
    struct SifRpcClientData *client;
-   uint cid;
+   uint cid; //ID of the command sent by the other side (e.g. the command that triggered a REND)
    struct SifRpcServerData *server;
    void	*buff, *cbuff;
 }
@@ -1999,9 +2009,9 @@ struct SifRpcRendPkt
      int rpc_id;
      struct SifRpcClientData *client;
      int rpc_number; //ID of the function to call on the server
-     int send_size;
-     void	*receive;
-     int recv_size;
+     int send_size; //Size of data to send to the server
+     void	*receive; //Buffer to hold reply data from the server
+     int recv_size; //Size of reply buffer
      int rmode;
      struct SifRpcServerData *server;
   }
