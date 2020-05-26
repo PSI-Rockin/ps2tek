@@ -2084,43 +2084,7 @@ Instead, the kernel and device drivers are split into many modules.<BR>
 These modules are represented as IRX files, which are custom relocatable ELFs.<BR>
 <BR>
 <A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
-<BR>
-The below IOP modules are loaded on reset.<BR>
-<A HREF="#biosiopiopboot">BIOS IOP IOPBOOT - Kernel Bootstrap</B><BR>
-<A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
-<A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
-<A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
-<A HREF="#biosiopintrman">BIOS IOP INTRMAN - Interrupt Manager</A><BR>
-<A HREF="#biosiopssbusc">BIOS IOP SSBUSC - Subsystem Bus Controller</A><BR>
-<A HREF="#biosiopdmacman">BIOS IOP DMACMAN - DMAC Manager</A><BR>
-<A HREF="#biosioptimrman">BIOS IOP TIMRMAN - Timer Manager</A><BR>
-<A HREF="#biosiopsysclib">BIOS IOP SYSCLIB - Standard C Library</A><BR>
-<A HREF="#biosiopheaplib">BIOS IOP HEAPLIB - Heap Allocation Library</A><BR>
-<A HREF="#biosiopeeconf">BIOS IOP EECONF - EE Configuration</A><BR>
-<A HREF="#biosiopthreadman">BIOS IOP THREADMAN - Thread Manager</A><BR>
-<A HREF="#biosiopvblank">BIOS IOP VBLANK - VBLANK Interrupt Manager</A><BR>
-<A HREF="#biosiopioman">BIOS IOP IOMAN - File Input/Output Manager</A><BR>
-<A HREF="#biosiopmodload">BIOS IOP MODLOAD - Module Loader</A><BR>
-<A HREF="#biosiopromdrv">BIOS IOP ROMDRV - ROM File Driver</A><BR>
-<A HREF="#biosiopstdio">BIOS IOP STDIO - C Standard Input/Output</A><BR>
-<A HREF="#biosiopsifman">BIOS IOP SIFMAN - SIF Low-level Manager</A><BR>
-<A HREF="#biosiopigreeting">BIOS IOP IGREETING - Boot Info Display</A><BR>
-<A HREF="#biosiopsifcmd">BIOS IOP SIFCMD - SIF RPC Manager</A><BR>
-<A HREF="#biosiopreboot">BIOS IOP REBOOT - SIF Reboot Server</A><BR>
-<A HREF="#biosioploadfile">BIOS IOP LOADFILE - Module Loader RPC Server</A><BR>
-<A HREF="#biosiopcdvdman">BIOS IOP CDVDMAN - CDVD Manager</A><BR>
-<A HREF="#biosiopcdvdfsv">BIOS IOP CDVDFSV - CDVD RPC Server</A><BR>
-<A HREF="#biosiopsifinit">BIOS IOP SIFINIT - SIF Initialization</A><BR>
-<A HREF="#biosiopfileio">BIOS IOP FILEIO - File Input/Output RPC Server</A><BR>
-<A HREF="#biosiopsecrman">BIOS IOP SECRMAN - Security Manager</A><BR>
-<A HREF="#biosiopeesync">BIOS IOP EESYNC - Boot Finish Messager</A><BR>
-<BR>
-Below modules are not loaded at startup, though they are in the BIOS. Instead, the EE must manually load them.<BR>
-<A HREF="#biosioplibsd">BIOS IOP LIBSD - Low-level Sound Library</A><BR>
-<A HREF="#biosiopsio2man">BIOS IOP SIO2MAN - SIO2 Manager</A><BR>
-<A HREF="#biosiopmcman">BIOS IOP MCMAN - Memory Card Manager</A><BR>
-<A HREF="#biosiopmcserv">BIOS IOP MCSERV - Memory Card RPC Server</A><BR>
-<A HREF="#biosioppadman">BIOS IOP PADMAN - Pad Input Manager</A><BR>
+<A HREF="#biosiopmodulelist">BIOS List of IOP Modules</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -2596,6 +2560,48 @@ the return statement is replaced with a direct jump to an imported module's func
 Since functions are only linked by their IDs, rather than their names, in theory this keeps others from learning the 
 names of the functions. In practice, game developers often created custom IOP modules which they forgot to strip, which is 
 how the symbols in Sony's IOP modules are known.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopmodulelist"></A>&nbsp;
+BIOS List of IOP Modules
+</FONT></TD></TR></TABLE><BR>
+The below IOP modules are loaded on reset.<BR>
+<A HREF="#biosiopiopboot">BIOS IOP IOPBOOT - Kernel Bootstrap</B><BR>
+<A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
+<A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
+<A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
+<A HREF="#biosiopintrman">BIOS IOP INTRMAN - Interrupt Manager</A><BR>
+<A HREF="#biosiopssbusc">BIOS IOP SSBUSC - Subsystem Bus Controller</A><BR>
+<A HREF="#biosiopdmacman">BIOS IOP DMACMAN - DMAC Manager</A><BR>
+<A HREF="#biosioptimrman">BIOS IOP TIMRMAN - Timer Manager</A><BR>
+<A HREF="#biosiopsysclib">BIOS IOP SYSCLIB - Standard C Library</A><BR>
+<A HREF="#biosiopheaplib">BIOS IOP HEAPLIB - Heap Allocation Library</A><BR>
+<A HREF="#biosiopeeconf">BIOS IOP EECONF - EE Configuration</A><BR>
+<A HREF="#biosiopthreadman">BIOS IOP THREADMAN - Thread Manager</A><BR>
+<A HREF="#biosiopvblank">BIOS IOP VBLANK - VBLANK Interrupt Manager</A><BR>
+<A HREF="#biosiopioman">BIOS IOP IOMAN - File Input/Output Manager</A><BR>
+<A HREF="#biosiopmodload">BIOS IOP MODLOAD - Module Loader</A><BR>
+<A HREF="#biosiopromdrv">BIOS IOP ROMDRV - ROM File Driver</A><BR>
+<A HREF="#biosiopstdio">BIOS IOP STDIO - C Standard Input/Output</A><BR>
+<A HREF="#biosiopsifman">BIOS IOP SIFMAN - SIF Low-level Manager</A><BR>
+<A HREF="#biosiopigreeting">BIOS IOP IGREETING - Boot Info Display</A><BR>
+<A HREF="#biosiopsifcmd">BIOS IOP SIFCMD - SIF RPC Manager</A><BR>
+<A HREF="#biosiopreboot">BIOS IOP REBOOT - SIF Reboot Server</A><BR>
+<A HREF="#biosioploadfile">BIOS IOP LOADFILE - Module Loader RPC Server</A><BR>
+<A HREF="#biosiopcdvdman">BIOS IOP CDVDMAN - CDVD Manager</A><BR>
+<A HREF="#biosiopcdvdfsv">BIOS IOP CDVDFSV - CDVD RPC Server</A><BR>
+<A HREF="#biosiopsifinit">BIOS IOP SIFINIT - SIF Initialization</A><BR>
+<A HREF="#biosiopfileio">BIOS IOP FILEIO - File Input/Output RPC Server</A><BR>
+<A HREF="#biosiopsecrman">BIOS IOP SECRMAN - Security Manager</A><BR>
+<A HREF="#biosiopeesync">BIOS IOP EESYNC - Boot Finish Messager</A><BR>
+<BR>
+Below modules are not loaded at startup, though they are in the BIOS. Instead, the EE must manually load them.<BR>
+<A HREF="#biosioplibsd">BIOS IOP LIBSD - Low-level Sound Library</A><BR>
+<A HREF="#biosiopsio2man">BIOS IOP SIO2MAN - SIO2 Manager</A><BR>
+<A HREF="#biosiopmcman">BIOS IOP MCMAN - Memory Card Manager</A><BR>
+<A HREF="#biosiopmcserv">BIOS IOP MCSERV - Memory Card RPC Server</A><BR>
+<A HREF="#biosioppadman">BIOS IOP PADMAN - Pad Input Manager</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
