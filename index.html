@@ -1693,11 +1693,11 @@ Unknown.<BR>
 <BR>
 <B>SIO2MAN Program Flow For Transfer</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-Write CTRL | 0Ch to CTRL.
-Write data to SEND1 and SEND2, then write data to SEND3.
-Write data to DATAIN if applicable, then start SIO2in and SIO2out DMA transfers if applicable.
-Write CTRL | 01h to CTRL, then wait for an SIO2 interrupt.
-After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.
+  Write CTRL | 0Ch to CTRL.
+  Write data to SEND1 and SEND2, then write data to SEND3.
+  Write data to DATAIN if applicable, then start SIO2in and SIO2out DMA transfers if applicable.
+  Write CTRL | 01h to CTRL, then wait for an SIO2 interrupt.
+  After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.
 </TD></TR></TABLE><BR>
 <BR>
 <BR>
