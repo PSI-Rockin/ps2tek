@@ -2544,7 +2544,6 @@ waits 1000000h ticks, then unsets bit 19, which probably deasserts the reset lin
 another 1000000h ticks.</LI>
 <LI>PS1DRV enters its emulation loop and waits for GPU commands to be sent.</LI>
 </UL>
-<BR>
 <B>IOP Side</B><BR>
 TBIN is the PSX BIOS driver stored in the PS2 BIOS. It lacks the shell and jumps directly to the PS logo when loading a 
 game. Unknown what other differences exist compared to real PSX models.<BR>
@@ -2556,7 +2555,7 @@ that is the case, TBIN could mean T's Binary, whoever T is.<BR>
 The most significant change when transitioning to PSX mode is that the IOP is underclocked to 33.8688 MHz, the original 
 speed of the PSX. SPU2 also outputs samples at 44.1 KHz, rather than 48 KHz.<BR>
 <BR>
-<B>Hacks</B>
+<B>Hacks</B><BR>
 The overhead of translating GPU commands, combined with the GS being far, far faster than the PSX GPU, means that the 
 emulator will have different timings from a real PSX. Some PSX games are exceptionally sensitive to timings, so the 
 emulator is able to apply various hacks. All hacks are listed below. Note that the hacks aren't actually given 
@@ -2576,7 +2575,6 @@ plus 4.</LI>
 Bit 0: Strange hack. Ignores VRAM->VRAM transfers if the command word is not 80000000h.<BR>
 Bit 1: When set, makes the render polygon delay only apply if the polygon is textured.</LI>
 </UL>
-<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="biosiopmodulelinking"></A>&nbsp;
