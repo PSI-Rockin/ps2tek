@@ -1639,7 +1639,66 @@ similar principle as the PSX's serial port (called SIO0 here), SIO2 is completel
 <A NAME="sio2registers"></A>&nbsp;
 SIO2 Registers
 </FONT></TD></TR></TABLE><BR>
-(todo)
+A good portion of SIO2 is a mystery. Having no documentation whatsoever, its behavior has to be inferred from how programs 
+use it.<BR>
+<BR>
+<B>1F808200-1F808240 SIO2_SEND3 - Command Parameters</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-1   Port
+  8-16  Fake command length, not used by SIO2
+  17-24 Real command length (counting peripheral byte)
+  Other Unknown
+</TD></TR></TABLE><BR>
+SEND3 is an array of up to 16 different SIO2 commands. A command consists of a peripheral byte that selects to what the 
+command is being sent, a command sent to the peripheral, and an arbitrary amount of data.<BR>
+<BR>
+Known peripheral bytes:<BR>
+<UL>
+<LI>01h - Controller</LI>
+<LI>21h - Multitap</LI>
+<LI>61h - Infrared</LI>
+<LI>81h - Memory card</LI>
+</UL>
+<BR>
+<B>1F808240-1F808260 SIO2_SEND1/SEND2 - Port1/2 Control?</B><BR>
+Unknown purpose.<BR>
+When bit 2 of the address is set, SEND2 is accessed. Otherwise, SEND1 is accessed.<BR>
+<BR>
+<B>1F808260 SIO2_FIFOIN - Data Write</B><BR>
+A one-byte register used to upload commands to SIO2. The SIO2in DMA channel also writes to this register.<BR>
+<BR>
+<B>1F808264 SIO2_FIFOOUT - Data Read</B><BR>
+Used to read replies and data from SIO2 peripherals after a command is sent. SIO2out reads from this register.<BR>
+<BR>
+<B>1F808268 SIO2_CTRL - Control Register</B><BR>
+Bit 0 seems to start the command transfer. An SIO2 interrupt is raised after touching this bit, presumably when the 
+command has completed.<BR>
+Bits 2 and 3 reset SIO2, preparing it for another transfer.<BR>
+Rest of the bits are unknown. They probably control bandwidths and interrupt masking, at the very least.<BR>
+<BR>
+The SIO2MAN module in the BIOS sets this register to 3BCh on a reset.<BR>
+<BR>
+<B>1F80826C SIO2_RECV1 - Response Status 1 (R)</B><BR>
+Set after a transfer, indicating if the peripheral is connected.<BR>
+If (RECV1 & F000h) == 1000h after a memory card command, the memory card is connected. Else, disconnected.<BR>
+If (RECV1 & 2000h) == 0 after a pad command, the pad is connected.<BR>
+<BR>
+Known value for a disconnected peripheral is 1D100h. Known value for a connected peripherla is 1100h.<BR>
+<BR>
+<B>1F808270 SIO2_RECV2 - Response Status 2 (R)</B><BR>
+Read by PADMAN. Always equal to 0xF?<BR>
+<BR>
+<B>1F808274 SIO2_RECV3 - Response Status 3 (R)</B><BR>
+Unknown.
+<BR>
+<B>SIO2MAN Program Flow For Transfer</B><BR>
+<UL>
+<LI>Write CTRL | 0Ch to CTRL.</LI>
+<LI>Write data to SEND1 and SEND2, then write data to SEND3.</LI>
+<LI>Write data to DATAIN if applicable, then start SIO2in and SIO2out DMA transfers if applicable.</LI>
+<LI>Write CTRL | 01h to CTRL, then wait for an SIO2 interrupt.</LI>
+<LI>After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.</LI>
+</UL>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
