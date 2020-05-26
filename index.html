@@ -2618,18 +2618,18 @@ The regular IOPBTCONF is used for resets and the final phase of IOP reboot.<BR>
 <BR>
 Each line in IOPBTCONF takes one of the following formats.<BR>
 <OL>
-<LI>@<START ADDR></LI>
+<LI>@(START ADDR)</LI>
 The starting address of the kernel. IOPBOOT will place the first module at this address, and all other modules will be 
 placed afterwards on 256-byte boundaries.
-<LI>!addr <FUNCTION ADDR></LI>
+<LI>!addr (FUNCTION ADDR)</LI>
 The function address here is executed while the modules are being loaded.
-<LI>!include <NAME></LI>
+<LI>!include (NAME)</LI>
 Acts like header file declarations, allowing another IOPBTCONF file to be parsed inside of the current one.<BR>
 NOTE: The parsing for this is buggy. Files can only be included at the start or end of the list, and only one file can 
 ever be included.
-<LI>#<COMMENT></LI>
+<LI>#(COMMENT)</LI>
 Lines starting with # are treated as comments and ignored.
-<LI><MODULE NAME></LI>
+<LI>(MODULE NAME)</LI>
 An IOP module to be loaded during boot.
 </OL><BR>
 <B>Example IOPBTCONF</B><BR>
@@ -3497,7 +3497,7 @@ REBOOT installs a custom SIF command handler for 80000003h and waits for this co
 <BR>
 <B>IOP Reboot Procedure</B><BR>
 <UL>
-<LI>The EE sends SIF command 80000003h with an argument of "rom0:UDNL <last image file>..<first image file> [-v]". An 
+<LI>The EE sends SIF command 80000003h with an argument of "rom0:UDNL [last image file]..[first image file] [-v]". An 
 example image path is "cdrom0:\MODULES\IOPRP243.IMG;1" (sent by Atelier Iris: Eternal Mana). The -v flag is 
 recognized by UDNL but doesn't seem to have any effect.</LI>
 <LI>REBOOT calls MODLOAD.ReBootStart. MODLOAD cleans up all module libaries and jumps to IOPBOOT.</LI>
