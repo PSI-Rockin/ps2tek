@@ -1648,7 +1648,7 @@ use it.<BR>
   8-16  Fake command length, not used by SIO2
   17-24 Real command length (counting peripheral byte)
   Other Unknown
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 SEND3 is an array of up to 16 different SIO2 commands. A command consists of a peripheral byte that selects to what the 
 command is being sent, a command sent to the peripheral, and an arbitrary amount of data.<BR>
 <BR>
@@ -1682,7 +1682,7 @@ Set after a transfer, indicating if the peripheral is connected.<BR>
 If (RECV1 & F000h) == 1000h after a memory card command, the memory card is connected. Else, disconnected.<BR>
 If (RECV1 & 2000h) == 0 after a pad command, the pad is connected.<BR>
 <BR>
-Known value for a disconnected peripheral is 1D100h. Known value for a connected peripherla is 1100h.<BR>
+Known value for a disconnected peripheral is 1D100h. Known value for a connected peripheral is 1100h.<BR>
 <BR>
 <B>1F808270 SIO2_RECV2 - Response Status 2 (R)</B><BR>
 Read by PADMAN. Always equal to 0xF?<BR>
@@ -1698,7 +1698,6 @@ Unknown.<BR>
   Write CTRL | 01h to CTRL, then wait for an SIO2 interrupt.
   After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.
 </TD></TR></TABLE><BR>
-<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="iopint"></A>&nbsp;
