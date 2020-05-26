@@ -2085,7 +2085,8 @@ These modules are represented as IRX files, which are custom relocatable ELFs.<B
 <BR>
 <A HREF="#biosiopmodulelinking">BIOS IOP Module Linking</A><BR>
 <BR>
-The below IOP modules are loaded on a hard reset through IOPBTCONF.<BR>
+The below IOP modules are loaded on reset.<BR>
+<A HREF="#biosiopiopboot">BIOS IOP IOPBOOT - Kernel Bootstrap</B><BR>
 <A HREF="#biosiopsysmem">BIOS IOP SYSMEM - Memory Management</A><BR>
 <A HREF="#biosioploadcore">BIOS IOP LOADCORE - Kernel Loader and Linker</A><BR>
 <A HREF="#biosiopexcepman">BIOS IOP EXCEPMAN - Exception Manager</A><BR>
@@ -2595,6 +2596,57 @@ the return statement is replaced with a direct jump to an imported module's func
 Since functions are only linked by their IDs, rather than their names, in theory this keeps others from learning the 
 names of the functions. In practice, game developers often created custom IOP modules which they forgot to strip, which is 
 how the symbols in Sony's IOP modules are known.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biosiopiopboot"></A>&nbsp;
+BIOS IOP IOPBOOT - Kernel Bootstrap
+</FONT></TD></TR></TABLE><BR>
+IOPBOOT is technically not an IOP module, but rather, a raw binary file. It is responsible for parsing IOPBTCONF, loading 
+SYSMEM and LOADCORE into memory, and passing execution to LOADCORE.<BR>
+<BR>
+<B>_entry(int ram_size, int boot_info, char *udnl_cmd, int unk)</B><BR>
+The entry point is located at the start of IOPBOOT, BFC4A000h on SCPH-39001. ram_size is the total size of IOP RAM in 
+megabytes. boot_info determines how IOPBOOT will find IOPBTCONF, more on that below. udnl_cmd is the full command string 
+used to load UDNL and an IOPRP image. unk is passed but not used anywhere.<BR>
+<BR>
+<B>IOPBTCONF Format and Parsing</B><BR>
+IOPBTCONF is the full list of modules that are loaded in the boot process, including SYSMEM and LOADCORE.<BR>
+When IOPBOOT runs, it will first try to parse IOPBTCONx (where x is boot_info above), and if it can't find this, then it 
+tries IOPBTCONF. On retail BIOSes, the only other file is IOPBTCON2, which is used to load modules after an IOP reboot. 
+The regular IOPBTCONF is used for resets and the final phase of IOP reboot.<BR>
+<BR>
+Each line in IOPBTCONF takes one of the following formats.<BR>
+<OL>
+<LI>@<START ADDR></LI>
+The starting address of the kernel. IOPBOOT will place the first module at this address, and all other modules will be 
+placed afterwards on 256-byte boundaries.
+<LI>!addr <FUNCTION ADDR></LI>
+The function address here is executed while the modules are being loaded.
+<LI>!include <NAME></LI>
+Acts like header file declarations, allowing another IOPBTCONF file to be parsed inside of the current one.<BR>
+NOTE: The parsing for this is buggy. Files can only be included at the start or end of the list, and only one file can 
+ever be included.
+<LI>#<COMMENT></LI>
+Lines starting with # are treated as comments and ignored.
+<LI><MODULE NAME></LI>
+An IOP module to be loaded during boot.
+</OL><BR>
+<B>Example IOPBTCONF</B><BR>
+This excerpt was pulled from an SCPH-39001 BIOS.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  @800
+  SYSMEM
+  LOADCORE
+  EXCEPMAN
+  INTRMANP
+  INTRMANI
+  SSBUSC
+  DMACMAN
+  TIMEMANP
+  TIMEMANI
+  ...
+</TD></TR></TABLE>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
