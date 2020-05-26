@@ -2077,6 +2077,7 @@ provide EE services and IOP modules, and launch PS2/PSX games.<BR>
 <A HREF="#biosbootprocess">BIOS Boot Process</A><BR>
 <A HREF="#bioseethreading">BIOS EE Threading</A><BR>
 <A HREF="#bioseesyscalls">BIOS EE Syscalls</A><BR>
+<A HREF="#biospscompatibility">BIOS PlayStation Compatibility</A><BR>
 <BR>
 <B>BIOS IOP Modules</B><BR>
 Unlike the EE, the IOP does not have a monolithic kernel. 
@@ -2517,6 +2518,64 @@ Shorthand for LoadExecPS2("rom0:OSDSYS", argc, argv).<BR>
 <BR>
 <B>7Fh int GetMemorySize()</B><BR>
 Returns the amount of RDRAM on the console in bytes.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="biospscompatibility"></A>&nbsp;
+BIOS PlayStation Compatibility
+</FONT></TD></TR></TABLE><BR>
+<B>EE Side</B><BR>
+In PSX mode, the EE and GS work together to emulate the PSX GPU. PS1DRV, a standard ELF, handles this emulation.<BR>
+The main emulation loop of PS1DRV acts as a translation layer between PSX and GS commands. It polls PGIF registers to 
+know when a command has arrived.<BR>
+<BR>
+After OSDSYS detects a PSX disc, it loads PS1DRV and jumps to it. The setup for PSX mode is as follows.<BR>
+<UL>
+<LI>PS1DRV attempts to parse several hack databases. First, it parses an internal list of games stored in the executable. 
+Next, if the PSX disc has a "PSD1.0.0" entry in SYSTEM.CNF, PS1DRV parses hacks from there. Finally, PS1DRV will attempt 
+to open "BIDATA-SYSTEM/TITLE.DB" on both memory card ports. If one of them is opened successfully, it then parses the 
+database. Unknown what the format of the SYSTEM.CNF and TITLE.DB hacks are.</LI>
+<LI>Some parameters are retrieved using GetOsdConfigParam and GetGsVParam. They are used to control factors like 
+CDROM read speed and texture filtering.</LI>
+<LI>Various system registers are reset. PS1DRV also seems to remap SPU2 registers to their original PSX address base at 
+1F801C00h using SSBUS writes.</LI>
+<LI>Bit 19 is set in SIF_CTRL. This is probably to assert the reset line on the IOP, switching it to PSX mode. PS1DRV 
+waits 1000000h ticks, then unsets bit 19, which probably deasserts the reset line, allowing the IOP to run. It then waits 
+another 1000000h ticks.</LI>
+<LI>PS1DRV enters its emulation loop and waits for GPU commands to be sent.</LI>
+</UL>
+<BR>
+<B>IOP Side</B><BR>
+TBIN is the PSX BIOS driver stored in the PS2 BIOS. It lacks the shell and jumps directly to the PS logo when loading a 
+game. Unknown what other differences exist compared to real PSX models.<BR>
+RESET will jump to TBIN if COP0.PRid is less than 0Fh or if I/O register 1F801570.3 is set. Unknown which one is true 
+after the PS2->PSX transition, or if both are true after that.<BR>
+Unknown what TBIN means. A string in it says "PS compatible mode by M.T.", which most likely refers to a person. If 
+that is the case, TBIN could mean T's Binary, whoever T is.<BR>
+<BR>
+The most significant change when transitioning to PSX mode is that the IOP is underclocked to 33.8688 MHz, the original 
+speed of the PSX. SPU2 also outputs samples at 44.1 KHz, rather than 48 KHz.<BR>
+<BR>
+<B>Hacks</B>
+The overhead of translating GPU commands, combined with the GS being far, far faster than the PSX GPU, means that the 
+emulator will have different timings from a real PSX. Some PSX games are exceptionally sensitive to timings, so the 
+emulator is able to apply various hacks. All hacks are listed below. Note that the hacks aren't actually given 
+names, so they are made up here.<BR>
+<UL>
+<LI>Render Polygon Delay</LI>
+<LI>Render Rectangle Delay</LI>
+<LI>Force CDROM speed: When greater than 2, this overwrites the speed setting set in OSDSYS.</LI>
+<LI>GP0 Increased Sync: Makes the emulator spend more time polling the GP0 FIFO directly, allowing it to respond faster to 
+incoming data.</LI>
+<LI>VRAM Read Delay</LI>
+<LI>VBLANK Delay: Adds extra scanlines to emulated frame time, making emulated VBLANK interrupts take more time to 
+occur.</LI>
+<LI>Timer Delay: Makes the emulator not do anything until timer 0's counter is equal to or greater than this value 
+plus 4.</LI>
+<LI>Misc. Render Hack<BR>
+Bit 0: Strange hack. Ignores VRAM->VRAM transfers if the command word is not 80000000h.<BR>
+Bit 1: When set, makes the render polygon delay only apply if the polygon is textured.</LI>
+</UL>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
