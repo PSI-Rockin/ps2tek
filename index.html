@@ -1689,16 +1689,16 @@ Known value for a disconnected peripheral is 1D100h. Known value for a connected
 Read by PADMAN. Always equal to 0xF?<BR>
 <BR>
 <B>1F808274 SIO2_RECV3 - Response Status 3 (R)</B><BR>
-Unknown.
+Unknown.<BR>
 <BR>
 <B>SIO2MAN Program Flow For Transfer</B><BR>
-<UL>
-<LI>Write CTRL | 0Ch to CTRL.</LI>
-<LI>Write data to SEND1 and SEND2, then write data to SEND3.</LI>
-<LI>Write data to DATAIN if applicable, then start SIO2in and SIO2out DMA transfers if applicable.</LI>
-<LI>Write CTRL | 01h to CTRL, then wait for an SIO2 interrupt.</LI>
-<LI>After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.</LI>
-</UL>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+Write CTRL | 0Ch to CTRL.
+Write data to SEND1 and SEND2, then write data to SEND3.
+Write data to DATAIN if applicable, then start SIO2in and SIO2out DMA transfers if applicable.
+Write CTRL | 01h to CTRL, then wait for an SIO2 interrupt.
+After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.
+</TD></TR></TABLE><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
