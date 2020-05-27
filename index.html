@@ -1633,6 +1633,7 @@ similar principle as the PSX's serial port (called SIO0 here), SIO2 is completel
 <BR>
 <B>SIO2 Reference</B><BR>
 <A HREF="sio2registers">SIO2 Registers</A><BR>
+<A HREF="sio2ps2memcards">SIO2 PS2 Memcards</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -1698,6 +1699,135 @@ Unknown.<BR>
   Write CTRL | 01h to CTRL, then wait for an SIO2 interrupt.
   After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.
 </TD></TR></TABLE><BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sio2ps2memcards"></A>&nbsp;
+SIO2 PS2 Memcards
+</FONT></TD></TR></TABLE><BR>
+<B>Commands</B><BR>
+<B>11h - Probe</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 11 + 1 XX byte
+  Reply: 2B + Terminator
+  Length: 2 bytes
+</TD></TR></TABLE><BR>
+First command sent when trying to detect a card.<BR>
+The terminator defaults to 55h on reset. Newer versions of MCMAN check for this.<BR>
+<BR>
+<B>12h - Unk12</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 12 + 1 XX byte
+  Reply: 2B + Terminator
+  Length: 2 bytes
+</TD></TR></TABLE>
+Unknown purpose. Sent on write/erase commands. Maybe some sort of flush?<BR>
+<BR>
+<B>21h - Start Erase</B><BR>
+<B>22h - Start Write</B><BR>
+<B>23h - Start Read</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 21 + 4-byte sector address + 2 XX bytes
+  Reply: 5 XX bytes + 2Bh + Terminator
+  Length: 7 bytes
+</TD></TR></TABLE>
+These commands prepare read/write/erase sector operations by providing a starting address in sectors.<BR>
+<BR>
+<B>26h - Get Specs</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 26 + 10 XX bytes
+  Reply: 2B + 2-byte sector size in bytes + 2-byte erase block size + 4-byte sector count + 1-byte checksum + Terminator
+  Length: 11 bytes
+</TD></TR></TABLE>
+Retrieves the card's capabilities. The total size of the memory card is (sector size + 16) * sectors (the 16 is 
+space for error correction).<BR>
+The checksum is an XOR between the individual bytes of sector size, erase blocks, and sectors.<BR>
+A standard Sony 8 MB memory card will report the following.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  2B 00 02 10 00 00 40 00 00 52
+</TD></TR></TABLE>
+That is to say, a sector size of 512 bytes, an erase block page count of 16 sectors, and a sector count of 16,384.<BR>
+<BR>
+<B>27h - Set Terminator</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 27 + 1-byte new terminator + 1 XX byte
+  Reply: XX + 2B + Old terminator
+  Length: 3 bytes
+</TD></TR></TABLE>
+<BR>
+<B>28h - Get Terminator</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 28 + 2 XX bytes
+  Reply: 2B + Terminator + 55
+  Length: 3 bytes
+</TD></TR></TABLE>
+<BR>
+<B>42h - Write Data</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 42 + 1-byte write size + 128 data bytes + 2 XX bytes
+  Reply: 2B + Terminator + 129 XX bytes + Terminator
+  Length: 132 bytes
+</TD></TR></TABLE>
+Writes up to 128 bytes at the memory card address given by command 22h. 128 data bytes must be sent, though anything more 
+than the given size is ignored.<BR>
+<BR>
+<B>43h - Read Data</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 42 + 1-byte read size + 130 XX bytes
+  Reply: 2B + Terminator + 128 data bytes + 1-byte XOR checksum + Terminator
+  Length: 132 bytes
+</TD></TR></TABLE>
+Reads up to 128 bytes at the address given by command 23h. The checksum is applied to the amount of bytes read.<BR>
+<BR>
+<B>81h - Read/Write End</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 81 + 1 XX byte
+  Reply: 2B + Terminator
+  Length: 2 bytes
+</TD></TR></TABLE>
+Sent at the end of a read or write. Unknown purpose.<BR>
+<BR>
+<B>82h - Erase Block</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 82 + 1 XX byte
+  Reply: 2B + Terminator
+  Length: 2 bytes
+</TD></TR></TABLE>
+Erases data at the address given by command 21h by setting it all to FFh. On a standard 8 MB card, this would 
+be (512 + 16) * 16 bytes of data.<BR>
+<BR>
+<B>BFh - UnkBF</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 82 + 2 XX bytes
+  Reply: 1 XX byte + 2B + Terminator
+  Length: 3 bytes
+</TD></TR></TABLE>
+Used during card detection.<BR>
+<BR>
+<B>F0h - AuthXorF0</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: F0 + 1-byte param + variable
+  Reply: 1 XX byte + 2B + Variable + Terminator
+  Length: 12 bytes
+</TD></TR></TABLE>
+This strange command is used by SECRMAN while detecting the card and does some XOR checksumming.<BR>
+(todo: better explanation)<BR>
+<BR>
+<B>F3h - AuthF3</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: F3 + 2 XX bytes
+  Reply: 1 XX byte + 2B + Terminator
+  Length: 3 bytes
+</TD></TR></TABLE>
+Sent by SECRMAN. Unknown purpose.<BR>
+<BR>
+<B>F7h - AuthF7</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: F7 + 2 XX bytes
+  Reply: 1 XX byte + 2B + Terminator
+  Length: 3 bytes
+</TD></TR></TABLE>
+Sent by SECRMAN. Unknown purpose.<BR>
+<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="iopint"></A>&nbsp;
