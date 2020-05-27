@@ -4137,7 +4137,85 @@ BIOS IOP SIO2MAN - SIO2 Manager
 <A NAME="biosiopmcman"></A>&nbsp;
 BIOS IOP MCMAN - Memory Card Manager
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+<B>Exports</B><BR>
+<B>05h int McDetectCard(int port, int slot)</B><BR>
+<BR>
+<B>06h int McOpen(int port, int slot, char *path, int flags)</B><BR>
+<BR>
+<B>07h int McClose(int fd)</B><BR>
+<BR>
+<B>08h int McRead(int fd, void *buff, int size)</B><BR>
+<BR>
+<B>09h int McWrite(int fd, void *buff, int size)</B><BR>
+<BR>
+<B>0Ah int McSeek(int fd, int offs, int whence)</B><BR>
+<BR>
+<B>0Bh int McFormat(int port, int slot)</B><BR>
+<BR>
+<B>0Ch int McGetDir(int port, int slot, char *dir, int flags, int maxent, sceMcTblGetDir *info)</B><BR>
+<BR>
+<B>0Dh int McDelete(int port, int slot, char *path, int flags)</B><BR>
+<BR>
+<B>0Eh int McFlush(int fd)</B><BR>
+<BR>
+<B>0Fh int McChDir(int port, int slot, char *new_dir, char *cur_dir)</B><BR>
+<BR>
+<B>10h int McSetFileInfo(int port, int slot, char *path, sceMcTblGetDir *info, int flags)</B><BR>
+<BR>
+<B>11h int McEraseBlock(int port, int block, void **page, void *ecc) (only in older modules)</B><BR>
+<BR>
+<B>12h int McReadPage(int port, int slot, int page, void *buff)</B><BR>
+<BR>
+<B>13h int McWritePage(int port, int slot, int page, void *buff, void *ecc)</B><BR>
+<BR>
+<B>14h void McDataChecksum(void *buff, void *ecc)</B><BR>
+<BR>
+<B>1Dh int McReadPS1PDACard(int port, int slot, int page, void *buff)</B><BR>
+<BR>
+<B>1Eh int McWritePS1PDACard(int port, int slot, int page, void *buff)</B><BR>
+<BR>
+<B>24h int McUnformat(int port, int slot)</B><BR>
+<BR>
+<B>26h int McGetFreeClusters(int port, int slot)</B><BR>
+<BR>
+<B>27h int McGetMcType(int port, int slot)</B><BR>
+<BR>
+<B>28h void McSetPS1CardFlag(int flag)</B><BR>
+<BR>
+Below are exports only found in newer MCMAN modules.<BR>
+<B>11h int McEraseBlock2(int port, int slot, int block, void **page, void *ecc) (replaces McEraseBlock!)</B><BR>
+<BR>
+<B>15h int McDetectCard2(int port, int slot)</B><BR>
+<BR>
+<B>16h int McGetFormat(int port, int slot)</B><BR>
+<BR>
+<B>17h int McGetEntSpace(int port, int slot, char *dir)</B><BR>
+<BR>
+<B>18h int McReplaceBadBlock()</B><BR>
+<BR>
+<B>19h int McCloseAll()</B><BR>
+<BR>
+<B>2Ah void* McGetModuleInfo()</B><BR>
+<BR>
+<B>2Bh int McGetCardSpec(int port, int slot, short *page_size, ushort *block_size, int *total_size, uchar *flags)</B><BR>
+<BR>
+<B>2Ch int McGetFATentry(int port, int slot, int fat_index, int *fat_entry)</B><BR>
+<BR>
+<B>2Dh int McCheckBlock(int port, int slot, int block)</B><BR>
+<BR>
+<B>2Eh int McSetFATentry(int port, int slot, int fat_index, int fat_entry)</B><BR>
+<BR>
+<B>2Fh int McReadDirEntry(int port, int slot, int cluster, int index, McFsEntry **pfse)</B><BR>
+<BR>
+<B>30h void Mc1stCacheEntSetWrFlagOff()</B><BR>
+<BR>
+<B>31h int McCreateDirentry(int port, int slot, int parent_cluster, int entries, int cluster, sceMcStDateTime *time)</B><BR>
+<BR>
+<B>32h int McReadCluster(int port, int slot, int cluster, McCacheEntry **pmce)</B><BR>
+<BR>
+<B>33h int McFlushCache(int port, int slot)</B><BR>
+<BR>
+<B>34h int McSetDirEntryState(int port, int slot, int cluster, int fsindex, int flags)</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
