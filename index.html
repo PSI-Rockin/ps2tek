@@ -1342,6 +1342,11 @@ is.<BR>
 Superman Returns, another VIS game, uses a somehow wilder variant, where the clear sprite is 32x4096. The sprite is 
 so large, it wraps around from the bottom of VRAM to the top.<BR>
 <BR>
+<B>Recursive Drawing</B><BR>
+Draws where the texture buffer and framebuffer overlap, usually done with TBP = FBP. Because of the texture cache, 
+texels do not get overwritten in VRAM until after they are read. Recursive drawing can be used to apply special effects 
+without having to create a temporary buffer in memory.<BR>
+<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vu"></A>&nbsp;
