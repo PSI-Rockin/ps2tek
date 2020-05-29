@@ -807,6 +807,7 @@ Graphics Synthesizer (GS)
 <A HREF="#gsfog">GS Fog</A><BR>
 <A HREF="#gsalphablending">GS Alpha Blending</A><BR>
 <A HREF="#gstestsandpixelcontrol">GS Tests and Pixel Control</A><BR>
+<A HREF="#gsspecialeffects">GS Special Effects and Optimizations</A><BR>
 <BR>
 <BR>
 
@@ -1298,7 +1299,50 @@ If the format is PSMCT16, the sole alpha bit is tested.
 If the format is PSMCT24, all pixels pass due to the lack of alpha.<BR>
 <BR>
 <BR>
-  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="gsspecialeffects"></A>&nbsp;
+GS Special Effects and Optimizations
+</FONT></TD></TR></TABLE><BR>
+The GS has an absurdly high fillrate of 1.2 gigapixels/second when drawing textured polygons. This advantage is further 
+compounded by free (!) alpha blending and depth buffering. However, the GS only supports single-pass texturing and is 
+entirely fixed-unit. The combination of these factors led developers to find creative ways to make their games look 
+good...<BR>
+Note: many of these effects don't have an official name, so they are made up.<BR>
+<BR>
+<B>Fast Screen Draw</B><BR>
+Drawing a single sprite that covers the entire screen is relatively slow. First, this causes many DRAM page breaks per 
+scanline drawn. Second, for textured sprites, the texture cache also has to be reloaded many times.<BR>
+Instead, one can split a screen draw into many 64x32 sprites. This greatly improves cache locality, based upon the 
+GS's nonlinear mmemory.<BR>
+The fast screen draw is often used as a building block for other advanced techniques.<BR>
+<BR>
+<B>Double Half Clear</B><BR>
+Because the framebuffer and depth buffer both occupy the same memory space, framebuffer clears can be optimized by placing 
+the start of the depth buffer halfway down the screen and halving the height of the clear draw. As depth buffering is 
+free, this will result in the clear being around twice as fast.<BR>
+<BR>
+<B>Interleaved Clear</B><BR>
+Similar to the double half clear in principle, but takes advantages of color and depth formats being swizzled 
+differently. The depth buffer base is set to the framebuffer base (ZBP=FBP), and instead of the clear being split into 
+64x32 sprites, it is split into 32x32 sprites instead. This results in the clear being interleaved, as the color clear 
+touches the left side of a 64x32 block and the depth clear touches the right side. Because the framebuffer and depth 
+buffer share the same cache, this should be faster than a double half clear.<BR>
+<BR>
+Powerdrome uses a crazy variant of this, where the framebuffer is given a Z format. Due to quirks in the GS rendering 
+process, this causes the depth clear to draw as if it had a color format. This doesn't really speed anything up, as all 
+that changes is the order of the interleave, but it does make emudevs cry a lot.<BR>
+<BR>
+<B>VIS Clear</B><BR>
+Absolutely insane clear used in the VIS Games engine. The framebuffer width (FBW) is set to 1 (64 pixels for a 32-bit 
+texture), then a very thin and tall sprite is drawn. In normal cases, the sprite is 64x2048. The clear is essentially if 
+one took all the pages from the framebuffer, stacked them vertically, then drew a sprite large enough to clear the 
+stack. This should avoid the horizontal page breaks that other methods cause, but it is unknown how fast this clear 
+is.<BR>
+<BR>
+Superman Returns, another VIS game, uses a somehow wilder variant, where the clear sprite is 32x4096. The sprite is 
+so large, it wraps around from the bottom of VRAM to the top.<BR>
+<BR>
+<BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vu"></A>&nbsp;
 Vector Unit (VU)
