@@ -1322,7 +1322,7 @@ the start of the depth buffer halfway down the screen and halving the height of 
 free, this will result in the clear being around twice as fast.<BR>
 <BR>
 <B>Interleaved Clear</B><BR>
-Similar to the double half clear in principle, but takes advantages of color and depth formats being swizzled 
+Similar to the double half clear in principle, but takes advantage of color and depth formats being swizzled 
 differently. The depth buffer base is set to the framebuffer base (ZBP=FBP), and instead of the clear being split into 
 64x32 sprites, it is split into 32x32 sprites instead. This results in the clear being interleaved, as the color clear 
 touches the left side of a 64x32 block and the depth clear touches the right side. Because the framebuffer and depth 
