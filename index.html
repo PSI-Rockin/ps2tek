@@ -4130,7 +4130,83 @@ BIOS IOP LIBSD - Low-level Sound Library
 <A NAME="biosiopsio2man"></A>&nbsp;
 BIOS IOP SIO2MAN - SIO2 Manager
 </FONT></TD></TR></TABLE><BR>
-(todo)<BR>
+For details on SIO2 hardware, see <A HREF="#sio2">SIO2</A>.<BR>
+<BR>
+<B>Exports</B><BR>
+<B>02h void Sio2Exit()</B><BR>
+<BR>
+<B>04h void Sio2SetCtrl(uint value)</B><BR>
+<BR>
+<B>05h uint Sio2GetCtrl()</B><BR>
+<BR>
+<B>06h uint Sio2GetRecv1()</B><BR>
+<BR>
+<B>07h void Sio2SetPortCtrl1(int index, uint value)</B><BR>
+<BR>
+<B>08h uint Sio2GetPortCtrl1(int index)</B><BR>
+<BR>
+<B>09h void Sio2SetPortCtrl2(int index, uint value)</B><BR>
+<BR>
+<B>0Ah uint Sio2GetPortCtrl2(int index)</B><BR>
+<BR>
+<B>0Bh uint Sio2GetRecv2()</B><BR>
+<BR>
+<B>0Ch void Sio2SetReg(int index, uint value)</B><BR>
+<BR>
+<B>0Dh uint Sio2GetReg(int index)</B><BR>
+<BR>
+<B>0Eh uint Sio2GetRecv3()</B><BR>
+<BR>
+<B>0Fh void Sio2SetUnkReg78(uint value)</B><BR>
+<BR>
+<B>10h uint Sio2GetUnkReg78()</B><BR>
+<BR>
+<B>11h void Sio2SetUnkReg7C(uint value)</B><BR>
+<BR>
+<B>12h uint Sio2GetUnkReg7C()</B><BR>
+<BR>
+<B>13h void Sio2WriteDataFifo(uchar value)</B><BR>
+<BR>
+<B>14h uchar Sio2ReadDataFifo()</B><BR>
+<BR>
+<B>15h void Sio2SetIstat(uint value)</B><BR>
+<BR>
+<B>16h uint Sio2GetIstat()</B><BR>
+<BR>
+<B>17h void Sio2PadInitTransfer()</B><BR>
+<BR>
+<B>18h void Sio2McInitTransfer()</B><BR>
+<BR>
+<B>19h int Sio2StartTransfer(Sio2Transfer *trans)</B><BR>
+<BR>
+The following exports are only available in newer SIO2MAN modules.<BR>
+<B>1Ah void Sio2TransferReset()</B><BR>
+<BR>
+<B>30h void Sio2MtapInitTransfer()</B><BR>
+<BR>
+<B>31h void Sio2RmInitTransfer()</B><BR>
+<BR>
+<B>32h void Sio2UnkInitTransfer()</B><BR>
+<BR>
+<B>33h int Sio2StartTransfer2(Sio2Transfer *trans)</B><BR>
+<BR>
+<B>34h void Sio2ResetTransfer2()</B><BR>
+<BR>
+<B>35h void Sio2MtapChangeSlotSet(void *func)</B><BR>
+<BR>
+<B>36h void Sio2MtapGetSlotMaxSet(void *func)</B><BR>
+<BR>
+<B>37h void Sio2MtapGetSlotMax2Set(void *func)</B><BR>
+<BR>
+<B>38h void Sio2MtapUpdateSlotsSet(void *func)</B><BR>
+<BR>
+<B>39h int Sio2MtapChangeSlot(int* arg)</B><BR>
+<BR>
+<B>3Ah int Sio2MtapGetSlotMax(int port)</B><BR>
+<BR>
+<B>3Bh int Sio2MtapGetSlotMax2(int port)</B><BR>
+<BR>
+<B>3Ch void Sio2MtapUpdateSlots()</B><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
