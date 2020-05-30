@@ -1347,6 +1347,25 @@ Draws where the texture buffer and framebuffer overlap, usually done with TBP = 
 texels do not get overwritten in VRAM until after they are read. Recursive drawing can be used to apply special effects 
 without having to create a temporary buffer in memory.<BR>
 <BR>
+<B>Channel Shuffle</B><BR>
+A sophisticated technique made to overcome the GS's lack of shader units. At a high level, the most basic channel shuffle 
+effect uses a texture's 32-bit RGBA channels as 8-bit palette indices to apply an effect on the texture, such as gamma 
+correction or a brightness effect.<BR>
+<BR>
+To perform the channel shuffle, draw a series of 8x2 sprites that read the 32-bit texture as 8-bit - normally this is 
+done with recursive drawing, but temporary buffers can also be used. The size of the sprites is important, as 32-bit 
+and 8-bit textures are swizzled differently. The sprites will read from a palette which applies the effect, then FBMASK 
+is used to restrict the draw to a single channel. This must be repeated for every channel the effect is to be applied to,
+with a total of four shuffles for all four channels.<BR>
+<BR>
+This effect is extremely difficult to emulate with a modern GPU. A 640x224 framebuffer requires 8960 8x2 sprites for a 
+single shuffle. The 32-bit texture must be deswizzled, converted to 8-bit, and reconverted back to 32-bit for each sprite.
+Since this is usually done with recursive drawing, texture memory and framebuffer memory on the host GPU also needs to 
+be synchronized. Finally, modern GPUs mask on the byte level, but games can mask on the bit level, which requires a slow 
+fragment shader to process the effect correctly if the game doesn't fully mask on the byte level. All this results in a 
+channel shuffle being more expensive than even every other draw call in the game. Other variants of channel shuffle also 
+exist that involve reading the depth buffer, and some shuffle effects are not well-understood.<BR>
+<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vu"></A>&nbsp;
