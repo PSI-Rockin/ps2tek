@@ -1517,6 +1517,7 @@ IOP Hardware and Peripherals
 <A HREF="#cdvd">CDVD Drive</A><BR>
 <A HREF="#sio2">PS2 Serial Port (SIO2)</A><BR>
 <A HREF="#iopint">IOP Interrupts</A><BR>
+<A HREF="#iopdma">IOP DMA</A><BR>
 <A HREF="#ioptimers">IOP Timers</A><BR>
 <BR>
 <BR>
@@ -1998,6 +1999,33 @@ NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via this reg
 <B>Raising Interrupts</B><BR>
 If !I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs,
 COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.<BR>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="iopdma"></A>&nbsp;
+IOP DMA
+</FONT></TD></TR></TABLE><BR>
+The IOP re-uses the same DMA channels as found in the PSX, and it contains additional channels for new peripherals.<BR>
+<BR>
+<B>Channels</B>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Old channels
+  1F80108xh    MDECin
+  1F80109xh    MDECout
+  1F8010Axh    SIF2 (EE<->IOP, GPU in PSX mode)
+  1F8010Bxh    CDVD (CDROM in PSX mode)
+  1F8010Cxh    SPU1
+  1F8010Dxh    PIO
+  1F8010Exh    OTC
+  
+  New channels
+  1F80150xh    SPU2
+  1F80151xh    DEV9 (expansion port)
+  1F80152xh    SIF0 (IOP->EE, uses TADR)
+  1F80153xh    SIF1 (EE->IOP)
+  1F80154xh    SIO2in
+  1F80155xh    SIO2out
+</TD></TR></TABLE>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
