@@ -1549,20 +1549,20 @@ Write to this register to send an N command. For a list of N commands, see<BR>
 <BR>
 <B>1F402005h N command status (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  0     Unused
-  1-3   Ready?
-  4-5   Unused
-  6     Ready
-  7     Unused
+  0     Error (1=error occurred)
+  1     Unknown/unused
+  2     DEV9 device connected (1=HDD/network adapter connected)
+  3     Unknown/unused
+  4     Test mode
+  5     Power off ready
+  6     Drive status (1=ready)
+  7     Busy executing NCMD
 </TD></TR></TABLE>
-This shows if the CDVD drive is ready to receive an N command.
-When bit 6 (0x40) is on, an N command can be sent.
-Oddly, bits 1-3, when set, also seem to indicate ready status?<BR>
+CDVDMAN reads bits 6 and 7 to know when the device is ready to receive a command - bit 6 must be on and bit 7 must be off.<BR>
 <BR>
 <B>1F402005h N command param (W)</B><BR>
 Send parameters for an N command here. This must be done BEFORE the N command has been sent via 1F402004h.<BR>
 <BR>
-
 <B>1F402006h CDVD error (R)</B><BR>
 Any non-zero value indicates an error? Unknown what kind of errors are possible and what their values are.<BR>
 <BR>
@@ -1586,18 +1586,35 @@ Unknown if bit 1 only applies to N commands, although this appears to be the cas
 <BR>
 <B>1F40200Ah CDVD drive status (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  00h  Stopped
-  02h  Spinning
-  06h  Reading
-  0Ah  Paused
+  0     Tray status (1=open)
+  1     Spindle spinning (1=spinning)
+  2     Read status (1=reading data sectors)
+  3     Paused
+  4     Seek status (1=seeking)
+  5     Error (1=error occurred)
+  6-7   Unknown
 </TD></TR></TABLE>
+<BR>
+<B>1F40200Bh Sticky drive status (R)</B><BR>
+Exact same as 0xA, except the bits are "sticky" - the bits here are ORed with all previous drive states.<BR>
+CDVDMAN compares 0xA and 0xB to know if the tray status has changed. SCMD 0x5 sets this register to reg 0xA's value.<B>
 <BR>
 <B>1F40200Fh CDVD disk type (R)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  00h  None?
-  12h  CDROM
-  14h  DVD
-  Unknown what other types are possible.
+  00h  No disc
+  01h  Detecting
+  02h  Detecting CD
+  03h  Detecting DVD
+  04h  Detecting dual-layer DVD
+  05h  Unknown
+  10h  PSX CD
+  11h  PSX CDDA
+  12h  PS2 CD
+  13h  PS2 CDDA
+  14h  PS2 DVD
+  FDh  CDDA (Music)
+  FEh  DVDV (Movie disc)
+  FFh  Illegal
 </TD></TR></TABLE>
 <B>1F402016h Current S command (R/W)</B><BR>
 Write to this register to send an S command. For a list of S commands, see<BR>
@@ -1631,7 +1648,7 @@ Possibly also spins the drive if it's not spinning already?<BR>
 <BR>
 <B>03h Stop</B><BR>
 Params: None.<BR>
-Returns the read position to sector 0, sets the drive status to STOPPED, and stops the drive from spinning.<BR>
+Returns the read position to sector 0 and stops the drive.<BR>
 Seems to have a 166 ms delay?<BR>
 <BR>
 <B>04h Pause</B><BR>
