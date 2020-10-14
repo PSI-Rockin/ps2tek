@@ -3088,24 +3088,43 @@ This excerpt was pulled from an SCPH-39001 BIOS.<BR>
 <A NAME="biosiopsysmem"></A>&nbsp;
 BIOS IOP SYSMEM - Memory Management
 </FONT></TD></TR></TABLE><BR>
+SYSMEM is the first module to be loaded. It partitions memory as a linked list of 31 blocks, each block being an arbitrarily-sized multiple of 256 bytes.<BR>
+When too many blocks are allocated, SYSMEM will expand its block list by an additional 31 blocks; it can also free block lists that are no longer in use.<BR>
+<BR>
 <B>Exports</B><BR>
+<B>00h void* _start(int mem_size)</B><BR>
+Initializes the memory allocator using the amount of memory given in bytes. Returns a pointer to alloced memory if successful, NULL otherwise.<BR>
+<BR>
 <B>04h void* AllocSysMemory(int mode, int size, void* ptr)</B><BR>
+Allocates memory, returning a pointer to the memory if successful, NULL otherwise. size is rounded up to the nearest 256-byte boundary.<BR>
+If mode==0, SYSMEM will allocate the first block in the list that meets the requirements.<BR>
+If mode==1, SYSMEM will instead allocate the last free block.<BR>
+If mode==2, SYSMEM will attempt to allocate memory at the given address in ptr. ptr is not used in any other mode.<BR>
 <BR>
 <B>05h int FreeSysMemory(void* ptr)</B><BR>
+Frees memory, returning 0 if successful.<BR>
 <BR>
 <B>06h uint QueryMemSize()</B><BR>
+Returns the total size of RAM in bytes.<BR>
 <BR>
 <B>07h uint QueryMaxFreeMemSize()</B><BR>
+Returns the size of the largest free block in bytes - due to memory fragmentation, this is not necessarily the size of all free memory.<BR>
 <BR>
 <B>08h uint QueryTotalFreeMemSize()</B><BR>
+Returns the amount of free memory in bytes.<BR>
 <BR>
 <B>09h void* QueryBlockTopAddress(void* addr)</B><BR>
+Returns the starting address of the block that the given address is in. If a block is found but free, bit 31 of the result is set. Returns NULL if no block is found.<BR>
+For example, if 0x150 is an allocated address, this function will return 0x100, as blocks must be allocated on a 256-byte boundary.<BR>
 <BR>
 <B>0Ah int QueryBlockSize(void* addr)</B><BR>
+Returns the size of the block that the given address is in. If a block is found but free, bit 31 of the result is set. Returns NULL if no block is found.<BR>
 <BR>
 <B>0Eh int Kprintf(const char* format,...)</B><BR>
+Wrapper function for the handler passed by KprintfSet. Does nothing if no handler is set.<BR>
 <BR>
 <B>0Fh void KprintfSet(KprintfHandler* handler, void* context)</B><BR>
+Provides a handler function for Kprintf.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
