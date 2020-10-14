@@ -3131,24 +3131,56 @@ Provides a handler function for Kprintf.<BR>
 <A NAME="biosioploadcore"></A>&nbsp;
 BIOS IOP LOADCORE - Kernel Loader and Linker
 </FONT></TD></TR></TABLE><BR>
+LOADCORE is the second module to be loaded. It loads and executes all necessary boot modules while also linking module imports to registered export tables.<BR>
+<BR>
 <B>Exports</B><BR>
+<B>00h void ((noreturn)) _start(lc_params* param)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct lc_params
+  {
+    uint ram_size;
+    int boot_mode; //Determines what kind of reset has occurred, used by MODLOAD to start UDNL when rebooting the IOP.
+    char* udnl_str; //Full argument list passed to UDNL
+    u32* sysmem_start;
+    void* img_pos; //Pointer to memory that should be allocated. Used by UDNL to contain the updated modules.
+    int img_buff_size;
+    int module_count;
+    u32** module_addr_list; //List of all modules to load. This includes SYSMEM and LOADCORE
+  }
+</TD></TR></TABLE>
+Boots all given modules, executes any post-boot callbacks, then enters an infinite loop.<BR>
+<BR>
 <B>04h void FlushIcache()</B><BR>
+Flushes the icache. This should be used when executing code that is freshly loaded in memory, though the kernel handles this when new modules are loaded.<BR>
 <BR>
 <B>05h void FlushDcache()</B><BR>
+Flushes the dcache. This should be used when passing data to and from peripherals, such as DMA.<BR>
 <BR>
 <B>06h int RegisterLibraryEntries(export_table* t)</B><BR>
+Registers an export table, returning 0 if successful.<BR>
+If an export table under the given name is already registered, several things can happen:<BR>
+- If the major versions differ, the new export table is also registered, being treated as separate.<BR>
+- If the new table's minor version is higher, the old table is destroyed, and any imports connected to the old table are updated to the new table.<BR>
+- If the new table's minor version is lower or the same, the function fails.<BR>
 <BR>
 <B>07h int ReleaseLibraryEntries(export_table* t)</B><BR>
+Unregisters an export table, returning 0 if successful.<BR>
 <BR>
 <B>0Ah int RegisterNonAutoLinkEntries(export_table* t)</B><BR>
+Registers an export table that imports cannot link to, returning 0 if successful.<BR>
 <BR>
-<B>0Bh void* QueryLibraryEntryTable(iop_library* library)</B><BR>
+<B>0Bh export_table* QueryLibraryEntryTable(iop_library* library)</B><BR>
+Returns the export table associated with a registered library.<BR>
 <BR>
 <B>0Ch int* QueryBootMode(int mode)</B><BR>
+Returns a registered "boot mode".<BR>
 <BR>
-<B>0Dh void RegisterBootMode(boot_mode* b)</B><BR>
+<B>0Dh void RegisterBootMode(int* b)</B><BR>
+Registers a boot mode, intended to give information to modules that LOADCORE executes.<BR>
+Boot mode 4, for example, is used by MODLOAD to determine if UDNL should execute.<BR>
 <BR>
 <B>14h int RegisterPostBootCallback(BootupCallback func, int priority, int *stat)</B><BR>
+Registers a function to be called after LOADCORE has finished loading all modules.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
