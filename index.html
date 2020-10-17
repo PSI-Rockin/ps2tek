@@ -2449,6 +2449,7 @@ provide EE services and IOP modules, and launch PS2/PSX games.<BR>
 <A HREF="#biosbootprocess">BIOS Boot Process</A><BR>
 <A HREF="#bioseethreading">BIOS EE Threading</A><BR>
 <A HREF="#bioseesyscalls">BIOS EE Syscalls</A><BR>
+<A HREF="#bioseepatches">BIOS EE Patches</A><BR>
 <A HREF="#biospscompatibility">BIOS PlayStation Compatibility</A><BR>
 <BR>
 <B>BIOS IOP Modules</B><BR>
@@ -2732,7 +2733,7 @@ Changes the thread's priority, forcing a thread reschedule. If thread_id==0, the
 This function fails if the thread is DORMANT.<BR>
 <BR>
 <B>2Ah int iChangeThreadPriority(int thread_id, int priority)</B><BR>
-Same as ChangeThreadPriority, but does not force a thread reschedule. Used internally by ChangeThreadPriority.<BR>
+Same as ChangeThreadPriority, but does not force a thread reschedule. Used internally by RotateThreadReadyQueue.<BR>
 Returns -1 upon a failure, or the thread's old priority on a success.<BR>
 <BR>
 <B>2Bh void RotateThreadReadyQueue(int priority)</B><BR>
@@ -2902,6 +2903,27 @@ Shorthand for LoadExecPS2("rom0:OSDSYS", argc, argv).<BR>
 Returns the amount of RDRAM on the console in bytes.<BR>
 <BR>
 <BR>
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="bioseepatches"></A>&nbsp;
+BIOS EE Patches
+</FONT></TD></TR></TABLE><BR>
+The EE kernel is full of bugs, so games have to work around them. Both the official SDK and PS2SDK patch the alarm functions and certain threading functions
+before the main function is executed.<BR>
+<BR>
+<B>Alarm Patches</B><BR>
+Using SetSyscall, games first set syscall 5Ah to be a memcpy with kernel privileges. 5Ah is then used to copy the real patch and EENULL to
+80076000h and 00082000h respectively.<BR>
+The patch contains syscalls FCh-FFh, which are SetAlarm, iSetAlarm, ReleaseAlarm, and iReleaseAlarm respectively. It also patches the interrupt handler
+for timer 3 (INTC12) by setting "syscall" 12Ch, which is out of bounds.<BR>
+<BR>
+<B>Threading Patches</B><BR>
+iWakeupThread and iSuspendThread do not work properly when used on the currently executing thread, or its priority in the case
+of iRotateThreadReadyQueue.<BR>
+While not technically a patch, games resolve this by creating a "top thread" whose purpose is to redirect these interrupt syscalls to their non-interrupt 
+variants, which forces thread reschedules.<BR>
+<BR>
+<BR>
+<B>EE Side</B><BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="biospscompatibility"></A>&nbsp;
 BIOS PlayStation Compatibility
