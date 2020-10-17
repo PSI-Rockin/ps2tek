@@ -2727,17 +2727,20 @@ Has different behavior depending on the thread's status:<BR>
 Same as TerminateThread, but does not force a thread reschedule. Used internally by TerminateThread.<BR>
 Returns -1 if unsuccessful.<BR>
 <BR>
-<B>29h void ChangeThreadPriority(int thread_id, int priority)</B><BR>
+<B>29h int ChangeThreadPriority(int thread_id, int priority)</B><BR>
 Changes the thread's priority, forcing a thread reschedule. If thread_id==0, the current thread's id is used.<BR>
 This function fails if the thread is DORMANT.<BR>
 <BR>
 <B>2Ah int iChangeThreadPriority(int thread_id, int priority)</B><BR>
 Same as ChangeThreadPriority, but does not force a thread reschedule. Used internally by ChangeThreadPriority.<BR>
-Returns -1 upon a failure.<BR>
+Returns -1 upon a failure, or the thread's old priority on a success.<BR>
 <BR>
 <B>2Bh void RotateThreadReadyQueue(int priority)</B><BR>
+Rotates the threads in the given priority's linked list, forcing a thread reschedule. This allows different threads of the same priority level to execute.<BR>
 <BR>
 <B>2Ch int _iRotateThreadReadyQueue(int priority)</B><BR>
+Same as RotateThreadReadyQueue, but does not force a thread reschedule. Used internally by ChangeThreadPriority.<BR>
+Returns -1 upon a failure, or the given priority on a success.<BR>
 <BR>
 <B>2Dh void ReleaseWaitThread(int thread_id)</B><BR>
 If the thread has WAIT status, it is given READY status and added to the active thread list.
@@ -2854,6 +2857,13 @@ Returns the value of the privileged register GS_IMR.<BR>
 <BR>
 <B>71h void GsPutIMR(uint64_t value)</B><BR>
 Sets GS_IMR to the value.<BR>
+<BR>
+<B>73h void SetVSyncFlag(int* vsync_occurred, u64* csr_stat_on_vsync)</B><BR>
+Sets two kernel pointers that are used in the default INTC interrupt handler when a VSYNC interrupt has occurred.<BR>
+If vsync_occurred is not NULL, the handler sets the value pointed to by vsync_occurred to 1.<BR>
+If both pointers are not NULL, the value pointed to by csr_stat_on_vsync is set to GS_CSR.<BR>
+<BR>
+A good use of this syscall is to retrieve the even/odd interlacing field in GS_CSR as early as possible.<BR>
 <BR>
 <B>74h void SetSyscall/RFU116(int index, int address)</B><BR>
 Replaces an entry on the syscall table with the specified address.<BR>
