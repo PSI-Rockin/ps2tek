@@ -1420,7 +1420,7 @@ Vector Unit (VU)
 </FONT></TD></TR></TABLE><BR>
 The EE contains two Vector Units (VU0 and VU1), custom SIMD processors designed for fast floating-point manipulation.<BR>
 Both VUs can run concurrently with the EE Core in micro mode. VU0 is also available in macro mode as COP2.<BR>
-The architecture is similar to MIPS, including branch delays and the use of register zero as a constant.
+The architecture is similar to MIPS, including branch delays and the use of register zero as a constant.<BR>
 <BR>
 <A HREF="#vuregisters">VU Registers</A><BR>
 <A HREF="#vuinstructionformat">VU Instruction Format</A><BR>
@@ -1482,7 +1482,8 @@ todo<BR>
 <A NAME="vupipelining"></A>&nbsp;
 VU Pipelining
 </FONT></TD></TR></TABLE><BR>
-Underneath the surface, the VU is full of quirks. This is partially because its pipeline is exposed to the program, so it is important to see how it works.<BR>
+Underneath the surface, the VU is full of quirks. This is partially because its pipeline is exposed to the program.<BR>
+<BR>
 <B>FMAC Pipeline</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
 -------------
@@ -1503,7 +1504,26 @@ In ideal conditions, one FMAC instruction can be executed every cycle. However, 
 an FMAC stall for up to three cycles, allowing the previous write to complete.<BR>
 The FMAC pipeline is used for all instructions except DIV, SQRT, RSQRT, integer calculation, and branching. Integer load/stores also use this pipeline and are subject to
 hazard checks.<BR>
-Hazard checks are NOT performed for ACC, VF00, I, Q, P, and R.<BR>
+Hazard checks are NOT performed for ACC, VF00, I, Q, P, and R. Hazard checks are performed on each VF field, so writing to VF01y and reading from VF01x does not induce 
+a stall.<BR>
+<BR>
+<B>FDIV Pipeline</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+DIV/SQRT
+-------------------------
+|M|T|D1|D2|D3|D4|D5|D6|F|
+-------------------------
+
+RSQRT
+-------------------------
+|M|T|D1| ........ |D12|F|
+-------------------------
+</TD></TR></TABLE><BR>
+The FDIV pipeline is used by DIV, SQRT, and RSQRT. It is similar to the FMAC pipeline, though it has more execution stages.<BR>
+It can execute concurrently with the other pipelines. However, only one FDIV instruction can execute at a time, and trying to execute another FDIV instruction before the 
+first has completed will induce a stall that affects the whole VU. The WAITQ instruction also induces a stall and can be used for synchronization.<BR>
+Since no hazard checks are performed when reading Q, when Q is read in the middle of an FDIV instruction, the old value of Q is retrieved.<BR>
+DIV and SQRT have a latency of 7 cycles, and RSQRT has a latency of 13 cycles. The maximum stall time for DIV/SQRT and RSQRT is 6 and 12 cycles, respectively.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
