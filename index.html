@@ -1424,10 +1424,10 @@ The architecture is similar to MIPS, including branch delays and the use of regi
 <BR>
 <A HREF="#vuregisters">VU Registers</A><BR>
 <A HREF="#vuinstructionformat">VU Instruction Format</A><BR>
-<A HREF="#vufmacpipeline">VU FMAC Pipeline</A><BR>
+<A HREF="#vupipelining">VU Pipelining</A><BR>
 <BR>
 <BR>
-  
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vuregisters"></A>&nbsp;
 VU Registers
@@ -1477,7 +1477,35 @@ Like the MAC flags, the clip flags are also pipelined (and thus delayed).<BR>
 todo<BR>
 <BR>
 <BR>
- 
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vupipelining"></A>&nbsp;
+VU Pipelining
+</FONT></TD></TR></TABLE><BR>
+Underneath the surface, the VU is full of quirks. This is partially because its pipeline is exposed to the program, so it is important to see how it works.<BR>
+<B>FMAC Pipeline</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+-------------
+|M|T|X|Y|Z|S|
+  |M|T|X|Y|Z|
+    |M|T|X|Y|
+      |M|T|X|
+-------------
+</TD></TR></TABLE><BR>
+The FMAC pipeline is split into six stages:<BR>
+<UL>
+  <LI>M: Read instruction from memory</LI>
+  <LI>T: Read VU registers</LI>
+  <LI>X/Y/Z: Execute stages.</LI>
+  <LI>Calculation/flag writeback.</LI>
+</UL>
+In ideal conditions, one FMAC instruction can be executed every cycle. However, read-after-write hazards - reading a register before its write has completed - induces
+an FMAC stall for up to three cycles, allowing the previous write to complete.<BR>
+The FMAC pipeline is used for all instructions except DIV, SQRT, RSQRT, integer calculation, and branching. Integer load/stores also use this pipeline and are subject to
+hazard checks.<BR>
+Hazard checks are NOT performed for ACC, VF00, I, Q, P, and R.<BR>
+<BR>
+<BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
 EE Interrupt Controller (INTC)
