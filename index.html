@@ -1525,6 +1525,30 @@ first has completed will induce a stall that affects the whole VU. The WAITQ ins
 Since no hazard checks are performed when reading Q, when Q is read in the middle of an FDIV instruction, the old value of Q is retrieved.<BR>
 DIV and SQRT have a latency of 7 cycles, and RSQRT has a latency of 13 cycles. The maximum stall time for DIV/SQRT and RSQRT is 6 and 12 cycles, respectively.<BR>
 <BR>
+<B>EFU Pipeline</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+-------------------------
+|M|T|N1|N2| ...... |Nn|P|
+-------------------------
+</TD></TR></TABLE><BR>
+The EFU pipeline is used by elementary function instructions exclusive to VU1. It is almost the same as the FDIV pipeline, with the only difference being that hazard checks 
+do not occur for the writeback stage, meaning that a stall lasts for one cycle less than usual.<BR>
+The list of latencies for the EFU instructions is as follows.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+EATAN/EATANxy/EATANxz         54
+EEXP                          44
+ELENG                         18
+ERCPR                         12
+ERLENG                        24
+ERSADD                        18
+ERSQRT                        18
+ESADD                         11
+ESIN                          29
+ESQRT                         12
+ESUM                          12
+</TD></TR></TABLE><BR>
+The WAITP instruction, like WAITQ, induces a stall on the EFU pipeline.<BR>
+<BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
