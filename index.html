@@ -1507,6 +1507,18 @@ hazard checks.<BR>
 Hazard checks are NOT performed for ACC, VF00, I, Q, P, and R. Hazard checks are performed on each VF field, so writing to VF01y and reading from VF01x does not induce 
 a stall.<BR>
 <BR>
+<B>Integer Pipeline</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+-------------
+|M|T|X|Y|Z|S|
+  |M|T|X|Y|Z|
+    |M|T|X|Y|
+      |M|T|X|
+-------------
+</TD></TR></TABLE><BR>
+The integer pipeline is almost the same as the FMAC pipeline, except that all integer instructions have a latency of 1 cycle due to pipeline bypassing.<BR>
+The other execute and writeback stages are dummy stages to align with the FMAC pipeline.<BR>
+<BR>
 <B>FDIV Pipeline</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
 DIV/SQRT
