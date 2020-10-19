@@ -1534,6 +1534,7 @@ DIV and SQRT have a latency of 7 cycles, and RSQRT has a latency of 13 cycles. T
 The EFU pipeline is used by elementary function instructions exclusive to VU1. It is almost the same as the FDIV pipeline, with the only difference being that hazard checks 
 do not occur for the writeback stage, meaning that a stall lasts for one cycle less than usual.<BR>
 The list of latencies for the EFU instructions is as follows.<BR>
+<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
 EATAN/EATANxy/EATANxz         54
 EEXP                          44
@@ -1548,6 +1549,10 @@ ESQRT                         12
 ESUM                          12
 </TD></TR></TABLE><BR>
 The WAITP instruction, like WAITQ, induces a stall on the EFU pipeline.<BR>
+<BR>
+<B>XGKICK Pipeline</B><BR>
+XGKICK uses the FMAC pipeline, but the PATH1 transfer it starts occurs concurrently with VU operation. However, if a second XGKICK is executed in the middle of the first, 
+the instruction after the second XGKICK will stall until the PATH1 transfer is complete.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
