@@ -1427,7 +1427,64 @@ VIF1 can also transfer data to the GIF through PATH2 and mask PATH3.<BR>
 <A HREF="#vifcommands">VIF Commands</A><BR>
 <BR>
 <BR>
-  
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vifcommands"></A>&nbsp;
+VIF Commands
+</FONT></TD></TR></TABLE><BR>
+<B>Command Format</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+31        24 23       16 15                     0
+-------------------------------------------------
+|    CMD    |    NUM    |       IMMEDIATE       |
+-------------------------------------------------
+</TD></TR></TABLE><BR>
+Bit 31 is an interrupt bit - when set, a VIF interrupt is generated after the command executes, and the VIF stalls on the following command except for the MARK command.<BR>
+NUM and IMMEDIATE are command-specific and are not always used.<BR>
+<BR>
+<B>Command List</B><BR>
+<B>00h NOP</B><BR>
+<BR>
+<B>01h STCYCLE</B><BR>
+<BR>
+<B>02h OFFSET (VIF1)</B><BR>
+<BR>
+<B>03h BASE (VIF1)</B><BR>
+<BR>
+<B>04h ITOP</B><BR>
+<BR>
+<B>05h STMOD</B><BR>
+<BR>
+<B>06h MSKPATH3 (VIF1)</B><BR>
+<BR>
+<B>07h MARK</B><BR>
+<BR>
+<B>10h FLUSHE</B><BR>
+<BR>
+<B>11h FLUSH (VIF1)</B><BR>
+<BR>
+<B>13h FLUSHA (VIF1)</B><BR>
+<BR>
+<B>14h MSCAL</B><BR>
+<BR>
+<B>15h MSCALF (VIF1)</B><BR>
+<BR>
+<B>17h MSCNT</B><BR>
+<BR>
+<B>20h STMASK</B><BR>
+<BR>
+<B>30h STROW</B><BR>
+<BR>
+<B>4Ah MPG</B><BR>
+<BR>
+<B>50h DIRECT (VIF1)</B><BR>
+<BR>
+<B>51h DIRECTHL (VIF1)</B><BR>
+<BR>
+<B>60h-7Fh UNPACK</B><BR>
+<BR>
+<BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vu"></A>&nbsp;
 Vector Unit (VU)
