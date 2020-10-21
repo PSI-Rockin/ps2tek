@@ -11,6 +11,7 @@
   <A HREF="#gif">Graphics Interface (GIF)</A><BR>
   <A HREF="#dmac">DMA Controller (DMAC)</A><BR>
   <A HREF="#gs">Graphics Synthesizer (GS)</A><BR>
+  <A HREF="#vif">Vector Interface (VIF)</A><BR>
   <A HREF="#vu">Vector Unit (VU)</A><BR>
   <A HREF="#eeintc">EE Interrupt Controller (INTC)</A><BR>
   <A HREF="#iophardware">IOP Hardware and Peripherals</A><BR>
@@ -1414,6 +1415,19 @@ channel shuffle being more expensive than even every other draw call in the game
 exist that involve reading the depth buffer, and some shuffle effects are not well-understood.<BR>
 <BR>
 <BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vif"></A>&nbsp;
+Vector Interface (VIF)
+</FONT></TD></TR></TABLE><BR>
+VIF0 and VIF1 are DMA interfaces for the Vector Units. Their main purpose is to upload microprograms and decompress vectors into VU micro memory and data memory respectively.<BR>
+VIF1 can also transfer data to the GIF through PATH2 and mask PATH3.<BR>
+<BR>
+<A HREF="#vifioregisters">VIF I/O Registers</A><BR>
+<A HREF="#vifcommands">VIF Commands</A><BR>
+<BR>
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vu"></A>&nbsp;
 Vector Unit (VU)
