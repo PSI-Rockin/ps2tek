@@ -460,7 +460,7 @@ EE Instruction Decoding
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
     31--------26-25------21-20------16------------------------------0
     |  = COP0   |   BC0   |   fmt   |                               |
-    ------6----------5-----------------------------------------------
+    ------6----------5----------5------------------------------------
     |--000--|--001--|--010--|--011--|--100--|--101--|--110--|--111--| lo
  00 | BC0F  | BC0T  | BC0FL | BC0TL |  ---  |  ---  |  ---  |  ---  |
  01 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
@@ -502,7 +502,7 @@ EE Instruction Decoding
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
     31--------26-25------21-20------16------------------------------0
     |  = COP1   |   BC1   |   fmt   |                               |
-    ------6----------5-----------------------------------------------
+    ------6----------5----------5------------------------------------
     |--000--|--001--|--010--|--011--|--100--|--101--|--110--|--111--| lo
  00 | BC1F  | BC1T  | BC1FL | BC1TL |  ---  |  ---  |  ---  |  ---  |
  01 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
@@ -541,6 +541,73 @@ EE Instruction Decoding
 110 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
 111 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
  hi |-------|-------|-------|-------|-------|-------|-------|-------|
+</TD></TR></TABLE><BR>
+<B>COP2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+    31--------26-25------21 ----------------------------------------0
+    |  = COP2   |   fmt   |                                         |
+    ------6----------5-----------------------------------------------
+    |--000--|--001--|--010--|--011--|--100--|--101--|--110--|--111--| lo
+ 00 |  ---  | QMFC2 | CFC2  |  ---  |  ---  | QMTC2 | CTC2  |  ---  |
+ 01 | *1    |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+ 10 | *2    | *2    | *2    | *2    | *2    | *2    | *2    | *2    |
+ 11 | *2    | *2    | *2    | *2    | *2    | *2    | *2    | *2    |
+ hi |-------|-------|-------|-------|-------|-------|-------|-------|
+     *1 = BC instructions, see BC2 list   *2 =see special1 table
+</TD></TR></TABLE><BR>
+<B>BC2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+    31--------26-25------21-20------16------------------------------0
+    |  = COP0   |   BC2   |   fmt   |                               |
+    ------6----------5----------5------------------------------------
+    |--000--|--001--|--010--|--011--|--100--|--101--|--110--|--111--| lo
+ 00 | BC2F  | BC2T  | BC2FL | BC2TL |  ---  |  ---  |  ---  |  ---  |
+ 01 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+ 10 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+ 11 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+ hi |-------|-------|-------|-------|-------|-------|-------|-------|
+</TD></TR></TABLE><BR>
+<B>COP2 Special1</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+    31---------26-25-----21-20-----------------------------5--------0
+    |  =COP2   | Special1 |                                |function|
+    ------6----------5------------------------------------------6----
+    |--000--|--001--|--010--|--011--|--100--|--101--|--110--|--111--| lo
+000 |VADDx  |VADDy  |VADDz  |VADDw  |VSUBx  |VSUBy  |VSUBz  |VSUBw  |
+001 |VMADDx |VMADDy |VMADDz |VMADDw |VMSUBx |VMSUBy |VMSUBz |VMSUBw |
+010 |VMAXx  |VMAXy  |VMAXz  |VMAXw  |VMINIx |VMINIy |VMINIz |VMINIw |
+011 |VMULx  |VMULy  |VMULz  |VMULw  |VMULq  |VMAXi  |VMULi  |VMINIi |
+100 |VADDq  |VMADDq |VADDi  |VMADDi |VSUBq  |VMSUBq |VSUbi  |VMSUBi |
+101 |VADD   |VMADD  |VMUL   |VMAX   |VSUB   |VMSUB  |VOPMSUB|VMINI  |
+110 |VIADD  |VISUB  |VIADDI |  ---  |VIAND  |VIOR   |  ---  |  ---  |
+111 |VCALLMS|CALLMSR|  ---  |  ---  |  *1   |  *1   |  *1   |  *1   |
+ hi |-------|-------|-------|-------|-------|-------|-------|-------|
+    *1=see special2 table
+</TD></TR></TABLE><BR>
+<B>COP2 Special2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+    31---------26-25-----21-20------------------11-10------6-5-2-1--0
+    |  =COP2   | Special1 |                        |  fhi  |1111|flo|
+    ------6----------5-----------------------------------------------
+Note: opcode is flo | (fhi * 4).
+     |--000--|--001--|--010--|--011--|--100--|--101--|--110--|--111--| lo
+0000 |VADDAx |VADDAy |VADDAz |VADDAw |VSUBAx |VSUBAy |VSUBAz |VSUBAw |
+0001 |VMADDAx|VMADDAy|VMADDAz|VMADDAw|VMSUBAx|VMSUBAy|VMSUBAz|VMSUBAw|
+0010 |VITOF0 |VITOF4 |VITOF12|VITOF15|VFTOI0 |VFTOI4 |VFTOI12|VFTOI15|
+0011 |VMULAx |VMULAy |VMULAz |VMULAw |VMULAq |VABS   |VMULAi |VCLIPw |
+0100 |VADDAq |VMADDAq|VADDAi |VMADDAi|VSUBAq |VMSUBAq|VSUBAi |VMSUBAi|
+0101 |VADDA  |VMADDA |VMULA  |  ---  |VSUBA  |VMSUBA |VOPMULA|VNOP   |
+0110 |VMONE  |VMR32  |  ---  |  ---  |VLQI   |VSQI   |VLQD   |VSQD   |
+0111 |VDIV   |VSQRT  |VRSQRT |VWAITQ |VMTIR  |VMFIR  |VILWR  |VISWR  |
+1000 |VRNEXT |VRGET  |VRINIT |VRXOR  |  ---  |  ---  |  ---  |  ---  |
+1001 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+1010 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+1011 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+1100 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+1101 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+1110 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+1111 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
+ hi  |-------|-------|-------|-------|-------|-------|-------|-------|
 </TD></TR></TABLE><BR>
 <BR>
 <BR>
