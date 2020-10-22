@@ -1939,7 +1939,17 @@ Every CLIP instruction produces six flags: -x, +x, -y, +y, -z, +z. They are stor
 Like the MAC flags, the clip flags are also pipelined (and thus delayed).<BR>
 <BR>
 <B>Status Flags</B><BR>
-todo<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+11                                  0
+-------------------------------------
+|DS|IS|OS|US|SS|ZS|D |I |O |U |S |Z |
+-------------------------------------
+</TD></TR></TABLE><BR>
+The Z, S, U, and O flags are set when any of the field flags for zero, sign, underflow, and overflow are set in the MAC register, respectively.<BR>
+The I flag is an invalid flag, set to 1 when 0/0 is executed by DIV or when a negative number is used for SQRT/RSQRT.<BR>
+The D flag is set for division by zero (except for 0/0) on DIV/RSQRT and is always cleared on SQRT.<BR>
+Bits 6-11 are sticky flags - they do not represent the current state but rather the ORed result of all previous states.<BR>
+If Z goes from 1 to 0 for instance, ZS will always remain 1 until the status register is written to.<BR>
 <BR>
 <BR>
   
