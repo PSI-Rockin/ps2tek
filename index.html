@@ -1425,6 +1425,7 @@ VIF1 can also transfer data to the GIF through PATH2 and mask PATH3.<BR>
 <BR>
 <A HREF="#vifioregisters">VIF I/O Registers</A><BR>
 <A HREF="#vifcommands">VIF Commands</A><BR>
+<A HREF="#vifunpack">VIF UNPACK</A><BR>
 <BR>
 <BR>
 
@@ -1444,47 +1445,83 @@ NUM and IMMEDIATE are command-specific and are not always used.<BR>
 <BR>
 <B>Command List</B><BR>
 <B>00h NOP</B><BR>
+Does nothing. Mainly used for timing PATH3 masking and aligning the DMA stream for certain commands.<BR>
 <BR>
 <B>01h STCYCLE</B><BR>
 <BR>
 <B>02h OFFSET (VIF1)</B><BR>
+Sets the OFST register to bits 0-9 of IMMEDIATE. This is used for VIF1 double buffering.<BR>
+DBF (the double buffering flag) is also cleared to 0 in STAT, and BASE is set to TOPS.<BR>
 <BR>
 <B>03h BASE (VIF1)</B><BR>
+Sets the BASE register to bits 0-9 of IMMEDIATE. This is used for VIF1 double buffering.<BR>
 <BR>
 <B>04h ITOP</B><BR>
+Sets the ITOP register to bits 0-9 of IMMEDIATE. ITOP can be read by the XITOP instruction on the VU.<BR>
 <BR>
 <B>05h STMOD</B><BR>
+Sets the MODE register to bits 0-1 of IMMEDIATE. This is used for addition decompression in UNPACK.<BR>
 <BR>
 <B>06h MSKPATH3 (VIF1)</B><BR>
+Sets the VIF-side PATH3 mask to bit 15 of IMMEDIATE. When PATH3 masking is enabled, the mask is applied to the next data block for PATH3.<BR>
 <BR>
 <B>07h MARK</B><BR>
+Sets the MARK register to IMMEDIATE.<BR>
 <BR>
 <B>10h FLUSHE</B><BR>
+Stalls the VIF until the VU is finished executing a microprogram.<BR>
 <BR>
 <B>11h FLUSH (VIF1)</B><BR>
+Stalls VIF1 until the VU is finished executing a microprogram and PATH1 and PATH2 are not active.<BR>
 <BR>
 <B>13h FLUSHA (VIF1)</B><BR>
+Stalls VIF1 until the VU is finished executing a microprogram, PATH1 and PATH2 are not active, and there is no pending transfer request for PATH3.<BR>
 <BR>
 <B>14h MSCAL</B><BR>
+Starts a microprogram on the VU at the given address IMMEDIATE*8. If the VU is currently active, MSCAL stalls until the VU is finished before executing a new microprogram.<BR>
 <BR>
 <B>15h MSCALF (VIF1)</B><BR>
+Same as MSCAL, but also waits for PATH1 and PATH2 to not be active before starting a microprogram.<BR>
 <BR>
 <B>17h MSCNT</B><BR>
+Starts microprogram execution starting at the VU's TPC register - this usually means the instruction right after the end of the previous microprogram.<BR>
+If the VU is currently active, MSCNT stalls like MSCAL.<BR>
 <BR>
 <B>20h STMASK</B><BR>
+Sets the MASK register to the next 32-bit word in the stream. This is used for UNPACK write masking.<BR>
 <BR>
 <B>30h STROW</B><BR>
+Sets the R0-R3 row registers to the next 4 32-bit words in the stream. This is used for UNPACK write filling.<BR>
+<BR>
+<B>31h STCOL</B><BR>
+Sets the C0-C3 column registers to the next 4 32-bit words in the stream. This is used for UNPACK write filling.<BR>
 <BR>
 <B>4Ah MPG</B><BR>
+Loads NUM*8 bytes into VU micro memory, starting at the given address IMMEDIATE*8. If the VU is currently active, MPG stalls until the VU is finished before uploading data.<BR>
+If NUM is 0, then 2048 bytes are loaded.<BR>
 <BR>
 <B>50h DIRECT (VIF1)</B><BR>
+Transfers IMMEDIATE quadwords to the GIF through PATH2. If PATH2 cannot take control of the GIF, the VIF stalls until PATH2 is activated.<BR>
+If IMMEDIATE is 0, 65,536 quadwords are transferred.<BR>
 <BR>
 <B>51h DIRECTHL (VIF1)</B><BR>
+Same as DIRECT, except DIRECTHL is not able to interrupt PATH3 in IMAGE mode and stalls if PATH3 is transferring in IMAGE mode.<BR>
 <BR>
 <B>60h-7Fh UNPACK</B><BR>
+Decompresses data in various formats to the given address in bits 0-9 of IMMEDIATE multiplied by 16.<BR>
+If bit 14 of IMMEDIATE is set, the decompressed data is sign-extended. Otherwise, it is zero-extended.<BR>
+If bit 15 of IMMEDIATE is set, TOPS is added to the starting address. This is only applicable for VIF1.<BR>
+Bits 0-5 of CMD determine the type of UNPACK that occurs. See <A HREF="#vifunpack">VIF UNPACK</A> for details.<BR>
 <BR>
 <BR>
-
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vifunpack"></A>&nbsp;
+VIF UNPACK
+</FONT></TD></TR></TABLE><BR>
+<BR>
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vu"></A>&nbsp;
 Vector Unit (VU)
