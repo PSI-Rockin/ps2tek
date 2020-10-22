@@ -1888,7 +1888,7 @@ Both VUs can run concurrently with the EE Core in micro mode. VU0 is also availa
 The architecture is similar to MIPS, including branch delays and the use of register zero as a constant.<BR>
 <BR>
 <A HREF="#vuregisters">VU Registers</A><BR>
-<A HREF="#vuinstructionformat">VU Instruction Format</A><BR>
+<A HREF="#vuinstructionformat">VU Instruction Format and Decoding</A><BR>
 <A HREF="#vupipelining">VU Pipelining</A><BR>
 <BR>
 <BR>
@@ -1950,6 +1950,34 @@ The I flag is an invalid flag, set to 1 when 0/0 is executed by DIV or when a ne
 The D flag is set for division by zero (except for 0/0) on DIV/RSQRT and is always cleared on SQRT.<BR>
 Bits 6-11 are sticky flags - they do not represent the current state but rather the ORed result of all previous states.<BR>
 If Z goes from 1 to 0 for instance, ZS will always remain 1 until the status register is written to.<BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vuinstructionformat"></A>&nbsp;
+VU Instruction Format and Decoding
+</FONT></TD></TR></TABLE><BR>
+Each VU executes two instructions per cycle - one instruction is in the upper pipeline and the other is in the lower pipeline.
+A full VU instruction can be considered as a 64-bit doubleword, where the lower 32-bit word is the lower instruction and the upper word is the upper instruction.<BR>
+Each pipeline is specialized and can only execute certain instructions.
+The upper pipeline mostly executes floating-point arithmetic instructions, and the lower pipeline mostly executes integer calculations, branches, and some specialized
+floating-point operations.<BR>
+The upper instructions can also control various parts of execution, such as ending microprograms, loading values into the I register, and in the case of VU0, synchronization
+with the EE.<BR>
+<BR>
+<B>Upper Instructions</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+3 3 2 2 2 2 2
+1-0-9-8-7-6-5-----------------------------------0
+|I|E|M|D|T|              instr                  |
+-------------------------------------------------
+</TD></TR></TABLE><BR>
+Meaning of the various bits:
+-I-bit: I register load. Instead of executing a lower instruction, the VU loads the 32-bit value in the lower pipeline into the I register.<BR>
+-E-bit: Ends microprogram execution. The E-bit has a delay slot, much like branches.<BR>
+-M-bit: Only applicable for VU0. Ends interlock on a single QMTC2.I/CTC2.I instruction, allowing the EE to continue execution.<BR>
+-D-bit: Debug break. Halts the VU and sends an interrupt to the EE.<BR>
+-T-bit: Debug halt. Acts similarly to D-bit.<BR>
 <BR>
 <BR>
   
