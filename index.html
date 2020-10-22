@@ -1447,7 +1447,9 @@ NUM and IMMEDIATE are command-specific and are not always used.<BR>
 <B>00h NOP</B><BR>
 Does nothing. Mainly used for timing PATH3 masking and aligning the DMA stream for certain commands.<BR>
 <BR>
-<B>01h STCYCLE</B><BR>
+<B>01h STCYCL</B><BR>
+Sets the CYCLE register to IMMEDIATE. In particular, CYCLE.CL is set to bits 0-7 and CYCLE.WL is set to bits 8-15.<BR>
+The CYCLE register is used for skipping/filling writes for UNPACK.<BR>
 <BR>
 <B>02h OFFSET (VIF1)</B><BR>
 Sets the OFST register to bits 0-9 of IMMEDIATE. This is used for VIF1 double buffering.<BR>
