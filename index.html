@@ -8,6 +8,7 @@
   <A HREF="#memorymap">Memory Map</A><BR>
   <A HREF="#iomaps">I/O Maps</A><BR>
   <A HREF="#ee">Emotion Engine (EE)</B><BR>
+  <A HREF="#eetimers">EE Timers</B><BR>
   <A HREF="#gif">Graphics Interface (GIF)</A><BR>
   <A HREF="#dmac">DMA Controller (DMAC)</A><BR>
   <A HREF="#gs">Graphics Synthesizer (GS)</A><BR>
@@ -29,6 +30,8 @@ Memory Map
   KUSEG: 00000000h-7FFFFFFFh User segment
   KSEG0: 80000000h-9FFFFFFFh Kernel segment 0
   KSEG1: A0000000h-BFFFFFFFh Kernel segment 1
+  KSSEG: C0000000h-DFFFFFFFh Supervisor segment
+  KSEG3: E0000000h-FFFFFFFFh Kernel segment 3
   
   Virtual    Physical
   00000000h  00000000h  32 MB    Main RAM (first 1 MB reserved for kernel)
@@ -306,6 +309,57 @@ Aside from zero, all GPRs may be freely accessed if convention rules are respect
 </TD></TR></TABLE>
 <BR>
 <BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eetimers"></A>&nbsp;
+EE Timers
+</FONT></TD></TR></TABLE><BR>
+The EE has four hardware timers. They are all functionally equivalent, though T0 and T1 have an additional register used when an SBUS interrupt occurs.<BR>
+T3 is reserved by the BIOS for alarm functions. All other timers may be used freely.<BR>
+<BR>
+<B>10000000h + N*800h TN_COUNT</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Current counter
+</TD></TR></TABLE>
+16-bit counter incremented according to the settings in TN_MODE. Writes set the counter to the given value.<BR>
+<BR>
+<B>10000010h + N*800h TN_MODE</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-1   Clock
+        0=Bus clock (~147 MHz)
+        1=Bus clock / 16
+        2=Bus clock / 256
+        3=HBLANK
+  2     Gate enable
+  3     Gate type
+        0=HBLANK
+        1=VBLANK
+  4-5   Gate mode
+        0=Count while gate not active
+        1=Reset counter when gate goes from low to high
+        2=Reset counter when gate goes from high to low
+        3=Reset counter for high<->low gate transitions
+  6     Clear counter when it reaches compare value
+  7     Timer enable
+  8     Compare interrupt enable - trigger interrupt when COUNT==COMP
+  9     Overflow interrupt enable - trigger interrupt when COUNT goes from FFFFh to 0000h
+  10    Compare interrupt flag
+        W: Clears flag
+  11    Overflow interrupt flag
+        W: Clears flag
+</TD></TR></TABLE><BR>
+<B>10000020h + N*800h TN_COMP</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Compare value
+</TD></TR></TABLE><BR>
+<B>10000030h + N*800h TN_HOLD</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Counter value when an SBUS interrupt occurs
+</TD></TR></TABLE>
+Only exists for T0 and T1.<BR>
+<BR>
+<BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="gif"></A>&nbsp;
 Graphics Interface (GIF)
