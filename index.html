@@ -1912,7 +1912,8 @@ Same as DIRECT, except DIRECTHL is not able to interrupt PATH3 in IMAGE mode and
 Decompresses data in various formats to the given address in bits 0-9 of IMMEDIATE multiplied by 16.<BR>
 If bit 14 of IMMEDIATE is set, the decompressed data is zero-extended. Otherwise, it is sign-extended.<BR>
 If bit 15 of IMMEDIATE is set, TOPS is added to the starting address. This is only applicable for VIF1.<BR>
-Bits 0-5 of CMD determine the type of UNPACK that occurs. See <A HREF="#vifunpack">VIF UNPACK</A> for details.<BR>
+Bits 0-3 of CMD determine the type of UNPACK that occurs. See <A HREF="#vifunpack">VIF UNPACK</A> for details.<BR>
+Bit 4 of CMD performs UNPACK write masking if set.<BR>
 <BR>
 <BR>
   
@@ -1920,6 +1921,46 @@ Bits 0-5 of CMD determine the type of UNPACK that occurs. See <A HREF="#vifunpac
 <A NAME="vifunpack"></A>&nbsp;
 VIF UNPACK
 </FONT></TD></TR></TABLE><BR>
+<B>60h/70h UNPACK S-32</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+Input
+128---------96----------64----------32----------0
+|     S3    |     S2     |    S1     |    cmd   |
+-------------------------------------------------
+
+Output
+w           z            y           x
+128---------96----------64----------32----------0
+|     S1    |     S1     |    S1     |    S1    |
+-------------------------------------------------
+|     S2    |     S2     |    S2     |    S2    |
+-------------------------------------------------
+|     S3    |     S3     |    S3     |    S3    |
+-------------------------------------------------
+</TD></TR></TABLE><BR>
+<B>61h/71h UNPACK S-16</B><BR>
+<BR>
+<B>62h/72h UNPACK S-8</B><BR>
+<BR>
+<B>64h/74h UNPACK V2-32</B><BR>
+<BR>
+<B>65h/75h UNPACK V2-16</B><BR>
+<BR>
+<B>66h/76h UNPACK V2-8</B><BR>
+<BR>
+<B>68h/78h UNPACK V3-32</B><BR>
+<BR>
+<B>69h/79h UNPACK V3-16</B><BR>
+<BR>
+<B>6Ah/7Ah UNPACK V3-8</B><BR>
+<BR>
+<B>6Ch/7Ch UNPACK V4-32</B><BR>
+<BR>
+<B>6Dh/7Dh UNPACK V4-16</B><BR>
+<BR>
+<B>6Eh/7Eh UNPACK V4-8</B><BR>
+<BR>
+<B>6Fh/7Fh UNPACK V4-5</B><BR>
 <BR>
 <BR>
   
