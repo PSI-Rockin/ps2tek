@@ -649,6 +649,10 @@ T3 is reserved by the BIOS for alarm functions. All other timers may be used fre
   11    Overflow interrupt flag
         W: Clears flag
 </TD></TR></TABLE><BR>
+Timer interrupts are edge-triggered: an interrupt will only be sent to the EE if either interrupt flag goes from 0 to 1.<BR>
+Harry Potter and the Prisoner of Azkaban relies on this behavior, as it does not clear the interrupt flags in the timer handler but rather in a different part of the code.
+Not emulating this will cause the game to crash by reading from NULL.<BR>
+<BR>
 <B>10000020h + N*800h TN_COMP</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-15  Compare value
