@@ -648,7 +648,7 @@ T3 is reserved by the BIOS for alarm functions. All other timers may be used fre
         W: Clears flag
   11    Overflow interrupt flag
         W: Clears flag
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 Timer interrupts are edge-triggered: an interrupt will only be sent to the EE if either interrupt flag goes from 0 to 1.<BR>
 Harry Potter and the Prisoner of Azkaban relies on this behavior, as it does not clear the interrupt flags in the timer handler but rather in a different part of the code.
 Not emulating this will cause the game to crash by reading from NULL.<BR>
@@ -1793,9 +1793,37 @@ VIF1 can also transfer data to the GIF through PATH2 and mask PATH3.<BR>
 VIF I/O Registers
 </FONT></TD></TR></TABLE><BR>
 <B>10003800h/10003C00h VIFn_STAT</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-1   VPS - VIF command status
+        0=Idle
+        1=Waiting for data following command
+        2=Decoding command
+        3=Decompressing/transferring data
+  2     VEW - VU is executing microprogram
+  3     VGW - Stalled waiting for GIF (VIF1 only)
+  6     MRK - MARK detected
+  7     DBF - Double buffer flag (VIF1 only)
+        0=TOPS = BASE
+        1=TOPS = BASE + OFST
+  8     VSS - Stalled after STOP was sent to FBRST
+  9     VFS - Stalled after force break was sent to FBRST
+  10    VIS - Stalled on interrupt ibt
+  11    INT - Interrupt bit detected
+  12    ER0 - DMAtag mismatch error (don't know what this means)
+  13    ER1 - Invalid VIF command was sent
+  23    FDR - FIFO direction (VIF1 only)
+        0=Memory -> VIF FIFO
+        1=VIF FIFO -> Memory
+  24-28 FQC - Amount of quadwords in FIFO
+        Max 8 for VIF0, 16 for VIF1
+</TD></TR></TABLE><BR>
 <B>10003810h/10003C10h VIFn_FBRST</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     RST - Reset VIF including contents of FIFO when written to
+  1     FBK - Force break the VIF, causing an immediate stall
+  2     STP - STOP the VIF, stalling it after it finishes the current command
+  3     STC - Stall cancel. Clears VSS, VFS, VIS, INT, ER0, and ER1 in VIFn_STAT
+</TD></TR></TABLE><BR>
 <B>10003820h/10003C20h VIFn_ERR</B><BR>
 <BR>
 <B>10003830h/10003C30h VIFn_MARK</B><BR>
