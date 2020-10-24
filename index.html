@@ -277,6 +277,7 @@ data cache, a single-precision FPU coprocessor, and a Vector Unit coprocessor.<B
 <A HREF="#eeinstructiondecoding">EE Instruction Decoding</A><BR>
 <BR>
 <A HREF="#eecop0registers">EE COP0 Registers</A><BR>
+<A HREF="#eecop0exceptionhandling">EE COP0 Exception Handling</A><BR>
 <BR>
 <BR>
 
@@ -644,6 +645,91 @@ EE COP0 Registers
   $29        TagHi
   $30        ErrorEPC
 </TD></TR></TABLE>
+<BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eecop0exceptionhandling"></A>&nbsp;
+EE COP0 Exception Handling
+</FONT></TD></TR></TABLE><BR>
+<B>$08 - COP0.BadVAddr</B><BR>
+  0-31  Virtual address that caused an exception
+</TD></TR></TABLE>
+BadVAddr is written to when a TLB Refill, TLB Modified, TLB Invalid, or Address Error exception occurs.<BR>
+<BR>
+<B>$12 - COP0.Status</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     IE - Interrupt enable
+  1     EXL - Exception level (set when a level 1 exception occurs)
+  2     ERL - Error level (set when a level 2 exception occurs)
+  3-4   KSU - Privilege level
+        0=Kernel
+        1=Supervisor
+        2=User
+  10    INT0 enable (INTC)
+  11    INT1 enable (DMAC)
+  12    Bus error mask - when set, bus errors are disabled
+  15    INT5 enable (COP0 timer)
+  16    EIE - Master interrupt enable
+  17    EDI - If not set, EI/DI only works in kernel mode
+  18    CH - Status of most recent Cache Hit instruction
+        0=miss
+        1=hit
+  22    BEV - If set, level 1 exceptions go to "bootstrap" vectors in BFC00xxx
+  23    DEV - If set, level 2 exceptions go to "bootstrap" vectors in BFC00xxx
+  28-31 Usability of coprocessors 0-3
+        If not set, using a coprocessor raises an exception
+</TD></TR></TABLE>
+All interrupts are disabled unless the following condition is true.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Status.IE && Status.EIE && !Status.EXL && !Status.ERL
+</TD></TR></TABLE>
+When Status.ERL or Status.EXL are set, the EE operates in kernel mode regardless of Status.KSU.<BR>
+<BR>
+<B>$13 - COP0.Cause</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  2-6   Exception code
+        00h=Interrupt
+        01h=TLB Modified
+        02h=TLB Refill (instruction fetch or load)
+        03h=TLB Refill (store)
+        04h=Address Error (instruction fetch or load)
+        05h=Address Error (store)
+        06h=Bus Error (instruction)
+        07h=Bus Error (data)
+        08h=Syscall
+        09h=Breakpoint
+        0Ah=Reserved Instruction
+        0Bh=Coprocessor Unusable
+        0Ch=Overflow
+        0Dh=Trap
+  10    INTC interrupt pending
+  11    DMAC interrupt pending
+  15    COP0 timer interrupt pending
+  16-18 Error code
+        00h=Reset
+        01h=NMI
+        02h=Performance counter
+        03h=Debug
+  28-29 Coprocessor that triggered a CU exception
+  30    BD2 - Set when a level 2 exception occurs in a delay slot
+  31    BD - Set when a level 1 exception occurs in a delay slot
+</TD></TR></TABLE>
+Cause is used to determine what caused an exception.<BR>
+The BD/BD2 bits are important as when they are set, EPC/ErrorEPC is set to the address of the branch instruction, not its delay slot.
+This allows the EE to re-execute the branch when it returns from an exception.<BR>
+<BR>
+<BR>
+<B>$14/$30 - COP0.EPC/COP0.ErrorEPC</B><BR>
+  0-31  Address to return to after an exception
+</TD></TR></TABLE>
+EPC and ErrorEPC are used by level 1 and 2 exceptions respectively.
+When the ERET instruction is executed, it jumps to the address in EPC or ErrorEPC, depending on if Status.EXL or Status.ERL is set.<BR>
+<BR>
+<B>$23 - COP0.BadPAddr</B><BR>
+  0-31  Physical address that caused an exception
+</TD></TR></TABLE>
+BadPAddr is written to when a bus error occurs and Status.BEM is not set.<BR>
 <BR>
 <BR>
   
