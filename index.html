@@ -1971,7 +1971,18 @@ w           z            y           x
 -------------------------------------------------
 </TD></TR></TABLE><BR>
 <B>65h/75h UNPACK V2-16</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+Input
+64----48----32----------0
+|  V2  |  V1 |    cmd   |
+-------------------------
+
+Output
+w           z            y           x
+128---------96----------64----------32----------0
+|Indetermin.||Indetermin.| ext |  V2 | ext | V1 |
+-------------------------------------------------
+</TD></TR></TABLE><BR>
 <B>66h/76h UNPACK V2-8</B><BR>
 <BR>
 <B>68h/78h UNPACK V3-32</B><BR>
@@ -1988,7 +1999,18 @@ w           z            y           x
 -------------------------------------------------
 </TD></TR></TABLE><BR>
 <B>69h/79h UNPACK V3-16</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+Input
+80----64----48----32----------0
+|  V3 |  V2  |  V1 |    cmd   |
+-------------------------------
+
+Output
+w           z            y           x
+128---------96----------64----------32----------0
+|Indetermin.| ext |  V3  | ext |  V2 | ext | V1 |
+-------------------------------------------------
+</TD></TR></TABLE><BR>
 <B>6Ah/7Ah UNPACK V3-8</B><BR>
 <BR>
 <B>6Ch/7Ch UNPACK V4-32</B><BR>
