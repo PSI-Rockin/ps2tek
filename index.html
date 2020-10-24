@@ -278,6 +278,7 @@ data cache, a single-precision FPU coprocessor, and a Vector Unit coprocessor.<B
 <BR>
 <A HREF="#eecop0registers">EE COP0 Registers</A><BR>
 <A HREF="#eecop0exceptionhandling">EE COP0 Exception Handling</A><BR>
+<A HREF="#eecop0timer">EE COP0 Timer</A><BR>
 <BR>
 <BR>
 
@@ -684,7 +685,7 @@ All interrupts are disabled unless the following condition is true.<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Status.IE && Status.EIE && !Status.EXL && !Status.ERL
 </TD></TR></TABLE>
-When Status.ERL or Status.EXL are set, the EE operates in kernel mode regardless of Status.KSU.<BR>
+When Status.ERL or Status.EXL is set, the EE operates in kernel mode regardless of Status.KSU.<BR>
 <BR>
 <B>$13 - COP0.Cause</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -719,20 +720,38 @@ Cause is used to determine what caused an exception.<BR>
 The BD/BD2 bits are important as when they are set, EPC/ErrorEPC is set to the address of the branch instruction, not its delay slot.
 This allows the EE to re-execute the branch when it returns from an exception.<BR>
 <BR>
-<BR>
 <B>$14/$30 - COP0.EPC/COP0.ErrorEPC</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Address to return to after an exception
 </TD></TR></TABLE>
 EPC and ErrorEPC are used by level 1 and 2 exceptions respectively.
 When the ERET instruction is executed, it jumps to the address in EPC or ErrorEPC, depending on if Status.EXL or Status.ERL is set.<BR>
 <BR>
 <B>$23 - COP0.BadPAddr</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-31  Physical address that caused an exception
 </TD></TR></TABLE>
 BadPAddr is written to when a bus error occurs and Status.BEM is not set.<BR>
 <BR>
 <BR>
   
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eecop0timer"></A>&nbsp;
+EE COP0 Timer
+</FONT></TD></TR></TABLE><BR>
+<B>$09 - COP0.Count</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Timer count value
+</TD></TR></TABLE>
+Count increments automatically every EE cycle.<BR>
+<BR>
+<B>$11 - COP0.Compare</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Timer compare value
+</TD></TR></TABLE>
+When Count==Compare, a COP0 timer interrupt is signaled. Writing to Compare acknowledges and clears the pending interrupt.<BR>
+<BR>
+<BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eetimers"></A>&nbsp;
 EE Timers
