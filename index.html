@@ -262,6 +262,7 @@ IOP Map<BR>
 </TD></TR></TABLE><BR>
 <BR>
 <BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="ee"></A>&nbsp;
 Emotion Engine (EE)
@@ -274,6 +275,8 @@ data cache, a single-precision FPU coprocessor, and a Vector Unit coprocessor.<B
 <B>EE Reference</B><BR>
 <A HREF="#eeregisters">EE Registers</A><BR>
 <A HREF="#eeinstructiondecoding">EE Instruction Decoding</A><BR>
+<BR>
+<A HREF="#eecop0registers">EE COP0 Registers</A><BR>
 <BR>
 <BR>
 
@@ -611,6 +614,39 @@ Note: opcode is flo | (fhi * 4).
 </TD></TR></TABLE><BR>
 <BR>
 <BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eecop0registers"></A>&nbsp;
+EE COP0 Registers
+</FONT></TD></TR></TABLE><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Num        Name
+  $0         Index
+  $1         Random
+  $2         EntryLo0
+  $3         EntryLo1
+  $4         Context
+  $5         PageMask
+  $6         Wired
+  $8         BadVAddr
+  $9         Count
+  $10        EntryHi
+  $11        Compare
+  $12        Status
+  $13        Cause
+  $14        EPC
+  $15        PRid
+  $16        Config
+  $23        BadPAddr
+  $24        Debug
+  $25        Perf
+  $28        TagLo
+  $29        TagHi
+  $30        ErrorEPC
+</TD></TR></TABLE>
+<BR>
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eetimers"></A>&nbsp;
 EE Timers
