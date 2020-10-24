@@ -1792,6 +1792,8 @@ VIF1 can also transfer data to the GIF through PATH2 and mask PATH3.<BR>
 <A NAME="vifioregisters"></A>&nbsp;
 VIF I/O Registers
 </FONT></TD></TR></TABLE><BR>
+Most VIF registers are read-only unless specified otherwise.<BR>
+<BR>
 <B>10003800h/10003C00h VIFn_STAT</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0-1   VPS - VIF command status
@@ -1823,36 +1825,77 @@ VIF I/O Registers
   1     FBK - Force break the VIF, causing an immediate stall
   2     STP - STOP the VIF, stalling it after it finishes the current command
   3     STC - Stall cancel. Clears VSS, VFS, VIS, INT, ER0, and ER1 in VIFn_STAT
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
+This is a write-only register used to control VIF resets and stalls.<BR>
+<BR>
 <B>10003820h/10003C20h VIFn_ERR</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     MII - Disable interrupt bit stalls and interrupts if set
+  1     ME0 - Disable DMAtag mismatch error and stall if set
+  2     ME1 - Disable invalid command error and stall if set
+</TD></TR></TABLE>
+ME0 should always be set to 1. ME1 should be set to 1 when doing UNPACK V3-16.<BR>
 <BR>
 <B>10003830h/10003C30h VIFn_MARK</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Most recently set MARK value
+</TD></TR></TABLE>
+This register can be written to by the EE. Writes clear the MRK flag in VIFn_STAT.<BR>
 <BR>
 <B>10003840h/10003C40h VIFn_CYCLE</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-7   CL - Cycle length
+  8-15  WL - Write cycle length
+</TD></TR></TABLE><BR>
 <B>10003850h/10003C50h VIFn_MODE</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-1   Addition mode used for UNPACK
+</TD></TR></TABLE><BR>
 <B>10003860h/10003C60h VIFn_NUM</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-7   Amount of untransferred data in MPG/UNPACK
+</TD></TR></TABLE><BR>
 <B>10003870h/10003C70h VIFn_MASK</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-31  Write mask matrix
+</TD></TR></TABLE><BR>
 <B>10003880h/10003C80h VIFn_CODE</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  IMMEDIATE value processed most recently
+  16-23 NUM value processed most recently
+  24-31 CMD value processed most recently
+</TD></TR></TABLE>
+This register contains the last processed command or if the VIF was stalled while processing a command, the command currently being processed.<BR>
 <BR>
 <B>10003890h/10003C90h VIFn_ITOPS</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9   ITOPS value
+</TD></TR></TABLE><BR>
 <B>10003CA0h VIF1_BASE</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9   BASE value
+</TD></TR></TABLE><BR>
 <B>10003CB0h VIF1_OFST</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9   OFST value
+</TD></TR></TABLE><BR>
 <B>10003CC0h VIF1_TOPS</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9   TOPS value
+</TD></TR></TABLE><BR>
 <B>100038D0h/10003CD0h VIFn_ITOP</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9   ITOP value
+</TD></TR></TABLE><BR>
 <B>10003CE0h VIF1_TOP</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-9   TOP value
+</TD></TR></TABLE><BR>
 <B>10003900h-10003930h/10003D00h-10003D30 VIFn_RN</B><BR>
+Array of 4 32-bit values used for row filling data. Each value is stored at 100039N0h/10003DN0h.<BR>
 <BR>
 <B>10003940h-10003970h/10003D40h-10003D70 VIFn_CN</B><BR>
+Same as VIFn_RN, except for column filling data.<BR>
 <BR>
 <BR>
 
