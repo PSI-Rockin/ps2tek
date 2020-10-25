@@ -282,6 +282,8 @@ data cache, a single-precision FPU coprocessor, and a Vector Unit coprocessor.<B
 <A HREF="#eecop0caches">EE COP0 Caches</A><BR>
 <A HREF="#eecop0timer">EE COP0 Timer</A><BR>
 <BR>
+<A HREF="#eecop1floatingpointformat">EE COP1 Floating Point Format</A><BR>
+<BR>
 <BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -836,6 +838,23 @@ Count increments automatically every EE cycle.<BR>
   0-31  Timer compare value
 </TD></TR></TABLE>
 When Count==Compare, a COP0 timer interrupt is signaled. Writing to Compare acknowledges and clears the pending interrupt.<BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eecop1floatingpointformat"></A>&nbsp;
+EE COP1 Floating Point Format
+</FONT></TD></TR></TABLE><BR>
+COP1, along with the rest of the PS2, only supports single-precision floats. The PS2 uses IEEE 754 standard floats with the following format:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  31-30---------23-22---------------------------------------------0
+  |si|   exponent  |                mantissa                      |
+  -----------------------------------------------------------------
+</TD></TR></TABLE>
+"si" is the sign bit. The float is calculated as follows.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  num = (si ? -1 : 1) * mantissa * 2 ^ exponent
+</TD></TR></TABLE>
 <BR>
 <BR>
   
