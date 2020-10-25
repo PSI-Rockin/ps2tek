@@ -657,6 +657,61 @@ EE COP0 Registers
 <A NAME="eecop0exceptionhandling"></A>&nbsp;
 EE COP0 Exception Handling
 </FONT></TD></TR></TABLE><BR>
+<B>Exceptions</B><BR>
+An exception is an <I>exceptional</I> event that stops the CPU's current task and forces it to address the event, usually with kernel privileges.<BR>
+On the EE, there are exceptions for interrupts, TLB management, syscalls, and various errors. When an exception occurs, the EE jumps to one of the following vectors:<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+    Name            Normal      Bootstrap   Level
+  ------------------------------------------------
+  | Reset/NMI     | BFC00000h | BFC00000h | 2    |
+  ------------------------------------------------
+  | TLB Refill    | 80000000h | BFC00200h | 1    |
+  ------------------------------------------------
+  | Perf. Counter | 80000080h | BFC00280h | 2    |
+  ------------------------------------------------
+  | Debug         | 80000100h | BFC00300h | 2    |
+  ------------------------------------------------
+  | All others    | 80000180h | BFC00380h | 1    |
+  ------------------------------------------------
+  | Interrupt     | 80000200h | BFC00400h | 1    |
+  ------------------------------------------------
+</TD></TR></TABLE>
+The full exception handling works as follows.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  void handle_exception_level1(u32 vector, u8 cause)
+  {
+      Cause.ExcCode = cause;
+      if (in_branch_delay)
+      {
+          EPC = PC - 4;
+          Cause.BD = true;
+      }
+      else
+      {
+          EPC = PC;
+          Cause.BD = false;
+      }
+      Status.EXL = true;
+      PC = vector;
+  }
+  
+  void handle_exception_level2(u32 vector, u8 cause)
+  {
+      Cause.ExcCode = cause;
+      if (in_branch_delay)
+      {
+          ErrorEPC = PC - 4;
+          Cause.BD2 = true;
+      }
+      else
+      {
+          ErrorEPC = PC;
+          Cause.BD2 = false;
+      }
+      Status.ERL = true;
+      PC = vector;
+  }
+</TD></TR></TABLE><BR>
 <B>$08 - COP0.BadVAddr</B><BR>
   0-31  Virtual address that caused an exception
 </TD></TR></TABLE>
