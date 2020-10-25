@@ -773,6 +773,52 @@ The units of PFN0/PFN1 and VPN2 depend on MASK. For example, if MASK indicates a
 the virtual address of the even page is (8h * 2 * 4096) or 10000h, and the virtual address of the odd page is ((8h * 2) + 1) * 4096 or 11000h.<BR>
 The physical addresses of the even/odd pages are also 10000h/11000h respectively. Therefore, an access to 10500h will touch physical address 10500h.<BR>
 <BR>
+<B>$0 - COP0.Index</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   TLB entry to access with TLBR/TLBWI
+</TD></TR></TABLE><BR>
+<B>$1 - COP0.Random</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   TLB entry to access with TLBWR
+</TD></TR></TABLE><BR>
+Random decrements after every instruction that is executed. It has an upper bound of 47 and a lower bound of the value in Wired.<BR>
+<BR>
+<B>$2/$3 - COP0.EntryLo0/EntryLo1</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0       G - Global.
+  1       V - Page valid. When not set, the memory referenced in this entry is not mapped.
+  2       D - Page dirty. When not set, writes cause an exception.
+  3-5     C - Page cache mode.
+          2=Uncached
+          3=Cached
+          7=Uncached accelerated
+  6-25    PFN - Page frame number.
+  31      S - Scratchpad. Only applicable for EntryLo0.
+</TD></TR></TABLE>
+EntryLo0/EntryLo1 modify the lower part of the TLB as given for the even page and odd page respectively.<BR>
+The Global bit in the TLB entry is only set if both EntryLo0 and EntryLo1 have their G bit set.<BR>
+<BR>
+<B>$5 - COP0.PageMask</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  13-24   Page size
+          000h=4 KB
+          003h=16 KB
+          00Fh=64 KB
+          03Fh=256 KB
+          0FFh=1 MB
+          3FFh=4 MB
+          FFFh=16 MB
+</TD></TR></TABLE><BR>
+<B>$6 - COP0.Wired</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   Lower bound of Random
+</TD></TR></TABLE><BR>
+<B>$10 - COP0.EntryHi</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-7     ASID
+  13-31   VPN2
+</TD></TR></TABLE><BR>
+<BR>
 <BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -792,6 +838,7 @@ Count increments automatically every EE cycle.<BR>
 When Count==Compare, a COP0 timer interrupt is signaled. Writing to Compare acknowledges and clears the pending interrupt.<BR>
 <BR>
 <BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eetimers"></A>&nbsp;
 EE Timers
