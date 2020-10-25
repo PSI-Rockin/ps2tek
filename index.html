@@ -747,7 +747,7 @@ For example, a program might access address 1000h. With virtual memory, this add
 Virtual address 1000h might also not be mapped to anything, in which case accessing it causes an error. The PS2 and most modern OSes do not map addresses near NULL,
 so that if a program uses a NULL pointer, it can crash immediately rather than corrupt program data.<BR>
 <BR>
-<B>Translation-Lookaside Buffer (TLB)</B>
+<B>Translation-Lookaside Buffer (TLB)</B><BR>
 The EE uses a TLB, a cache of virtual->physical mappings, for memory management. The TLB contains 48 entries split into even and odd pages. A TLB entry has the following
 format:
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
