@@ -278,6 +278,8 @@ data cache, a single-precision FPU coprocessor, and a Vector Unit coprocessor.<B
 <BR>
 <A HREF="#eecop0registers">EE COP0 Registers</A><BR>
 <A HREF="#eecop0exceptionhandling">EE COP0 Exception Handling</A><BR>
+<A HREF="#eecop0memorymanagement">EE COP0 Memory Management</A><BR>
+<A HREF="#eecop0caches">EE COP0 Caches</A><BR>
 <A HREF="#eecop0timer">EE COP0 Timer</A><BR>
 <BR>
 <BR>
@@ -735,6 +737,44 @@ BadPAddr is written to when a bus error occurs and Status.BEM is not set.<BR>
 <BR>
 <BR>
   
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eecop0memorymanagement"></A>&nbsp;
+EE COP0 Memory Management
+</FONT></TD></TR></TABLE><BR>
+<B>Virtual Memory Basics</B><BR>
+Virtual memory is a mechanism that allows processors to arbitrarily map a virtual address to a physical address. This is accomplished using a Memory Management Unit (MMU).
+For example, a program might access address 1000h. With virtual memory, this address could map to any physical address, such as 1000h, 20000h, 424000h, and so on.
+Virtual address 1000h might also not be mapped to anything, in which case accessing it causes an error. The PS2 and most modern OSes do not map addresses near NULL,
+so that if a program uses a NULL pointer, it can crash immediately rather than corrupt program data.<BR>
+<BR>
+<B>Translation-Lookaside Buffer (TLB)</B>
+The EE uses a TLB, a cache of virtual->physical mappings, for memory management. The TLB contains 48 entries split into even and odd pages. A TLB entry has the following
+format:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  1       V0 - Even page valid. When not set, the memory referenced in this entry is not mapped.
+  2       D0 - Even page dirty. When not set, writes cause an exception.
+  3-5     C0 - Even page cache mode.
+          2=Uncached
+          3=Cached
+          7=Uncached accelerated
+  6-25    PFN0 - Even page frame number.
+  33      V1 - Odd page valid.
+  34      D1 - Odd page dirty.
+  35      C1 - Odd page cache mode.
+  38-57   PFN1 - Odd page frame number.
+  63      S - Scratchpad. When set, the virtual mapping goes to scratchpad instead of main memory.
+  64-71   ASID - Address Space ID.
+  76      G - Global. When set, ASID is ignored.
+  77-95   VPN2 - Virtual page number / 2.
+          Even pages have a VPN of (VPN2 * 2) and odd pages have a VPN of (VPN2 * 2) + 1
+  109-120 MASK - Size of an even/odd page.
+</TD></TR></TABLE>
+The units of PFN0/PFN1 and VPN2 depend on MASK. For example, if MASK indicates a size of 4 KB, then if PFN0/PFN1 are 10h/11h and VPN2 is 8h,
+the virtual address of the even page is (8h * 2 * 4096) or 10000h, and the virtual address of the odd page is ((8h * 2) + 1) * 4096 or 11000h.<BR>
+The physical addresses of the even/odd pages are also 10000h/11000h respectively. Therefore, an access to 10500h will touch physical address 10500h.<BR>
+<BR>
+<BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eecop0timer"></A>&nbsp;
 EE COP0 Timer
