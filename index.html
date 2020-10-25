@@ -267,12 +267,10 @@ IOP Map<BR>
 <A NAME="ee"></A>&nbsp;
 Emotion Engine (EE)
 </FONT></TD></TR></TABLE><BR>
-The EE is the main CPU of the PS2. Also known as the R5900, it is a custom MIPS core designed by Sony and Toshiba. It 
-runs at 294.912 MHz and uses a mix of MIPS III, MIPS IV, and custom instructions. It is a superscalar in-order CPU 
-able to execute up to two instructions per cycle, containing a branch predictor, MMU, 16 KB instruction cache, 8 KB 
-data cache, a single-precision FPU coprocessor, and a Vector Unit coprocessor.<BR>
+The EE is the main CPU of the PS2. Also known as the R5900, it is a custom MIPS core designed by Sony and Toshiba.<BR>
 <BR>
 <B>EE Reference</B><BR>
+<A HREF="#eearchitecture">EE Architecture</A><BR>
 <A HREF="#eeregisters">EE Registers</A><BR>
 <A HREF="#eeinstructiondecoding">EE Instruction Decoding</A><BR>
 <BR>
@@ -285,7 +283,30 @@ data cache, a single-precision FPU coprocessor, and a Vector Unit coprocessor.<B
 <A HREF="#eecop1floatingpointformat">EE COP1 Floating Point Format</A><BR>
 <BR>
 <BR>
-
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eearchitecture"></A>&nbsp;
+EE Architecture
+</FONT></TD></TR></TABLE><BR>
+On real hardware, the EE itself contains many different hardware units along with the main CPU, such as the DMAC and IPU. This document will consider the EE as only
+the MIPS CPU and its coprocessors.<BR>
+<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Mix of MIPS III and MIPS IV with dozens of custom instructions
+  Speed: 294.912 MHz
+  Superscalar, able to issue two instructions per cycle in ideal conditions
+  Support for custom integer SIMD instructions known as MMI (MultiMedia Instructions)
+  16 KB instruction cache
+  8 KB data cache
+  16 KB scratchpad. Fast memory directly accessible by program and DMAC
+  COP0 system coprocessor. Responsible for handling memory management, exceptions, caches, and performance counters
+  COP1 FPU. Fast single-precision unit
+  COP2 VU0. SIMD floating-point processor that can either run as a separate CPU or be used by the EE core for COP2 instructions
+</TD></TR></TABLE><BR>
+See <A HREF="#vu">Vector Unit (VU)</A> for a general discussion on the VUs, including VU0.<BR>
+<BR>
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeregisters"></A>&nbsp;
 EE Registers
