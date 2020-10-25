@@ -845,7 +845,7 @@ When Count==Compare, a COP0 timer interrupt is signaled. Writing to Compare ackn
 <A NAME="eecop1floatingpointformat"></A>&nbsp;
 EE COP1 Floating Point Format
 </FONT></TD></TR></TABLE><BR>
-COP1, along with the rest of the PS2, only supports single-precision floats. The PS2 uses IEEE 754 standard floats with the following format:<BR>
+COP1, along with the rest of the PS2, only supports single-precision floats. The PS2 uses IEEE 754 floats with the following format:<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   31-30---------23-22---------------------------------------------0
   |si|   exponent  |                mantissa                      |
@@ -853,8 +853,19 @@ COP1, along with the rest of the PS2, only supports single-precision floats. The
 </TD></TR></TABLE>
 "si" is the sign bit. The float is calculated as follows.<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  num = (si ? -1 : 1) * mantissa * 2 ^ exponent
+  num = (si ? -1 : 1) * mantissa * 2 ^ (exponent - 128)
 </TD></TR></TABLE>
+For example, 3F800000h becomes 1.0f.<BR>
+<BR>
+<B>IEEE 754 Differences</B><BR>
+There are major differences between the PS2 floating-point format and standard IEEE 754, used in most modern computers.<BR>
+<UL>
+<LI>NaNs and Infinities do not exist on the PS2. In IEEE 754, any number with the exponent field set to 255 is a NaN/Infinity. On the PS2, it is treated as a normal value.
+This means the upper range of PS2 floats is greater than on IEEE 754.</LR>
+<LI>Denormals, numbers with the exponent field set to 0, do not exist on the PS2. For every arithmetic operation, a denormal is automatically truncated to zero.</LI>
+<LI>On the PS2, the rounding mode is always forced to round-towards-zero. The PS2 uses a quirky version where the least-significant-bit may vary after a round, and the details
+on this are not well understood.</LI>
+</UL>
 <BR>
 <BR>
   
