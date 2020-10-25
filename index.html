@@ -290,7 +290,6 @@ EE Architecture
 </FONT></TD></TR></TABLE><BR>
 On real hardware, the EE itself contains many different hardware units along with the main CPU, such as the DMAC and IPU. This document will consider the EE as only
 the MIPS CPU and its coprocessors.<BR>
-<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Mix of MIPS III and MIPS IV with dozens of custom instructions
   Speed: 294.912 MHz
@@ -302,7 +301,7 @@ the MIPS CPU and its coprocessors.<BR>
   COP0 system coprocessor. Responsible for handling memory management, exceptions, caches, and performance counters
   COP1 FPU. Fast single-precision unit
   COP2 VU0. SIMD floating-point processor that can either run as a separate CPU or be used by the EE core for COP2 instructions
-</TD></TR></TABLE><BR>
+</TD></TR></TABLE>
 See <A HREF="#vu">Vector Unit (VU)</A> for a general discussion on the VUs, including VU0.<BR>
 <BR>
 <BR>
@@ -2477,14 +2476,35 @@ Vector Unit (VU)
 </FONT></TD></TR></TABLE><BR>
 The EE contains two Vector Units (VU0 and VU1), custom SIMD processors designed for fast floating-point manipulation.<BR>
 Both VUs can run concurrently with the EE Core in micro mode. VU0 is also available in macro mode as COP2.<BR>
-The architecture is similar to MIPS, including branch delays and the use of register zero as a constant.<BR>
 <BR>
+<B>VU Reference</B><BR>
+<A HREF="#vuarchitecture">VU Architecture</A><BR>
 <A HREF="#vuregisters">VU Registers</A><BR>
 <A HREF="#vuinstructionformat">VU Instruction Format and Decoding</A><BR>
 <A HREF="#vupipelining">VU Pipelining</A><BR>
 <BR>
 <BR>
-
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="vuarchitecture"></A>&nbsp;
+VU Architecture
+</FONT></TD></TR></TABLE><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Custom SIMD floating-point processors designed by Sony
+  Speed: 294.912 MHz (same as EE)
+  Executes two instructions per cycle through upper and lower pipelines - each pipeline is specialized and can only execute certain instructions
+  4/16 KB of instruction ("micro") memory for VU0 and VU1 respectively
+  4/16 KB of data memory for VU0 and VU1 respectively
+  32 128-bit vector registers, 16 16-bit integer registers, and an assortment of special registers
+  FDIV unit: Used for division and square root operations
+  Elementary Function Unit (EFU): Exclusive to VU1. Used for complex calculations such as square of sums, sine, and e^x
+  MAC/CLIP flags: Processor flags used to compare the results of floating-point arithmetic
+  XGKICK: Exclusive to VU1. Transfers data directly to the GIF through PATH1
+  Similar decoding and quirks to standard MIPS, such as branch delay slots
+</TD></TR></TABLE>
+<BR>
+<BR>
+ 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="vuregisters"></A>&nbsp;
 VU Registers
