@@ -1632,7 +1632,7 @@ as it uses MADR to determine the current movie buffer position.<BR>
 <A NAME="dmacmfifo"></A>&nbsp;
 DMAC MFIFO
 </FONT></TD></TR></TABLE><BR>
-Scratchpad memory is much faster than main memory, but the scratchpad is a measly 16 KK, only enough for 1024 quadwords of data.<BR>
+Scratchpad memory is much faster than main memory, but the scratchpad is a measly 16 KB, only enough for 1024 quadwords of data.<BR>
 The Memory FIFO (MFIFO) works around this issue by automatically transferring data sent via SPR_FROM to a user-defined buffer in main memory. The D_RBSR and D_RBOR
 registers define the size and location of this buffer. SPR_FROM's MADR is automatically set to the next read position in the buffer, wrapping around when the end
 is reached.<BR>
