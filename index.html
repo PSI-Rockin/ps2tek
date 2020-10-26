@@ -986,8 +986,9 @@ Some examples:<BR>
     The game immediately flushes the cache after calling this function, so the ensuing corruption only occurs in the cache, and the data in main memory is protected.</LI>
   <LI>Savage Skies: Similar to IA2. Allocates a VIF DMA buffer on the stack, then starts a transfer without waiting for it to end and returns from a function.<BR>
     Without cache emulation, the buffer is corrupted and the game is unable to go in-game.</LI>
+  <LI>WRC 4: Notably requires icache emulation. Main executable is a small decompressor that decompresses a larger executable.<BR>
+    The decompressed ELF is large enough to overlap with the decompressor in memory. Without icache emulation, the decompressor is destroyed.</LI>
 </UL>
-<BR>
 <BR>
 
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
