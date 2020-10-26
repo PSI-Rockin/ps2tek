@@ -1385,6 +1385,7 @@ It can transfer one quadword (16 bytes) at bus speed (half the rate of the EE's 
 <B>DMAC Reference</B><BR>
 <A HREF="#dmacio">DMAC I/O</A><BR>
 <A HREF="#dmacchainmode">DMAC Chain Mode</A><BR>
+<A HREF="#dmacmfifo">DMAC MFIFO</A><BR>
 <A HREF="#dmacint">DMAC Interrupts</A><BR>
 <BR>
 <BR>
@@ -1522,9 +1523,13 @@ This is useful for knowing when multiple DMA transfers have finished without usi
 In interleave mode, every time D_SQWC.16-23 quadwords have been transferred, D_SQWC.0-7 quadwords are skipped.<BR>
 <BR>
 <B>1000E040h D_RBSR - DMAC ringbuffer size (R/W)</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  4-30  Size of MFIFO buffer in quadwords, minus 1
+</TD></TR></TABLE><BR>
 <B>1000E050h D_RBOR - DMAC ringbuffer offset (R/W)</B><BR>
-<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-30  Starting address of MFIFO buffer. Lower 4 bits are 0
+</TD></TR></TABLE><BR>
 <B>1000F520h D_ENABLER - DMAC disabled status (R)</B><BR>
 <B>1000F590h D_ENABLEW - DMAC disable (W)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -1619,6 +1624,25 @@ the DMAC assumes that the TAG field of CHCR was the last read DMAtag.
 This means that if the tag ID is REFE or END, the channel will stop after QWC has been transferred.<BR>
 Sony's movie-playing library requires this behavior,
 as it uses MADR to determine the current movie buffer position.<BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="dmacmfifo"></A>&nbsp;
+DMAC MFIFO
+</FONT></TD></TR></TABLE><BR>
+Scratchpad memory is much faster than main memory, but the scratchpad is a measly 16 KK, only enough for 1024 quadwords of data.<BR>
+The Memory FIFO (MFIFO) works around this issue by automatically transferring data sent via SPR_FROM to a user-defined buffer in main memory. The D_RBSR and D_RBOR
+registers define the size and location of this buffer. SPR_FROM's MADR is automatically set to the next read position in the buffer, wrapping around when the end
+is reached.<BR>
+<BR>
+Either the VIF1 DMA channel or GIF DMA channel can be the drain channel, reading from the buffer when SPR_FROM transfers data to it. When a new tag is read,
+the drain channel's TADR is set to D_RBOR | (TADR & D_RBSR), as is MADR if QWC is non-zero and the tag ID is not REF/REFE/REFS.<BR>
+When TADR equals SPR_FROM's MADR, the drain channel is stalled, and an MFIFO empty interrupt is triggered. Neither of this occurs if the tag ID is REF/REFE/REFS, however.<BR>
+<BR>
+At first, it may seem odd to use MFIFO, because the extra transfer is slower than just interacting with VIF1/GIF DMA directly. However, VIF1 and the GIF
+have a tendency to stall for long periods of time when transferring data to the GS because of VU1 transferring data to PATH1. MFIFO allows the EE to queue up data without
+worrying about GIF stalls and managing DMA buffers, which in turn allows the EE to do other things more efficiently.<BR>
 <BR>
 <BR>
 
