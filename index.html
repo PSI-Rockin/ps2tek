@@ -967,8 +967,17 @@ Each cache line is indexed by virtual address. Here is how a virtual address is 
     Note how the dcache index is 6-bit, whereas the icache index is 7-bit.
 </TD></TR></TABLE>
 The index is used to get the cache line to access. The offset is used to, of course, offset into the 64-byte region.<BR>
-The PFN of the address is compared with the PFN inside the way. If there is a match, the way can be used. Otherwise, the EE looks at the other way associated with the line.
-If there is still no match, a cache miss occurs, and one of the ways must be reloaded from main memory.<BR>
+<BR>
+<B>Cache Misses and Replacement Algorithm</B><BR>
+When accessing the cache, the EE checks both ways in a line by comparing the address's PFN with the PFNs in the ways' tags. If both lookups fail, a cache miss has occurred,
+and new data needs to be loaded into the cache.<BR>
+The EE uses a Least Recently Filled (LRF) algorithm to determine which way to load data into. If either way does not have the Valid bit set, the EE sets the Valid bit
+in the first way that does not have it and loads data into it. If both ways are full, the EE takes the XOR of the LRF bits in the tags. The result is the index of the way it
+uses. The EE then flips the LRF bit in the selected way.<BR>
+If a way in the data cache has the Locked bit set, the EE will always reload the other way. This allows important data to remain in the cache indefinitely.<BR>
+<BR>
+Four quadwords are loaded into a way at a time. Since the EE bus is 128-bit, this means a cache miss has a penalty of a minimum of four bus cycles (eight EE cycles).
+However, main memory is much slower - ~40 EE cycles is closer to reality, though the exact number is nondeterministic due to the nature of RDRAM.<BR>
 <BR>
 <B>Cache Coherency</B><BR>
 Because the caches are separate from main memory, it is possible for the contents of the caches to be different from the contents of main memory.<BR>
