@@ -283,6 +283,7 @@ The EE is the main CPU of the PS2. Also known as the R5900, it is a custom MIPS 
 <A HREF="#eecop0caches">EE COP0 Caches</A><BR>
 <A HREF="#eecop0timer">EE COP0 Timer</A><BR>
 <BR>
+<A HREF="#eecop1registers">EE COP1 Registers</A><BR>
 <A HREF="#eecop1floatingpointformat">EE COP1 Floating Point Format</A><BR>
 <BR>
 <BR>
@@ -1016,6 +1017,27 @@ Count increments automatically every EE cycle.<BR>
   0-31  Timer compare value
 </TD></TR></TABLE>
 When Count==Compare, a COP0 timer interrupt is signaled. Writing to Compare acknowledges and clears the pending interrupt.<BR>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eecop1registers"></A>&nbsp;
+EE COP1 Registers
+</FONT></TD></TR></TABLE><BR>
+<B>Floating-point Registers (FPRs)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Name       Convention
+  f0-f3      Return values
+  f4-f11     Temporary registers
+  f12-f19    Argument registers
+  f20-f31    Saved registers
+</TD></TR></TABLE><BR>
+<B>Special Registers (accessed through CFC1/CTC1)</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Name       Purpose
+  fcr0       Reports implementation and revision of FPU
+  fcr31      Control register, stores status flags
+</TD></TR></TABLE>
 <BR>
 <BR>
   
