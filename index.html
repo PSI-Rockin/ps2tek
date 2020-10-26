@@ -1639,7 +1639,8 @@ is reached.<BR>
 <BR>
 Either the VIF1 DMA channel or GIF DMA channel can be the drain channel, reading from the buffer when SPR_FROM transfers data to it. When a new tag is read,
 the drain channel's TADR is set to D_RBOR | (TADR & D_RBSR), as is MADR if QWC is non-zero and the tag ID is not REF/REFE/REFS.<BR>
-When TADR equals SPR_FROM's MADR, the drain channel is stalled, and an MFIFO empty interrupt is triggered. Neither of this occurs if the tag ID is REF/REFE/REFS, however.<BR>
+When TADR equals SPR_FROM's MADR, the drain channel is stalled, and an MFIFO empty interrupt is triggered. If the tag ID is REF/REFE/REFS and QWC is non-zero, an
+interrupt is still sent but the channel is not stalled.<BR>
 <BR>
 At first, it may seem odd to use MFIFO, because the extra transfer is slower than just interacting with VIF1/GIF DMA directly. However, VIF1 and the GIF
 have a tendency to stall for long periods of time when transferring data to the GS because of VU1 transferring data to PATH1. MFIFO allows the EE to queue up data without
