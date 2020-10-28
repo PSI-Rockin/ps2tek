@@ -3300,6 +3300,7 @@ similar principle as the PSX's serial port (called SIO0 here), SIO2 is completel
 <B>SIO2 Reference</B><BR>
 <A HREF="#sio2registers">SIO2 Registers</A><BR>
 <A HREF="#sio2ps2memcards">SIO2 PS2 Memcards</A><BR>
+<A HREF="#sio2ps2memcardfilesystem">SIO2 PS2 Memcard Filesystem</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3366,10 +3367,17 @@ Unknown.<BR>
   After interrupt, read RECV1, RECV2, and RECV3, then read DATAOUT if applicable.
 </TD></TR></TABLE><BR>
 <BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="sio2ps2memcards"></A>&nbsp;
 SIO2 PS2 Memcards
 </FONT></TD></TR></TABLE><BR>
+<B>Basic Info</B><BR>
+A PS2 memory card uses flash memory. The main advantages are that it is cheap and does not require any power to retain information. The downsides are that accessing flash is
+much slower than RAM, and flash memory will go bad when written to too many times.<BR>
+Flash also has some restrictions on how it can be written to. Depending on the card, individual bits can be changed from 0 to 1 or 1 to 0, but not both. In order to flip a
+bit in the opposite direction, the entire block must be erased.<BR>
+Official memory cards are 8 MB, but third-party cards can be larger than this. Certain games do not work if the memory card is larger than expected, for unknown reasons.<BR>
 <B>Commands</B><BR>
 <B>11h - Probe</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -3495,6 +3503,39 @@ Sent by SECRMAN. Unknown purpose.<BR>
 Sent by SECRMAN. Unknown purpose.<BR>
 <BR>
 <BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sio2ps2memcardfilesystem"></A>&nbsp;
+SIO2 PS2 Memcard Filesystem
+</FONT></TD></TR></TABLE><BR>
+The PS2 uses a double-indirect indexed FAT filesystem to keep track of clusters. It also has support for ECC and bad block detection, depending on MCMAN version.<BR>
+<B>Superblock Format</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Byte      Name
+  0-27      Magic string. Should contain "Sony PS2 Memory Card Format "
+  28-39     Version string. Has the format "1.x.0.0", where x is the minor version
+  40-41     Size in bytes of a page. Default 512
+  42-43     Pages per cluster. Default 2
+  44-45     Pages per erase block. Default 16
+  46-47     Set to -256. Doesn't seem to be used
+  48-51     Total clusters in the card. Default 8192
+  52-55     Offset of the first allocatable cluster, in cluster units. Immediately after the FAT
+  56-59     Offset of the cluster after the last allocatable cluster, relative to the first
+  60-63     Offset of the root directory cluster, relative to the first. Should be 0
+  64-67     Backup erase block. Should be the last block in the card, default 1023
+  68-71     Second backup block, should be the second-last block in the card
+  80-207    Array of 32 indirect FAT cluster indices. On a standard card, only one indirect cluster is used
+  208-335   Array of 32 bad blocks, which cannot be used. -1 indicates no entry
+  384       Memory card type. Should be 2, indicating a PS2 memory card
+  385       Card flags. Default 52h
+            Bit 0=ECC support if set
+            Bit 3=Card has bad blocks
+            Bit 4=Erased blocks have bits set to 0 if set
+</TD></TR></TABLE>
+The superblock is located in the first page in the memory card.<BR>
+<BR>
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="iopint"></A>&nbsp;
 IOP Interrupts
