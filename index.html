@@ -2859,11 +2859,12 @@ The IPU is a hardware-accelerated MPEG1/MPEG2 decoder. It is primarily responsib
 <BR>
 <B>IPU Reference</B><BR>
 <A HREF="#ipuioregisters">IPU I/O Registers</A><BR>
+<A HREF="#ipucommands">IPU Commands</A><BR>
 <BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
-<A NAME="ipu"></A>&nbsp;
+<A NAME="ipuioregisters"></A>&nbsp;
 IPU I/O Registers
 </FONT></TD></TR></TABLE><BR>
 <B>10002000h IPU_CMD - IPU Send Command</B><BR>
@@ -2929,6 +2930,87 @@ The "busy" bit is set when less than 32 bits are in the FIFO. FMV libraries rely
 <BR>
 <BR>
   
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="ipucommands"></A>&nbsp;
+IPU Commands
+</FONT></TD></TR></TABLE><BR>
+<B>00h BCLR - Clear Input FIFO</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-7   BP - Bitstream start
+</TD></TR></TABLE>
+BCLR clears all data in the input FIFO. The bitstream pointer is set to BP.<BR>
+<BR>
+<B>01h IDEC - Slice Decode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   FB - Bitstream skip
+  16-20 QSC - Quantizer step
+  24    DTD - When set, IDEC decodes DT
+  25    SGN - When set, output RGB is decremented by 128 for each channel. Underflow wraps around
+  26    DTE - Dither enable. Only applicable for RGB16
+  27    OFM - Output format
+        0=RGB32
+        1=RGB16
+</TD></TR></TABLE><BR>
+<B>02h BDEC - Macroblock Decode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   FB - Bitstream skip
+  16-20 QSC - Quantizer step
+  25    DT - Frame type
+        0=Frame
+        1=Field
+  26    DCR - When set, DC prediction value is reset
+  27    MBI - Intra bit
+        0=Non-intra macroblock
+        1=Intra macroblock
+</TD></TR></TABLE><BR>
+<B>03h VDEC - VLC Decode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   FB - Bitstream skip
+  26-27 TBL - VLC table to read from
+        0=Macroblock Increment (MBI)
+        1=Macroblock Type
+        2=Motion Code
+        3=DMVector
+</TD></TR></TABLE><BR>
+<B>04h FDEC - Fixed-length Decode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   FB - Bitstream skip
+</TD></TR></TABLE><BR>
+<B>05h SETIQ - Set Quantization Table</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   FB - Bitstream skip
+  27    IQM - Matrix type
+        0=Intra matrix
+        1=Non-intra matrix
+</TD></TR></TABLE><BR>
+<B>06h SETIQ - Set Quantization Table</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  No option bits
+</TD></TR></TABLE><BR>
+<B>07h CSC - Color Space Conversion</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-10  MBC - Macroblocks to decode
+  26    DTE - Dither enable. Only applicable for RGB16
+  27    OFM - Output format
+        0=RGB32
+        1=RGB16
+</TD></TR></TABLE><BR>
+<B>08h PACK - 32-bit -> 4-bit/16-bit Color Conversion</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-10  MBC - Macroblocks to convert
+  26    DTE - Dither enable
+  27    OFM - Output format
+        0=INDX4
+        1=RGB16
+</TD></TR></TABLE><BR>
+<B>09h SETTH - Set Alpha Thresholds</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-8   TH0 - Transparent alpha threshold
+  16-24 TH1 - Translucent alpha threshold
+</TD></TR></TABLE>
+<BR>
+<BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eeintc"></A>&nbsp;
 EE Interrupt Controller (INTC)
