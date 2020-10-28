@@ -5,6 +5,7 @@
   <A NAME="contents"></A>&nbsp;
   Contents
 </FONT></TD></TR></TABLE><BR>
+	<A HREF="#ps2overview">PS2 Overview</A><BR>
   <A HREF="#memorymap">Memory Map</A><BR>
   <A HREF="#iomaps">I/O Maps</A><BR>
   <A HREF="#ee">Emotion Engine (EE)</B><BR>
@@ -21,7 +22,38 @@
   <A HREF="#bios">BIOS</A><BR>
 <BR>
 <BR>
-  
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="ps2overview"></A>&nbsp;
+PS2 Overview
+</FONT></TD></TR></TABLE><BR>
+This document, inspired by nocash's websites for various consoles, aims to be a comprehensive reference for the PlayStation 2 hardware.
+While it is far from complete, it is usable as a reference for what information is documented.<BR>
+<BR>
+<B>PS2 Hardware</B><BR>
+-Emotion Engine (EE) - Main CPU.<BR>
+--DMAC - Intelligent DMA controller. Used for accessing most peripherals on the EE.<BR>
+--EE Timers - Four 16-bit timers.<BR>
+--Graphics Interface (GIF) - Transmits graphical data to the GS.<BR>
+--Vector Interface (VIF) - Decompresses vector data, uploads microprograms to the VUs, and sends graphical data to the GIF.<BR>
+--Vector Units (VUs) - Custom DSPs used to process vertex data, physics calculations, and other related tasks.<BR>
+--Image Processing Unit (IPU) - MPEG1/MPEG2 video decoder.<BR>
+--Scratchpad - 16 KB of fast memory.<BR>
+-Graphics Synthesizer (GS) - Fixed-function GPU. Designed to draw polygons very, very fast.<BR>
+--PCRTC - Renders GS output to a television screen. Can be programmed to work on a variety of TVs, including NTSC and PAL.<BR>
+-Input/Output Processor (IOP) - Duplicate of the PSX's CPU. Used for slower input/output tasks and for PSX backwards compatibility.<BR>
+--IOP DMA - Same channels as on the PSX, along with additional channels exclusive to PS2 mode.<BR>
+--IOP Timers - Same timers as on the PSX, with three additional 32-bit counters.<BR>
+--CDVD Drive - Reads disc media. Also responsible for MagicGate decryption.<BR>
+--SIO2 - Serial ports used to read controllers and memory cards.<BR>
+--SPU2 - Sound processor. Similar to the PSX SPU with added features.<BR>
+--DEV9 - Expansion port. Used mainly for the PS2 HDD and Network Adapter.<BR>
+--USB<BR>
+--FireWire<BR>
+-Subsystem Interface (SIF) - Allows the EE and IOP to communicate with each other.<BR>
+<BR>
+<BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="memorymap"></A>&nbsp;
 Memory Map
