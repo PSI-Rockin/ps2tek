@@ -3584,8 +3584,7 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
 </TD></TR></TABLE>
 When bit 0=1, all IOP interrupts are disabled.
 Reading this register returns bit 0 AND clears it, re-enabling interrupts.
-Writing can set or reset bit 0.<br>
-NOTE: There seems to be a 4 cycle delay when re-enabling interrupts via this register.<BR>
+Writing can set or reset bit 0.<BR>
 <BR>
 <B>Raising Interrupts</B><BR>
 If !I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs,
@@ -3596,7 +3595,7 @@ COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interr
 <A NAME="iopdma"></A>&nbsp;
 IOP DMA
 </FONT></TD></TR></TABLE><BR>
-The IOP re-uses the same DMA channels as found in the PSX, and it contains additional channels for new peripherals.<BR>
+The IOP re-uses the same DMA channels found in the PSX, and it contains additional channels for new peripherals.<BR>
 <BR>
 <B>Channels</B>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -3617,6 +3616,66 @@ The IOP re-uses the same DMA channels as found in the PSX, and it contains addit
   1F80154xh    SIO2in
   1F80155xh    SIO2out
 </TD></TR></TABLE>
+<BR>
+<B>1F801xx0h+N*10h Dn_MADR</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-23  Start address of transfer in RAM
+  24-31 Unused, zero
+</TD></TR></TABLE>
+<BR>
+<B>1F801xx4h+N*10h Dn_BCR</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-15  Block size in words (0=0x10000)
+  16-31 Block count
+</TD></TR></TABLE>
+<BR>
+<B>1F801xx8h+N*10h Dn_CHCR</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Transfer direction (0=to RAM, 1=from RAM)
+  1     MADR increment per step (0=+4, 1=-4)
+  2-7   Unused
+  8     When 1:
+        -Burst mode: enable "chopping" (cycle stealing by CPU)
+        -Slice mode: Causes DMA to hang
+        -Linked-list/Chain mode: Transfer header/tag before data
+  9-10  Transfer mode
+        0=Burst (transfer data all at once, only low 16 bits of BCR are valid)
+        1=Slice (transfer in units of BCR blocks and arbitrate)
+        2=Linked-list mode
+        3=Chain mode (uses TADR)
+  11    Unknown, used by iLink DMA
+  12-15 Unused
+  16-18 Chopping DMA window size (1 << N words)
+  19    Unused
+  20-22 Chopping CPU window size (1 << N cycles)
+  23    Unused
+  24    Start transfer (0=stopped/completed, 1=start/busy)
+  28    Force transfer start without waiting for DREQ
+  29    In forced-burst mode, pauses transfer while set.
+        In other modes, stops bit 28 from being cleared after a slice is transferred.
+        No effect when transfer was caused by a DREQ.
+  30    Perform bus snooping (allows DMA to read from IOP cache?)
+  31    iLink automatic response - unknown purpose
+</TD></TR></TABLE>
+<BR>
+<B>1F801xxCh+N*10h Dn_TADR</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-23  Start address of list of tags
+  24-31 Unused, zero
+</TD></TR></TABLE>
+TADR is used in chain mode. At the start of a chain transfer, a tag will be read from TADR, and TADR will be incremented by the size of the tag, which is either 
+  2 or 4 words.<BR>
+<B>Chain Mode Tag Format</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-23  Start address of transfer in RAM
+  30    IRQ - raises IQE interrupt in DICR2 when all words in this tag are transferred
+  31    End of transfer, raises transfer completion interrupt
+  32-55 Size of transfer in words
+  
+  ... Optionally 2 words to transfer after tag ...
+</TD></TR></TABLE>
+If Dn_CHCR.8 is set, 2 words after the tag in memory (TADR + 8) will be transferred first. This is used by SIF0 to transfer a DMAtag to the EE's DMAC.<BR>
+Only the SIF0, SIF1, and SPU1 channels can use tag mode. SIF0 and SIF1 use it exclusively, but it is unknown whether anything uses chain mode on SPU1.<BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
