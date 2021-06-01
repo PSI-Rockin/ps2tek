@@ -3156,7 +3156,11 @@ Write to this register to send an S command. For a list of S commands, see<BR>
 <A HREF="#cdvdscommands">CDVD S Commands</A><BR>
 <BR>
 <B>1F402017h S command status (R)</B><BR>
-40h indicates that the CDVD drive can receive an S command. 00h means that it is busy.<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-5   Unknown
+  6     Result data available (0=available, 1=no data)
+  7     Busy
+</TD></TR></TABLE>
 <BR>
 <B>1F402018h S command result (R)</B><BR>
 When an S command has finished executing, read the result here. Some S commands may require multiple reads.<BR>
