@@ -256,6 +256,8 @@ IOP Map<BR>
   1F8010F4h 4h     DICR - DMA interrupt control
   1F801570h 4h     DPCR2 - DMA priority control 2
   1F801574h 4h     DICR2 - DMA priority control 2
+  1F801578h 4h     DMACEN - DMA global enable
+  1F80157Ch 4h     DMACINTEN - DMA global interrupt control
 </TD></TR></TABLE>
 <B>IOP Timers</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
@@ -3600,21 +3602,21 @@ The IOP re-uses the same DMA channels found in the PSX, and it contains addition
 <B>Channels</B>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Old channels
-  1F80108xh    MDECin
-  1F80109xh    MDECout
-  1F8010Axh    SIF2 (EE<->IOP, GPU in PSX mode)
-  1F8010Bxh    CDVD (CDROM in PSX mode)
-  1F8010Cxh    SPU1
-  1F8010Dxh    PIO
-  1F8010Exh    OTC
+  1F80108xh  0   MDECin
+  1F80109xh  1   MDECout
+  1F8010Axh  2   SIF2 (EE<->IOP, GPU in PSX mode)
+  1F8010Bxh  3   CDVD (CDROM in PSX mode)
+  1F8010Cxh  4   SPU1
+  1F8010Dxh  5   PIO
+  1F8010Exh  6   OTC
   
   New channels
-  1F80150xh    SPU2
-  1F80151xh    DEV9 (expansion port)
-  1F80152xh    SIF0 (IOP->EE, uses TADR)
-  1F80153xh    SIF1 (EE->IOP)
-  1F80154xh    SIO2in
-  1F80155xh    SIO2out
+  1F80150xh  7   SPU2
+  1F80151xh  8   DEV9 (expansion port)
+  1F80152xh  9   SIF0 (IOP->EE, uses TADR)
+  1F80153xh  10  SIF1 (EE->IOP)
+  1F80154xh  11  SIO2in
+  1F80155xh  12  SIO2out
 </TD></TR></TABLE>
 <BR>
 <B>1F801xx0h+N*10h Dn_MADR</B><BR>
@@ -3678,6 +3680,74 @@ TADR is used in chain mode. At the start of a chain transfer, a tag will be read
 If Dn_CHCR.8 is set, 2 words after the tag in memory (TADR + 8) will be transferred first. This is used by SIF0 to transfer a DMAtag to the EE's DMAC.<BR>
 Only the SIF0, SIF1, and SPU1 channels can use tag mode. SIF0 and SIF1 use it exclusively, but it is unknown whether anything uses chain mode on SPU1.<BR>
 <BR>
+<B>1F8010F0h DPCR - DMA Priority/Enable</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Each 4 bits correspond to a channel.
+  Bits 0-2 are priority, where 0=highest and 7=lowest. If two channels have the same priority, priority is determined by channel number, where higher channels have higher
+  priority.
+  Bit 3 is a channel enable, 0=disable, 1=enable.
+  0-3   Channel 0 (MDECin)
+  4-7   Channel 1 (MDECout)
+  8-11  Channel 2 (SIF2)
+  12-15 Channel 3 (CDVD)
+  16-19 Channel 4 (SPU1)
+  20-23 Channel 5 (PIO)
+  24-27 Channel 6 (OTC)
+  28-31 Channel 'C' (CPU priority. Bit 31 has no effect)
+
+  Initial value on PS2 reset is 0x07777777. Initial value on PSX reset is 0x07654321.
+</TD></TR></TABLE><BR>
+<B>1F801570h DPCR2 - DMA Priority/Enable 2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Works similarly to DPCR.
+  
+  0-3   Channel 7   (SPU2)
+  4-7   Channel 8   (DEV9)
+  8-11  Channel 9   (SIF0)
+  12-15 Channel 10  (SIF1)
+  16-19 Channel 11  (SIO2in)
+  20-23 Channel 12  (SIO2out)
+  24-27 Channel 'U' (USB DMA, controlled through USB registers)
+  28-31 Unknown
+</TD></TR></TABLE><BR>
+<B>1F8010F4h DICR - DMA Interrupt Register</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-6   Controls channel 0-6 completion interrupts in bits 24-30.
+        When 0, an interrupt only occurs when the entire transfer completes.
+        When 1, interrupts can occur for every slice and linked-list transfer.
+        No effect if the interrupt is masked by bits 16-22.
+  7-14  Unused
+  15    Bus error flag. Raised when transferring to/from an address outside of RAM. Forces bit 31 to be set.
+  16-22 Channel 0-6 interrupt mask. If enabled, channels cause interrupts as per bits 0-6.
+  23    Master channel interrupt enable.
+  24-30 Channel 0-6 interrupt flags. Writing 1 clears a flag.
+        IMPORTANT: The flag only gets raised if the interrupt is enabled! INTRMAN relies on this behavior.
+  31    Master interrupt flag. When set, IRQ 3 is sent to the IOP's INTC.
+        DICR.31 = DICR.15 | (DICR.23 && (DICR.24-30 || DICR2.24-29)
+</TD></TR></TABLE><BR>
+<B>1F801574h DICR2 - DMA Interrupt Register 2</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-12  Interrupt on tag bit. Corresponds to channels 0-12, but only bits 4, 9, and 10 can be set - this corresponds to SPU1, SIF0, and SIF1.
+        When set, an interrupt is raised on an IRQ tag when the tag transfer completes.
+        NOTE: This works independently of the channel's interrupt mask, so a tag interrupt can still happen even when the transfer interrupt is disabled.
+  13-15 Unused
+  16-21 Channel 7-12 interrupt mask. If enabled, channels cause interrupts upon transfer completion.
+  22-23 Unused
+  24-29 Channel 7-12 interrupt flags. Works same as DICR interrupt flags, including being masked by DICR.23
+  30-31 Unused
+</TD></TR></TABLE><BR>
+<B>1F801578h DMACEN - Global DMA Enable</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     0=All transfers disabled
+        1=All transfers enabled
+</TD></TR></TABLE>
+This register can be safely accessed while DMA is ongoing.<BR>
+<BR>
+<B>1F80157C DMACINTEN - Global DMA Interrupt Control</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     When 0, all channel interrupts disabled. Master interrupt flag is 0 in all cases but bus error interrupts.
+  1     When 1, DMA interrupts disabled - IRQ 3 is never sent to INTC. Does not affect master interrupt flag.
+</TD></TR></TABLE><BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="ioptimers"></A>&nbsp;
