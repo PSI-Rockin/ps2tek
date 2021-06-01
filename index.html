@@ -3265,8 +3265,16 @@ CDVD S Commands
 </FONT></TD></TR></TABLE><BR>
 The results of an S command can be read one at a time from 1F402017. All units are in bytes.<BR>
 <BR>
+<B>05h UpdateStickyFlags</B><BR>
+Params: None.<BR>
+Result:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Update status (0=successful, 1=busy)
+</TD></TR></TABLE>
+Sets 1F40200Bh to the value of 1F40200Ah. Used internally by CDVDMAN for detecting if a disk has been inserted.<BR>
+<BR>
 <B>08h ReadRTC</B><BR>
-Params: None.
+Params: None.<BR>
 Result:
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0     Zero
