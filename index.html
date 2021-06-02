@@ -3263,7 +3263,23 @@ When all sectors have been read, a CDVD IRQ is raised. Successful reads seem to 
 <A NAME="cdvdscommands"></A>&nbsp;
 CDVD S Commands
 </FONT></TD></TR></TABLE><BR>
-The results of an S command can be read one at a time from 1F402017. All units are in bytes.<BR>
+The results of an S command can be read one at a time from 1F402017h. All units are in bytes.<BR>
+<BR>
+<B>03h Subcommand</B><BR>
+Params:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Subcommand number
+</TD></TR></TABLE>
+This is a prefix byte. Subcommands are listed below in the format of 03h:XXh.<BR>
+<BR>
+<B>03h:00h MechaconVersion</B><BR>
+Params: None.<BR>
+Result:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0-3   MECHACON version
+</TD></TR></TABLE>
+Unknown what the bytes mean. Newer versions of CDVDMAN do checks on them of some sort.<BR>
+PCSX2 uses 00020603h as the version.<BR>
 <BR>
 <B>05h UpdateStickyFlags</B><BR>
 Params: None.<BR>
@@ -3755,7 +3771,7 @@ Only the SIF0, SIF1, and SPU1 channels can use tag mode. SIF0 and SIF1 use it ex
 </TD></TR></TABLE>
 This register can be safely accessed while DMA is ongoing.<BR>
 <BR>
-<B>1F80157C DMACINTEN - Global DMA Interrupt Control</B><BR>
+<B>1F80157Ch DMACINTEN - Global DMA Interrupt Control</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   0     When 0, all channel interrupts disabled. Master interrupt flag is 0 in all cases but bus error interrupts.
   1     When 1, DMA interrupts disabled - IRQ 3 is never sent to INTC. Does not affect master interrupt flag.
