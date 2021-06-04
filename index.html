@@ -3331,6 +3331,8 @@ similar principle as the PSX's serial port (called SIO0 here), SIO2 is completel
 <A HREF="#sio2registers">SIO2 Registers</A><BR>
 <A HREF="#sio2ps2memcards">SIO2 PS2 Memcards</A><BR>
 <A HREF="#sio2ps2memcardfilesystem">SIO2 PS2 Memcard Filesystem</A><BR>
+<A HREF="#sio2controllercommands">SIO2 Controller Commands</A><BR>
+<A HREF="#sio2standardcontrollers">SIO2 Standard Controllers</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3569,6 +3571,64 @@ The superblock is located in the first page in the memory card.<BR>
 <BR>
 <BR>
   
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sio2controllercommands"></A>&nbsp;
+SIO2 Controller Commands
+</FONT></TD></TR></TABLE><BR>
+<B>Commands</B><BR>
+<B>42h - Read Data</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 42 + Variable XX bytes
+  Reply: 2-byte ID + Controller inputs
+  Length: Variable
+</TD></TR></TABLE>
+The format of controller inputs varies based not only on what is connected, but also what its current mode is. See the respective controller pages for their input formats.<BR>
+Known IDs are as follows (not comprehensive!):<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  5A12h   Mouse
+  5A23h   NeGcon
+  5A41h   DualShock Digital
+  5A73h   DualShock Analog
+  5A79h   DualShock 2 (analog+pressure)
+</TD></TR></TABLE>
+<BR>
+<BR>
+  
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="sio2standardcontrollers"></A>&nbsp;
+SIO2 Standard Controllers
+</FONT></TD></TR></TABLE><BR>
+The PS2 supports both DualShock and DualShock 2 controllers natively. However, certain games require DS2.<BR>
+<BR>
+<B>Digital Mode Input Format</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Cmd     Reply
+  42h     ID_lo (41h)
+  ??h     ID_hi (5Ah)
+  ??h     Buttons_lo
+  ??h     Buttons_hi
+  
+  Button bits (0=pressed, 1=released):
+  0       Select
+  1       L3
+  2       R3
+  3       Start
+  4       D-pad Up
+  5       D-pad Right
+  6       D-pad Down
+  7       D-pad Left
+  8       L2
+  9       R2
+  10      L1
+  11      R1
+  12      Triangle
+  13      Circle
+  14      Cross
+  15      Square
+</TD></TR></TABLE>
+<BR>
+<BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="iopint"></A>&nbsp;
 IOP Interrupts
