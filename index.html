@@ -3575,6 +3575,19 @@ The superblock is located in the first page in the memory card.<BR>
 <A NAME="sio2controllercommands"></A>&nbsp;
 SIO2 Controller Commands
 </FONT></TD></TR></TABLE><BR>
+<B>41h - Query Masked Mode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 41 + .. zero padded ..
+  
+  If in digital mode or a nonstandard controller:
+  Reply: F3 + 5A + .. zero padded ..
+  
+  If in analog or DS2 mode:
+  Reply: F3 + 5A + 3 mask bytes + 00 + 00 + 5A
+  Length: 8
+</TD></TR></TABLE>
+Unknown purpose. Also unknown if the responses are entirely correct.<BR>
+<BR>
 <B>42h - Read Data</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Command: 42 + Variable XX bytes
@@ -3595,12 +3608,12 @@ Known IDs are as follows (not comprehensive!):<BR>
 <B>43h - Enter/Exit Config Mode</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Outside config mode:
-  Command: 42 + 00 + 1 config byte (1=enter config) + .. zero padded ..
+  Command: 43 + 00 + 1 config byte (1=enter config) + .. zero padded ..
   Reply: F3 + 5A + same as Read Data (but without pressure values in DS2 mode)
   Length: Same as Read Data
   
   Inside config mode:
-  Command: 42 + 00 + 1 config byte (0=exit config) + .. zero padded ..
+  Command: 43 + 00 + 1 config byte (0=exit config) + .. zero padded ..
   Reply: F3 + 5A + 6 00 bytes
   Length: 8
 </TD></TR></TABLE>
@@ -3615,6 +3628,48 @@ Config mode allows the controller state to be changed. When the controller is no
 is_ds2=03h if a DS2 controller is connected and 01h otherwise.<BR>
 analog=01h if the controller is in analog mode and 00h if in digital mode.<BR>
 <BR>
+<B>46h - Query Act</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 46 + 00 + index + .. zero padded ..
+  
+  If index=0
+  Reply: F3 + 5A + 00 + 00 + 01 + 02 + 00 + 0A
+  
+  If index=1
+  Reply: F3 + 5A + 00 + 00 + 01 + 01 + 01 + 14
+  
+  Length: 8
+</TD></TR></TABLE>
+Unknown purpose.<BR>
+<BR>
+<B>47h - Query Comb</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 47 + .. zero padded ..
+  Reply: F3 + 5A + 00 + 00 + 02 + 00 + 01 + 00
+  Length: 8
+</TD></TR></TABLE>
+Unknown purpose.<BR>
+<BR>
+<B>4Ch - Query Mode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 4C + 00 + index + .. zero padded ..
+  Reply: F3 + 5A + 00 + 00 + 00 + val + 00 + 00
+  Length: 8
+  
+  if index=0, val=4
+  if index=1, val=7
+</TD></TR></TABLE>
+Unknown purpose.<BR>
+<BR>
+<B>4Dh - Vibration Toggle</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 4D + 00 + aa + bb + cc + dd + ee + ff
+  Reply: F3 + 5A + .. old rumble values ..
+  Length: 8
+</TD></TR></TABLE>
+This command configures rumble, but it is unknown exactly how. Bytes aa-ff are used for this.<BR>
+On reset, rumble values are all FFh.<BR>
+<BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3623,13 +3678,31 @@ SIO2 Standard Controllers
 </FONT></TD></TR></TABLE><BR>
 The PS2 supports both DualShock and DualShock 2 controllers natively. However, certain games require DS2.<BR>
 <BR>
-<B>Digital Mode Input Format</B><BR>
+<B>Input Format</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Cmd     Reply
-  42h     ID_lo (41h)
-  ??h     ID_hi (5Ah)
+  42h     ID_lo
+  ??h     ID_hi
   ??h     Buttons_lo
   ??h     Buttons_hi
+  ---- transfer stops here if digital ----
+  ??h     Analog right joystick, y-axis (00h = upmost, 80h = centered, FFh = downmost)
+  ??h     Analog right joystick, x-axis (00h = leftmost, 80h = centered, FFh = rightmost)
+  ??h     Analog left joystick, y-axis (see above)
+  ??h     Analog right joystick, x-axis (see above)
+  ---- transfer stops here if not DS2 ----
+  ??h     D-pad right pressure (00h = no pressure, FFh = max pressure)
+  ??h     D-pad left pressure
+  ??h     D-pad up pressure
+  ??h     D-pad down pressure
+  ??h     Triangle pressure
+  ??h     Circle pressure
+  ??h     Cross pressure
+  ??h     Square pressure
+  ??h     L1 pressure
+  ??h     R1 pressure
+  ??h     L2 pressure
+  ??h     R2 pressure
   
   Button bits (0=pressed, 1=released):
   0       Select
