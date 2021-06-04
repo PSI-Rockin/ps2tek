@@ -3575,7 +3575,6 @@ The superblock is located in the first page in the memory card.<BR>
 <A NAME="sio2controllercommands"></A>&nbsp;
 SIO2 Controller Commands
 </FONT></TD></TR></TABLE><BR>
-<B>Commands</B><BR>
 <B>42h - Read Data</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Command: 42 + Variable XX bytes
@@ -3590,7 +3589,31 @@ Known IDs are as follows (not comprehensive!):<BR>
   5A41h   DualShock Digital
   5A73h   DualShock Analog
   5A79h   DualShock 2 (analog+pressure)
+  5AF3h   In config mode
 </TD></TR></TABLE>
+<BR>
+<B>43h - Enter/Exit Config Mode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Outside config mode:
+  Command: 42 + 00 + 1 config byte (1=enter config) + .. zero padded ..
+  Reply: F3 + 5A + same as Read Data (but without pressure values in DS2 mode)
+  Length: Same as Read Data
+  
+  Inside config mode:
+  Command: 42 + 00 + 1 config byte (0=exit config) + .. zero padded ..
+  Reply: F3 + 5A + 6 00 bytes
+  Length: 8
+</TD></TR></TABLE>
+Config mode allows the controller state to be changed. When the controller is not in config mode, only commands 42h and 43h work.<BR>
+<BR>
+<B>45h - Query Model and Mode</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 45 + 00 + 1 config byte (1=enter config) + .. zero padded ..
+  Reply: F3 + 5A + is_ds2 + 02 + analog + 02 + 01 + 00
+  Length: 8
+</TD></TR></TABLE>
+is_ds2=03h if a DS2 controller is connected and 01h otherwise.<BR>
+analog=01h if the controller is in analog mode and 00h if in digital mode.<BR>
 <BR>
 <BR>
   
