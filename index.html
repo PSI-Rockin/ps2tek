@@ -3050,6 +3050,7 @@ When COP0.Status:8 is true, an interrupt occurs, and the EE jumps to 80000200h.<
 IOP Hardware and Peripherals
 </FONT></TD></TR></TABLE><BR>
 <A HREF="#cdvd">CDVD Drive</A><BR>
+<A HREF="#spu2">Sound Processing Unit (SPU2)</A><BR>
 <A HREF="#sio2">PS2 Serial Port (SIO2)</A><BR>
 <A HREF="#iopint">IOP Interrupts</A><BR>
 <A HREF="#iopdma">IOP DMA</A><BR>
@@ -3320,6 +3321,48 @@ Params:
 </TD></TR></TABLE>
 Overwrites the RTC's time in BCD format.<BR>
 <BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="spu2"></A>&nbsp;
+Sound Processing Unit (SPU2)
+</FONT></TD></TR></TABLE><BR>
+<A HREF="#spu2autodma">SPU2 AutoDMA</A><BR>
+<BR>
+<BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="spu2autodma"></A>&nbsp;
+SPU2 AutoDMA
+</FONT></TD></TR></TABLE><BR>
+<B>1F9001B0h+(core*400h) SPU_ADMA_CTRL</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     On core0, 0=stop ADMA/ADMA off, 1=start ADMA/ADMA busy. No effect on core1
+  1     Same as above, but only works on core1
+  2     Enable ADMA reads on this core (0=ADMA write, 1=ADMA read). Unknown how ADMA reads work
+</TD></TR></TABLE>
+ADMA streams signed stereo 16-bit PCM audio to the MEMIN region, bypassing almost all SPU2 processing. In other words, ADMA allows games to stream raw audio without 
+compression or special effects - this feature is usually used for music.<BR>
+<BR>
+ADMA uses the normal DMA interface, and it is not possible to have both ADMA and a normal SPU DMA transfer active at the same time.
+<BR>
+<B>MEMIN and Data Format</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  2000h-20FFh    Core0 left buffer 0
+  2100h-21FFh    Core0 left buffer 1
+  2200h-22FFh    Core0 right buffer 0
+  2300h-23FFh    Core0 right buffer 1
+  
+  2400h-24FFh    Core1 left buffer 0
+  2500h-25FFh    Core1 left buffer 1
+  2600h-26FFh    Core1 right buffer 0
+  2700h-27FFh    Core1 right buffer 1
+</TD></TR></TABLE>
+A full ADMA block is 1024 bytes, where the first 512 bytes are left channel samples, and the other half is the right channel. MEMIN is double-buffered, allowing the mixer 
+hardware to read from one buffer while ADMA writes to another free buffer. Some games do upload blocks smaller than 1024 bytes, which partially fills the free buffer.<BR>
+<BR>
+<BR>
+  
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="sio2"></A>&nbsp;
 PS2 Serial Port (SIO2)
