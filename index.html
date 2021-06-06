@@ -3337,9 +3337,9 @@ SPU2 AutoDMA
 </FONT></TD></TR></TABLE><BR>
 <B>1F9001B0h+(core*400h) SPU_ADMA_CTRL</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  0     On core0, 0=stop ADMA/ADMA off, 1=start ADMA/ADMA busy. No effect on core1
+  0     On core0, 1=start ADMA write/ADMA busy. No effect on core1
   1     Same as above, but only works on core1
-  2     Enable ADMA reads on this core (0=ADMA write, 1=ADMA read). Unknown how ADMA reads work
+  2     Start ADMA read on this core (1=start ADMA read). Unknown how ADMA reads work
 </TD></TR></TABLE>
 ADMA streams signed stereo 16-bit PCM audio to the MEMIN region, bypassing almost all SPU2 processing. In other words, ADMA allows games to stream raw audio without 
 compression or special effects - this feature is usually used for music.<BR>
