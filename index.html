@@ -450,13 +450,15 @@ EE Instruction Decoding
 110 | PMFHL | PMTHL |  ---  |  ---  | PSLLH |  ---  | PSRLH | PSRAH |
 111 |  ---  |  ---  |  ---  |  ---  | PSLLW |  ---  | PSRLW | PSRAW |
  hi |-------|-------|-------|-------|-------|-------|-------|-------|
+     *1 = MMI0 list                    *2 = MMI2 list
+     *3 = MMI1 list                    *4 = MMI3 list
 </TD></TR></TABLE><BR>
 <B>MMI0</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
     31---------26------------------------------10--------6-5--------0
     |          |                              |function  |   MMI0   |
     ------6----------------------------------------------------6-----
-    |--000--|--001--|--010--|--011--| lo
+    |---00--|---01--|---10--|---11--| lo
 000 |PADDW  | PSUBW | PCGTW | PMAXW |
 001 |PADDH  | PSUBH | PCGTH | PMAXH |
 010 |PADDB  | PSUBB | PCGTB |  ---  |
@@ -472,7 +474,7 @@ EE Instruction Decoding
     31---------26------------------------------------------5--------0
     |           |                               |function  |  MMI1  |
     ------6----------------------------------------------------6-----
-    |--000--|--001--|--010--|--011--| lo
+    |---00--|---01--|---10--|---11--| lo
 000 |  ---  | PABSW | PCEQW | PMINW |
 001 |PADSBH | PABSH | PCEQH | PMINH |
 010 |  ---  |  ---  | PCEQB |  ---  |
@@ -488,7 +490,7 @@ EE Instruction Decoding
     31---------26------------------------------------------5--------0
     |           |                              |function   |  MMI2  |
     ------6----------------------------------------------------6-----
-    |--000--|--001--|--010--|--011--| lo
+    |---00--|---01--|---10--|---11--| lo
 000 |PMADDW |  ---  |PSLLVW |PSRLVW |
 001 |PMSUBW |  ---  |  ---  |  ---  |
 010 |PMFHI  |PMFLO  |PINTH  |  ---  |
@@ -504,7 +506,7 @@ EE Instruction Decoding
     31---------26------------------------------------------5--------0
     |           |                               |function  |  MMI3  |
     ------6----------------------------------------------------6-----
-    |--000--|--001--|--010--|--011--| lo
+    |---00--|---01--|---10--|---11--| lo
 000 |PMADDUW|  ---  |  ---  |PSRAVW |
 001 |  ---  |  ---  |  ---  |  ---  |
 010 |PMTHI  | PMTLO |PINTEH |  ---  |
@@ -659,7 +661,7 @@ EE Instruction Decoding
 <B>COP2 Special2</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
     31---------26-25-----21-20------------------11-10------6-5-2-1--0
-    |  =COP2   | Special1 |                        |  fhi  |1111|flo|
+    |  =COP2   | Special2 |                        |  fhi  |1111|flo|
     ------6----------5-----------------------------------------------
 Note: opcode is flo | (fhi * 4).
      |--000--|--001--|--010--|--011--|--100--|--101--|--110--|--111--| lo
@@ -669,7 +671,7 @@ Note: opcode is flo | (fhi * 4).
 0011 |VMULAx |VMULAy |VMULAz |VMULAw |VMULAq |VABS   |VMULAi |VCLIPw |
 0100 |VADDAq |VMADDAq|VADDAi |VMADDAi|VSUBAq |VMSUBAq|VSUBAi |VMSUBAi|
 0101 |VADDA  |VMADDA |VMULA  |  ---  |VSUBA  |VMSUBA |VOPMULA|VNOP   |
-0110 |VMONE  |VMR32  |  ---  |  ---  |VLQI   |VSQI   |VLQD   |VSQD   |
+0110 |VMOVE  |VMR32  |  ---  |  ---  |VLQI   |VSQI   |VLQD   |VSQD   |
 0111 |VDIV   |VSQRT  |VRSQRT |VWAITQ |VMTIR  |VMFIR  |VILWR  |VISWR  |
 1000 |VRNEXT |VRGET  |VRINIT |VRXOR  |  ---  |  ---  |  ---  |  ---  |
 1001 |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |  ---  |
