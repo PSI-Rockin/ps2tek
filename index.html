@@ -4518,6 +4518,21 @@ It can support up to 256 threads and 256 semaphores. 128 priority levels are ava
   }
 </TD></TR></TABLE>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  struct thread_context //Stack context layout
+  {
+    u32 sa_reg;  // Shift amount register
+    u32 fcr_reg;  // FCR[fs] (fp control register)
+    u32 unkn;
+    u32 unused;
+    u128 at, v0, v1, a0, a1, a2, a3;
+    u128 t0, t1, t2, t3, t4, t5, t6, t7;
+    u128 s0, s1, s2, s3, s4, s5, s6, s7, t8, t9;
+    u64 hi0, hi1, lo0, lo1;
+    u128 gp, sp, fp, ra;
+    u32 fp_regs[32];
+  }
+</TD></TR></TABLE>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   struct sema //Internal semaphore structure
   {
     struct sema *free; //pointer to empty slot for a new semaphore
@@ -4545,6 +4560,9 @@ The general algorithm for the scheduler is as follows:
 </TD></TR></TABLE>
 Scheduling is only invoked by syscalls and relies on absolute priority.
 Threads with lower priority will never run as long as there is an active thread with higher priority.<BR>
+When the BIOS receives an interrupt, it will save the GPR registers into a buffer, so that the
+interrupt can be served without destroying the thread state. However, when a thread is paused (ie.
+yields the CPU) its CPU context is placed on the user stack using the context described above.<BR>
 <BR>
 <B>Semaphores</B><BR>
 Threads that call WaitSema on a semaphore with a "count" of zero are placed in a WAIT state
