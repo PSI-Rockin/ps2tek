@@ -3812,15 +3812,15 @@ Mask: Read/Write I_MASK (0=Disabled 1=Enabled)<BR>
 </TD></TR></TABLE><BR>
 <B>1F801078h I_CTRL - Global interrupt control (R=Status and Disable, W)</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  0     Disable all interrupts
+  0     Enable all interrupts
   1-31  Unused/garbage
 </TD></TR></TABLE>
-When bit 0=1, all IOP interrupts are disabled.
-Reading this register returns bit 0 AND clears it, re-enabling interrupts.
+When bit 0=1, all IOP interrupts are enabled.
+Reading this register returns bit 0 AND clears it, disabling interrupts.
 Writing can set or reset bit 0.<BR>
 <BR>
 <B>Raising Interrupts</B><BR>
-If !I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs,
+If I_CTRL && (I_STAT & I_MASK), then COP0.Cause:8 is set. When COP0.Status:8 is also set when this occurs,
 COP0.Cause.Excode is set to 00h and the IOP jumps to 80000080h, where the interrupt will be processed.<BR>
 <BR>
 <BR>
