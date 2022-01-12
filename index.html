@@ -210,6 +210,8 @@ EE Map<BR>
 <B>Misc registers</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   1000F180h 1h     KPUTCHAR - Console output
+  1000F430h 4h     MCH_DRD - RDRAM initialization
+  1000F440h 4h     MCH_RICM
 </TD></TR></TABLE><BR>
 IOP Map<BR>
 <B>Subsystem Interface (SIF)</B><BR>
@@ -319,6 +321,7 @@ The EE is the main CPU of the PS2. Also known as the R5900, it is a custom MIPS 
 <A HREF="#eearchitecture">EE Architecture</A><BR>
 <A HREF="#eeregisters">EE Registers</A><BR>
 <A HREF="#eeinstructiondecoding">EE Instruction Decoding</A><BR>
+<A HREF="#eerdram">EE RDRAM initialization</A><BR>
 <BR>
 <A HREF="#eecop0registers">EE COP0 Registers</A><BR>
 <A HREF="#eecop0exceptionhandling">EE COP0 Exception Handling</A><BR>
@@ -689,7 +692,67 @@ Note: opcode is flo | (fhi * 4).
 </TD></TR></TABLE><BR>
 <BR>
 <BR>
-  
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="eerdram"></A>&nbsp;
+EE RDRAM initialization
+</FONT></TD></TR></TABLE><BR>
+During the early boot stages, the BIOS writes to a pair of registers; MCH_DRD and MCH_RICM used to initialize
+RDRAM. Not much is known about these registers. The following logic used in emulators:<BR>
+
+<B>Read</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  case 0x1000f430:
+  {
+    return 0;
+  }
+  case 0x1000f440:
+  {
+    uint8_t SOP = (MCH_RICM >> 6) & 0xF;
+    uint8_t SA = (MCH_RICM >> 16) & 0xFFF;
+    if (!SOP)
+    {
+        switch (SA)
+        {
+        case 0x21:
+            if (rdram_sdevid < 2)
+            {
+                rdram_sdevid++;
+                return 0x1F;
+            }
+            return 0;
+        case 0x23:
+            return 0x0D0D;
+        case 0x24:
+            return 0x0090;
+        case 0x40:
+            return MCH_RICM & 0x1F;
+        }
+    }
+    return 0;
+  }
+</TD></TR></TABLE><BR>
+
+<B>Write</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  case 0x1000f430:
+  {
+      uint8_t SA = (data >> 16) & 0xFFF;
+      uint8_t SBC = (data >> 6) & 0xF;
+
+      if (SA == 0x21 && SBC == 0x1 && ((MCH_DRD >> 7) & 1) == 0)
+          rdram_sdevid = 0;
+
+      MCH_RICM = data & ~0x80000000;
+      break;
+  }
+  case 0x1000f440:
+  {
+      MCH_DRD = data;
+      break;
+  }
+</TD></TR></TABLE><BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eecop0registers"></A>&nbsp;
 EE COP0 Registers
@@ -1113,7 +1176,7 @@ This means the upper range of PS2 floats is greater than on IEEE 754.</LR>
 on this are not well understood.</LI>
 </UL>
 <BR>
-  
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="eetimers"></A>&nbsp;
 EE Timers
