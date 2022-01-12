@@ -4045,11 +4045,12 @@ If mode.7 (LEVL) is not set, writes to target set mode.10 to 1.<BR>
 <A NAME="sif"></A>&nbsp;
 Subsystem Interface (SIF)
 </FONT></TD></TR></TABLE><BR>
-The SIF is how the EE and IOP communicate with each other. SIF has some hardware registers that the CPUs can use to 
+The SIF is how the EE and IOP communicate with each other. SIF has some mailbox hardware registers that the CPUs can use to 
 pass values to each other, which happens during SIF initialization. However, once both sides have booted, they use the 
 SIF0 (IOP->EE) and SIF1 (EE->IOP) DMA channels to communicate.<BR>
 <BR>
 <A HREF="#sifregisters">SIF Registers</A><BR>
+<A HREF="#sifdma">SIF DMA</A><BR>
 <A HREF="#sifrpcbasics">SIF RPC Basics</A><BR>
 <A HREF="#sifrpcstructs">SIF RPC Structs and Definitions</A><BR>
 <A HREF="#sifrpccommands">SIF RPC Commands</A><BR>
@@ -4101,6 +4102,30 @@ Very little is known about this register.<BR>
 Nothing is known about this register, other than that it does get accessed during initialization.<BR>
 <BR>
 <BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+  <A NAME="sifdma"></A>&nbsp;
+  SIF DMA
+  </FONT></TD></TR></TABLE><BR>
+  During SIF initialization and after bootup the EE and IOP can use DMA to send data to each other. This is
+  achieved using a set of fifos (First In First Out) located in the SIF, refered to as SIF0 and SIF1.<BR>
+  Assume that the EE wants to send data to the IOP:
+  <BR>
+  <BR>
+  - The EE writes the data it wants to send to RAM, alongside with respective DMA tags<BR>
+  - It calls SifSetDma to initialize a SIF1 transfer to the IOP<BR>
+  - The DMAC starts writing qwords to the SIF1 fifo<BR>
+  - After the data is transfered, the IOP starts a SIF1 transfer and reads the data in the fifo<BR>
+  - Finally an interrupt is asserted on DICR/DICR2 and if that mask is also set, an IOP<BR>
+    interrupt is triggered.<BR>
+  <BR>
+  Note that if a SIF0/SIF1 transfer is started on either component and the fifo is empty the transfer
+  continues running until the respective fifo starts filling with data. In addition this process
+  relies hevily on interrupts and DICR flag writing to work.<BR>
+
+  <BR>
+  <BR>
+
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="sifrpcbasics"></A>&nbsp;
 SIF RPC Basics
