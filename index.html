@@ -3124,6 +3124,7 @@ IOP Hardware and Peripherals
 <A HREF="#iopint">IOP Interrupts</A><BR>
 <A HREF="#iopdma">IOP DMA</A><BR>
 <A HREF="#ioptimers">IOP Timers</A><BR>
+<A HREF="#iopconsole">IOP Console</A><BR>
 <BR>
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -4107,6 +4108,33 @@ When count == target, a compare interrupt is raised.
 This raises an IRQ in I_STAT if both mode.4 and mode.10 are enabled.<BR>
 If mode.7 (LEVL) is not set, writes to target set mode.10 to 1.<BR>
 <BR>
+
+<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
+<A NAME="iopconsole"></A>&nbsp;
+IOP Console
+</FONT></TD></TR></TABLE><BR>
+The IOP uses multiple addresses when printing output to the console. Registers $a1 and $a2 are used 
+to store the string address in memory and its size respectively.
+<BR>
+<BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  if (PC == 0x12C48 || PC == 0x1420C || PC == 0x1430C)
+  {
+      uint32_t pointer = gpr[5];
+      uint32_t text_size = gpr[6];
+      while (text_size)
+      {
+          auto c = (char)ram[pointer & 0x1FFFFF];
+          putc(c);
+          
+          pointer++;
+          text_size--;
+      }
+  }
+</TD></TR></TABLE>
+
+<BR>
+
 <BR>
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="sif"></A>&nbsp;
