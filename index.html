@@ -3244,12 +3244,12 @@ Write to this register to send an S command. For a list of S commands, see<BR>
   7     Busy
 </TD></TR></TABLE>
 <BR>
-<B>1F402018h S command result (R)</B><BR>
-When an S command has finished executing, read the result here. Some S commands may require multiple reads.<BR>
-<BR>
-<B>1F402018h S command params (W)</B><BR>
+<B>1F402017h S command params (W)</B><BR>
 Parameters must be sent BEFORE the S command is sent.<BR>
 <BR>
+<BR>
+<B>1F402018h S command result (R)</B><BR>
+When an S command has finished executing, read the result here. Some S commands may require multiple reads.<BR>
 <BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
@@ -3401,6 +3401,34 @@ Params:
   7     Year
 </TD></TR></TABLE>
 Overwrites the RTC's time in BCD format.<BR>
+<BR>
+  <B>05h UpdateStickyFlags</B><BR>
+Params: None.<BR>
+Result:
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  0     Update status (0=successful, 1=busy)
+</TD></TR></TABLE>
+Sets 1F40200Bh to the value of 1F40200Ah. Used internally by CDVDMAN for detecting if a disk has been inserted.<BR>
+<BR>
+<BR>
+<B>15h ForbidDVD</B><BR>
+Params: None.<BR>
+Blocks access to the DVD drive. PCSX2 writes 0x5 to result<BR>
+<BR>
+<BR>
+<B>40h OpenConfig</B><BR>
+Params: None.<BR>
+Opens the DVD drive configuration. Dobiestation returns zero<BR>
+<BR>
+<BR>
+<B>41h ReadConfig</B><BR>
+Params: None.<BR>
+Reads the previously opened configuration file. Output is four 32bit words<BR>
+<BR>
+<BR>
+<B>43h CloseConfig</B><BR>
+Params: None.<BR>
+Closes the opened config file<BR>
 <BR>
 <BR>
 
