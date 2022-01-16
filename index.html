@@ -3726,85 +3726,115 @@ The superblock is located in the first page in the memory card.<BR>
 <A NAME="sio2controllercommands"></A>&nbsp;
 SIO2 Controller Commands
 </FONT></TD></TR></TABLE><BR>
+SIO2 communicates with the controller by sending sequences of bytes and receiving replies from the controller.<BR>
+Note that the reply comes immediately after the appropriate byte has been sent, more specifically the reply bytes<BR>
+are not queued.<BR><BR>
+
+Packets have a three byte header followed by an additional 2, 6 or 18 bytes of additional command and controller data<BR>
+(like button states, vibration motor commands, button pressures, etc.).<BR><BR>
+
+<B>Packet header</B><BR>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
+  Command: 01 + command byte + 00
+  Reply: FF + depends on command + 5A
+  Length: 3
+</TD></TR></TABLE>
+The first byte is the peripheral byte sent by SIO2 and is always 01 for controllers. The reply is always FF. The command byte tells the peripheral which command to execute.<BR> 
+All commands reply with F3 except from commands 42 and 43 which reply with the mode byte (more details below). The third byte is always 00 and its reply is always 5A<BR>
+Below is a list of known controller commands.<BR>
+<BR>
+
 <B>41h - Query Masked Mode</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  Command: 41 + .. zero padded ..
+  Command: header + 5A + 5A + 5A + 5A + 5A + 5A
   
   If in digital mode or a nonstandard controller:
-  Reply: F3 + 5A + .. zero padded ..
+  Reply: header reply + zero bytes
   
   If in analog or DS2 mode:
-  Reply: F3 + 5A + 3 mask bytes + 00 + 00 + 5A
-  Length: 8
+  Reply: header reply + 3 mask bytes + 00 + 00 + 5A
+  Length: 8                                      +---- (last byte is always 0x5A)
 </TD></TR></TABLE>
-Unknown purpose. Also unknown if the responses are entirely correct.<BR>
+This command is used to find out what buttons are included in poll responses. The controller can be configured (through command 0x4F) to respond with<BR>
+more or less information about each button with each poll. If the controller is in digital mode (0x41) this commands returns zeroes.<BR>
+Only works when the controller is already in configuration mode.<BR>
 <BR>
 <B>42h - Read Data</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  Command: 42 + Variable XX bytes
-  Reply: 2-byte ID + Controller inputs
-  Length: Variable
+  Command: header + variable zero bytes
+  
+  If in digital mode or a nonstandard controller:
+  Reply: header reply (returns mode byte) + 2 button state bytes
+  Length: 4
+
+  If in analog or DS2 mode:
+  Reply: header reply (returns mode byte) + 2 button state bytes + 4 analog button state bytes + (optional) 12 button pressure bytes
+  Length: 8 or 20 depending if analog button pressures are requested.
+
 </TD></TR></TABLE>
 The format of controller inputs varies based not only on what is connected, but also what its current mode is. See the respective controller pages for their input formats.<BR>
-Known IDs are as follows (not comprehensive!):<BR>
+The high nibble of the mode byte indicates the mode (0x4 is digital, 0x7 is analog, 0xF config / escape?), while the lower nibble is how many 16 bit words follow the header.<BR>
+Known mode bytes returned by header are presented below:<BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  5A12h   Mouse
-  5A23h   NeGcon
-  5A41h   DualShock Digital
-  5A73h   DualShock Analog
-  5A79h   DualShock 2 (analog+pressure)
-  5AF3h   In config mode
+  12h   Mouse
+  23h   NeGcon
+  41h   DualShock Digital
+  73h   DualShock Analog
+  79h   DualShock 2 (analog+pressure)
+  F3h   In config mode
 </TD></TR></TABLE>
 <BR>
 <B>43h - Enter/Exit Config Mode</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
   Outside config mode:
-  Command: 43 + 00 + 1 config byte (1=enter config) + .. zero padded ..
-  Reply: F3 + 5A + same as Read Data (but without pressure values in DS2 mode)
+  Command: header + 1 config byte (1=enter config) + zero bytes
+  Reply: header reply (with mode byte) + same as Read Data (but without pressure values in DS2 mode)
   Length: Same as Read Data
   
   Inside config mode:
-  Command: 43 + 00 + 1 config byte (0=exit config) + .. zero padded ..
-  Reply: F3 + 5A + 6 00 bytes
+  Command: header + 1 config byte (0=exit config) + zero bytes
+  Reply: header reply (with mode byte) + 6 zero bytes
   Length: 8
 </TD></TR></TABLE>
 Config mode allows the controller state to be changed. When the controller is not in config mode, only commands 42h and 43h work.<BR>
+When the controller is outside of config mode this command behaves the same as 42. If the command is in config mode is command can only be used to exit config mode. <BR>
 <BR>
 <B>45h - Query Model and Mode</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  Command: 45 + 00 + 1 config byte (1=enter config) + .. zero padded ..
-  Reply: F3 + 5A + is_ds2 + 02 + analog + 02 + 01 + 00
+  Command: header + 5A + 5A + 5A + 5A + 5A + 5A
+  Reply: header reply + model + 02 + analog + 02 + 01 + 00
   Length: 8
 </TD></TR></TABLE>
-is_ds2=03h if a DS2 controller is connected and 01h otherwise.<BR>
+model=01h for Dualshock and 03 for Dualshock 2<BR>
 analog=01h if the controller is in analog mode and 00h if in digital mode.<BR>
 <BR>
 <B>46h - Query Act</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  Command: 46 + 00 + index + .. zero padded ..
+  Command: header + index + 5A + 5A + 5A + 5A + 5A
   
   If index=0
-  Reply: F3 + 5A + 00 + 00 + 01 + 02 + 00 + 0A
+  Reply: header reply + 00 + 00 + 01 + 02 + 00 + 0A
   
   If index=1
-  Reply: F3 + 5A + 00 + 00 + 01 + 01 + 01 + 14
+  Reply: header reply + 00 + 00 + 01 + 01 + 01 + 14
   
   Length: 8
 </TD></TR></TABLE>
-Unknown purpose.<BR>
+This command is always issued twice in a row, and appears to be retrieving a 10 byte constant of over those two calls.<BR>
+It is always called in a sequence of 46h 46h 47h 4Ch 4Ch. Only works after the controller is in config mode.<BR>
 <BR>
 <B>47h - Query Comb</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  Command: 47 + .. zero padded ..
-  Reply: F3 + 5A + 00 + 00 + 02 + 00 + 01 + 00
+  Command: header + 00 + 5A + 5A + 5A + 5A + 5A
+  Reply: header reply + 00 + 00 + 02 + 00 + 01 + 00
   Length: 8
 </TD></TR></TABLE>
 Unknown purpose.<BR>
 <BR>
 <B>4Ch - Query Mode</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  Command: 4C + 00 + index + .. zero padded ..
-  Reply: F3 + 5A + 00 + 00 + 00 + val + 00 + 00
+  Command: header + index + 5A + 5A + 5A + 5A + 5A
+  Reply: header reply + 00 + 00 + 00 + val + 00 + 00
   Length: 8
   
   if index=0, val=4
@@ -3814,8 +3844,8 @@ Unknown purpose.<BR>
 <BR>
 <B>4Dh - Vibration Toggle</B><BR>
 <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD><PRE>
-  Command: 4D + 00 + aa + bb + cc + dd + ee + ff
-  Reply: F3 + 5A + .. old rumble values ..
+  Command: header + aa + bb + cc + dd + ee + ff
+  Reply: header reply + .. old rumble values ..
   Length: 8
 </TD></TR></TABLE>
 This command configures rumble, but it is unknown exactly how. Bytes aa-ff are used for this.<BR>
@@ -3825,7 +3855,7 @@ On reset, rumble values are all FFh.<BR>
   
 <TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0><TR bgcolor="#cccccc"><TD><FONT SIZE=+2>
 <A NAME="sio2standardcontrollers"></A>&nbsp;
-SIO2 Standard Controllers
+SIO2 Command Sequence
 </FONT></TD></TR></TABLE><BR>
 The PS2 supports both DualShock and DualShock 2 controllers natively. However, certain games require DS2.<BR>
 <BR>
